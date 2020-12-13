@@ -1,3 +1,6 @@
+/**
+ * Initializes and runs all Nzym modules.
+ */
 var NzymEngine = /** @class */ (function () {
     function NzymEngine(options) {
         if (options === void 0) { options = {}; }

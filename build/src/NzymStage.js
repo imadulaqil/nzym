@@ -1,3 +1,6 @@
+/**
+ * HTML canvas wrapper.
+ */
 var NzymStage = /** @class */ (function () {
     function NzymStage(engine, canvas, pixelRatio) {
         if (pixelRatio === void 0) { pixelRatio = 2; }

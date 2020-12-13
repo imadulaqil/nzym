@@ -1,3 +1,6 @@
+/**
+ * HTML canvas wrapper.
+ */
 class NzymStage {
 
     public w: number;

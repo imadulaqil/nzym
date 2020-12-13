@@ -1,5 +1,6 @@
-var Nzym = Nzym || {};
-
+/**
+ * Events handler.
+ */
 Nzym.Events = {
     on(object: any, eventName: string, callbackFn: Function) {
         if (object.events) {

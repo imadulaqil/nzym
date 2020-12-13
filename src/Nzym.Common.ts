@@ -1,5 +1,6 @@
-var Nzym = Nzym || {};
-
+/**
+ * Things that are common througout all modules.
+ */
 Nzym.Common = {
     LOG_INFO: 0,
     LOG_WARN: 1,

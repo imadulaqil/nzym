@@ -1,3 +1,6 @@
+/**
+ * Built-in runner to loop engine run.
+ */
 class NzymRunner {
 
     public isRunning: boolean = false;

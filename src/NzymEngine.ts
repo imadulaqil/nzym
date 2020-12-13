@@ -1,3 +1,6 @@
+/**
+ * Initializes and runs all Nzym modules.
+ */
 class NzymEngine {
 
     Draw: NzymDraw;

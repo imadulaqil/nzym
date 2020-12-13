@@ -1,9 +1,5 @@
-var Nzym = Nzym || {};
-
 /**
- * 
  * Nzym quick start.
- * 
  */
 Nzym.start = (
         options: {
@@ -19,6 +15,7 @@ Nzym.start = (
 
     // Make aliases
     const {
+        Draw,
         Scene
     } = Engine;
 
@@ -30,11 +27,20 @@ Nzym.start = (
     if (options.onRenderUI) sceneSetupOptions['onRenderUI'] = options.onRenderUI;
 
     Scene.setup(sceneSetupOptions);
+    
+    // Link default font
+    Draw.Font.embedGoogleFonts('Quicksand');
 
     // Make global aliases
     window['Engine'] = Engine;
     window['Draw'] = Engine.Draw;
+    window['Font'] = Engine.Draw.Font;
     window['Stage'] = Engine.Stage;
+    window['Align'] = Nzym.DrawConstants.Align;
+    window['LineCap'] = Nzym.DrawConstants.LineCap;
+    window['LineJoin'] = Nzym.DrawConstants.LineJoin;
+    window['LineDash'] = Nzym.DrawConstants.LineDash;
+    window['Primitive'] = Nzym.DrawConstants.Primitive;
 
     // Start the engine
     Engine.start();

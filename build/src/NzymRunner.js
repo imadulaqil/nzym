@@ -1,3 +1,6 @@
+/**
+ * Built-in runner to loop engine run.
+ */
 var NzymRunner = /** @class */ (function () {
     function NzymRunner(engine) {
         this.engine = engine;
