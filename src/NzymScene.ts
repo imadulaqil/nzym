@@ -1,7 +1,6 @@
 class NzymScene {
 
     events = {};
-    isRestarting = false;
 
     constructor(
         public engine: NzymEngine
@@ -22,7 +21,6 @@ class NzymScene {
     }
 
     restart() {
-        this.isRestarting = true;
         this.start();
     }
 
@@ -31,21 +29,14 @@ class NzymScene {
     }
 
     update() {
-        if (!this.isRestarting) {
-            Nzym.Events.trigger(this, 'update');
-        }
+        Nzym.Events.trigger(this, 'update');
     }
 
     render() {
-        if (!this.isRestarting) {
-            Nzym.Events.trigger(this, 'render');
-        }
+        Nzym.Events.trigger(this, 'render');
     }
 
     renderUI() {
-        if (!this.isRestarting) {
-            Nzym.Events.trigger(this, 'renderui');
-        }
-        this.isRestarting = false;
+        Nzym.Events.trigger(this, 'renderui');
     }
 }

@@ -23,15 +23,20 @@ Nzym.start = function (options) {
     // Make global aliases
     window['Common'] = Nzym.Common;
     window['Events'] = Nzym.Events;
+    window['KeyCode'] = Nzym.KeyCode;
     window['Engine'] = Engine;
     window['Draw'] = Engine.Draw;
     window['Font'] = Engine.Draw.Font;
+    window['Input'] = Engine.Input;
+    window['Scene'] = Engine.Scene;
     window['Stage'] = Engine.Stage;
     window['Align'] = Nzym.DrawConstants.Align;
     window['LineCap'] = Nzym.DrawConstants.LineCap;
     window['LineJoin'] = Nzym.DrawConstants.LineJoin;
     window['LineDash'] = Nzym.DrawConstants.LineDash;
     window['Primitive'] = Nzym.DrawConstants.Primitive;
+    if (options.onInit)
+        options.onInit();
     // Start the engine
     Engine.start();
 };

@@ -177,17 +177,132 @@ Nzym.start = function (options) {
     // Make global aliases
     window['Common'] = Nzym.Common;
     window['Events'] = Nzym.Events;
+    window['KeyCode'] = Nzym.KeyCode;
     window['Engine'] = Engine;
     window['Draw'] = Engine.Draw;
     window['Font'] = Engine.Draw.Font;
+    window['Input'] = Engine.Input;
+    window['Scene'] = Engine.Scene;
     window['Stage'] = Engine.Stage;
     window['Align'] = Nzym.DrawConstants.Align;
     window['LineCap'] = Nzym.DrawConstants.LineCap;
     window['LineJoin'] = Nzym.DrawConstants.LineJoin;
     window['LineDash'] = Nzym.DrawConstants.LineDash;
     window['Primitive'] = Nzym.DrawConstants.Primitive;
+    if (options.onInit)
+        options.onInit();
     // Start the engine
     Engine.start();
+};
+/**
+ * List of KeyboardEvent.code
+ */
+Nzym.KeyCode = {
+    AltLeft: 'AltLeft',
+    AltRight: 'AltRight',
+    ArrowDown: 'ArrowDown',
+    ArrowLeft: 'ArrowLeft',
+    ArrowRight: 'ArrowRight',
+    ArrowUp: 'ArrowUp',
+    AudioVolumeDown: 'AudioVolumeDown',
+    AudioVolumeMute: 'AudioVolumeMute',
+    AudioVolumeUp: 'AudioVolumeUp',
+    Backquote: 'Backquote',
+    Backslash: 'Backslash',
+    Backspace: 'Backspace',
+    BracketLeft: 'BracketLeft',
+    BracketRight: 'BracketRight',
+    CapsLock: 'CapsLock',
+    Comma: 'Comma',
+    ControlLeft: 'ControlLeft',
+    ControlRight: 'ControlRight',
+    Delete: 'Delete',
+    Digit0: 'Digit0',
+    Digit1: 'Digit1',
+    Digit2: 'Digit2',
+    Digit3: 'Digit3',
+    Digit4: 'Digit4',
+    Digit5: 'Digit5',
+    Digit6: 'Digit6',
+    Digit7: 'Digit7',
+    Digit8: 'Digit8',
+    Digit9: 'Digit9',
+    End: 'End',
+    Enter: 'Enter',
+    Equal: 'Equal',
+    Escape: 'Escape',
+    F1: 'F1',
+    F2: 'F2',
+    F3: 'F3',
+    F4: 'F4',
+    F5: 'F5',
+    F6: 'F6',
+    F7: 'F7',
+    F8: 'F8',
+    F9: 'F9',
+    F10: 'F10',
+    F11: 'F11',
+    F12: 'F12',
+    Home: 'Home',
+    Insert: 'Insert',
+    A: 'KeyA',
+    B: 'KeyB',
+    C: 'KeyC',
+    D: 'KeyD',
+    E: 'KeyE',
+    F: 'KeyF',
+    G: 'KeyG',
+    H: 'KeyH',
+    I: 'KeyI',
+    J: 'KeyJ',
+    K: 'KeyK',
+    L: 'KeyL',
+    M: 'KeyM',
+    N: 'KeyN',
+    O: 'KeyO',
+    P: 'KeyP',
+    Q: 'KeyQ',
+    R: 'KeyR',
+    S: 'KeyS',
+    T: 'KeyT',
+    U: 'KeyU',
+    V: 'KeyV',
+    W: 'KeyW',
+    X: 'KeyX',
+    Y: 'KeyY',
+    Z: 'KeyZ',
+    MediaPlayPause: 'MediaPlayPause',
+    MediaTrackNext: 'MediaTrackNext',
+    MediaTrackPrevious: 'MediaTrackPrevious',
+    MetaLeft: 'MetaLeft',
+    Minus: 'Minus',
+    NumLock: 'NumLock',
+    Numpad0: 'Numpad0',
+    Numpad1: 'Numpad1',
+    Numpad2: 'Numpad2',
+    Numpad3: 'Numpad3',
+    Numpad4: 'Numpad4',
+    Numpad5: 'Numpad5',
+    Numpad6: 'Numpad6',
+    Numpad7: 'Numpad7',
+    Numpad8: 'Numpad8',
+    Numpad9: 'Numpad9',
+    NumpadAdd: 'NumpadAdd',
+    NumpadDecimal: 'NumpadDecimal',
+    NumpadDivide: 'NumpadDivide',
+    NumpadEnter: 'NumpadEnter',
+    NumpadMultiply: 'NumpadMultiply',
+    NumpadSubtract: 'NumpadSubtract',
+    PageDown: 'PageDown',
+    PageUp: 'PageUp',
+    Period: 'Period',
+    PrintScreen: 'PrintScreen',
+    Quote: 'Quote',
+    Semicolon: 'Semicolon',
+    ShiftLeft: 'ShiftLeft',
+    ShiftRight: 'ShiftRight',
+    Slash: 'Slash',
+    Space: 'Space'
 };
 /**
  * Draw methods.
@@ -368,10 +483,12 @@ var NzymEngine = /** @class */ (function () {
             document.body.appendChild(options.canvas);
         }
         this.Draw = new NzymDraw(this);
+        this.Input = new NzymInput(this);
         this.Scene = new NzymScene(this);
         this.Stage = new NzymStage(this, options.canvas, options.pixelRatio);
         this.Runner = new NzymRunner(this);
         this.Draw.init();
+        this.Input.init();
     }
     NzymEngine.prototype.start = function () {
         this.Scene.start();
@@ -382,6 +499,7 @@ var NzymEngine = /** @class */ (function () {
         this.Draw.clear();
         this.Scene.render();
         this.Scene.renderUI();
+        this.Input.reset();
     };
     return NzymEngine;
 }());
@@ -443,6 +561,75 @@ var NzymFont = /** @class */ (function () {
     };
     return NzymFont;
 }());
+var NzymInput = /** @class */ (function () {
+    function NzymInput(engine) {
+        this.engine = engine;
+        this.events = {};
+        this.position = {
+            x: 0,
+            y: 0
+        };
+        this.x = 0;
+        this.y = 0;
+        this.keys = {};
+    }
+    NzymInput.prototype.init = function () {
+        var _this = this;
+        this.canvas = this.engine.Stage.canvas;
+        // Initialize all key codes
+        for (var prop in Nzym.KeyCode) {
+            this.addKey(Nzym.KeyCode[prop]);
+        }
+        window.addEventListener('keyup', function (e) { return _this.keyUpEvent(e); });
+        window.addEventListener('keydown', function (e) { return _this.keyDownEvent(e); });
+    };
+    NzymInput.prototype.reset = function () {
+        for (var code in this.keys) {
+            this.keys[code].reset();
+        }
+    };
+    NzymInput.prototype.addKey = function (code) {
+        this.keys[code] = new NzymInputKey();
+    };
+    NzymInput.prototype.keyUpEvent = function (e) {
+        if (this.keys[e.code]) {
+            this.keys[e.code].up();
+        }
+        Nzym.Events.trigger(this, 'keyup', e);
+    };
+    NzymInput.prototype.keyDownEvent = function (e) {
+        if (this.keys[e.code]) {
+            this.keys[e.code].down();
+        }
+        Nzym.Events.trigger(this, 'keydown', e);
+    };
+    return NzymInput;
+}());
+var NzymInputKey = /** @class */ (function () {
+    function NzymInputKey() {
+        this.held = false;
+        this.pressed = false;
+        this.released = false;
+        this.repeated = false;
+    }
+    NzymInputKey.prototype.up = function () {
+        this.held = false;
+        this.released = true;
+    };
+    NzymInputKey.prototype.down = function () {
+        if (!this.held) {
+            this.held = true;
+            this.pressed = true;
+        }
+        this.repeated = true;
+    };
+    NzymInputKey.prototype.reset = function () {
+        this.pressed = false;
+        this.released = false;
+        this.repeated = false;
+    };
+    return NzymInputKey;
+}());
 /**
  * Built-in runner to loop engine run.
  */
@@ -471,7 +658,6 @@ var NzymScene = /** @class */ (function () {
     function NzymScene(engine) {
         this.engine = engine;
         this.events = {};
-        this.isRestarting = false;
     }
     NzymScene.prototype.setup = function (options) {
         if (options === void 0) { options = {}; }
@@ -485,27 +671,19 @@ var NzymScene = /** @class */ (function () {
             Nzym.Events.on(this, 'renderui', options.onRenderUI);
     };
     NzymScene.prototype.restart = function () {
-        this.isRestarting = true;
         this.start();
     };
     NzymScene.prototype.start = function () {
         Nzym.Events.trigger(this, 'start');
     };
     NzymScene.prototype.update = function () {
-        if (!this.isRestarting) {
-            Nzym.Events.trigger(this, 'update');
-        }
+        Nzym.Events.trigger(this, 'update');
     };
     NzymScene.prototype.render = function () {
-        if (!this.isRestarting) {
-            Nzym.Events.trigger(this, 'render');
-        }
+        Nzym.Events.trigger(this, 'render');
     };
     NzymScene.prototype.renderUI = function () {
-        if (!this.isRestarting) {
-            Nzym.Events.trigger(this, 'renderui');
-        }
-        this.isRestarting = false;
+        Nzym.Events.trigger(this, 'renderui');
     };
     return NzymScene;
 }());

@@ -2,7 +2,6 @@ var NzymScene = /** @class */ (function () {
     function NzymScene(engine) {
         this.engine = engine;
         this.events = {};
-        this.isRestarting = false;
     }
     NzymScene.prototype.setup = function (options) {
         if (options === void 0) { options = {}; }
@@ -16,27 +15,19 @@ var NzymScene = /** @class */ (function () {
             Nzym.Events.on(this, 'renderui', options.onRenderUI);
     };
     NzymScene.prototype.restart = function () {
-        this.isRestarting = true;
         this.start();
     };
     NzymScene.prototype.start = function () {
         Nzym.Events.trigger(this, 'start');
     };
     NzymScene.prototype.update = function () {
-        if (!this.isRestarting) {
-            Nzym.Events.trigger(this, 'update');
-        }
+        Nzym.Events.trigger(this, 'update');
     };
     NzymScene.prototype.render = function () {
-        if (!this.isRestarting) {
-            Nzym.Events.trigger(this, 'render');
-        }
+        Nzym.Events.trigger(this, 'render');
     };
     NzymScene.prototype.renderUI = function () {
-        if (!this.isRestarting) {
-            Nzym.Events.trigger(this, 'renderui');
-        }
-        this.isRestarting = false;
+        Nzym.Events.trigger(this, 'renderui');
     };
     return NzymScene;
 }());

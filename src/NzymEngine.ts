@@ -4,6 +4,7 @@
 class NzymEngine {
 
     Draw: NzymDraw;
+    Input: NzymInput;
     Scene: NzymScene;
     Stage: NzymStage;
     Runner: NzymRunner;
@@ -23,11 +24,13 @@ class NzymEngine {
         }
         
         this.Draw = new NzymDraw(this);
+        this.Input = new NzymInput(this);
         this.Scene = new NzymScene(this);
         this.Stage = new NzymStage(this, options.canvas, options.pixelRatio);
         this.Runner = new NzymRunner(this);
 
         this.Draw.init();
+        this.Input.init();
     }
 
     start() {
@@ -40,5 +43,6 @@ class NzymEngine {
         this.Draw.clear();
         this.Scene.render();
         this.Scene.renderUI();
+        this.Input.reset();
     }
 }

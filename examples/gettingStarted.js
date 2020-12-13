@@ -1,6 +1,8 @@
 let points, primitive;
 
 Nzym.start({
+    onInit() {
+    },
     onStart() {
         points = [];
         for (let i = 0; i < 9; i++) {
@@ -13,6 +15,9 @@ Nzym.start({
         primitive = Common.picko(Primitive);
     },
     onUpdate() {
+        if (Input.keys[KeyCode.Space].repeated) {
+            Scene.restart();
+        }
     },
     onRender() {
         Draw.primitiveBegin();

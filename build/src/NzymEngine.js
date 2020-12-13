@@ -13,10 +13,12 @@ var NzymEngine = /** @class */ (function () {
             document.body.appendChild(options.canvas);
         }
         this.Draw = new NzymDraw(this);
+        this.Input = new NzymInput(this);
         this.Scene = new NzymScene(this);
         this.Stage = new NzymStage(this, options.canvas, options.pixelRatio);
         this.Runner = new NzymRunner(this);
         this.Draw.init();
+        this.Input.init();
     }
     NzymEngine.prototype.start = function () {
         this.Scene.start();
@@ -27,6 +29,7 @@ var NzymEngine = /** @class */ (function () {
         this.Draw.clear();
         this.Scene.render();
         this.Scene.renderUI();
+        this.Input.reset();
     };
     return NzymEngine;
 }());
