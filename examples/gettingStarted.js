@@ -1,11 +1,4 @@
-const Engine = new NzymEngine();
-const {
-    Draw,
-    Scene,
-    Stage
-} = Engine;
-
-Scene.setup({
+Nzym.start({
     onStart() {
         console.log('start');
     },
@@ -19,5 +12,3 @@ Scene.setup({
         Draw.text(Stage.mid.w, Stage.mid.h, window.performance.now());
     }
 });
-
-Engine.start();

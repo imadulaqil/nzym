@@ -86,6 +86,35 @@ Nzym.Events = {
     }
 };
 var Nzym = Nzym || {};
+/**
+ *
+ * Nzym quick start.
+ *
+ */
+Nzym.start = function (options) {
+    if (options === void 0) { options = {}; }
+    // Create an engine
+    var Engine = new NzymEngine();
+    // Make aliases
+    var Scene = Engine.Scene;
+    // Get scene options
+    var sceneSetupOptions = {};
+    if (options.onStart)
+        sceneSetupOptions['onStart'] = options.onStart;
+    if (options.onUpdate)
+        sceneSetupOptions['onUpdate'] = options.onUpdate;
+    if (options.onRender)
+        sceneSetupOptions['onRender'] = options.onRender;
+    if (options.onRenderUI)
+        sceneSetupOptions['onRenderUI'] = options.onRenderUI;
+    Scene.setup(sceneSetupOptions);
+    // Make global aliases
+    window['Engine'] = Engine;
+    window['Draw'] = Engine.Draw;
+    window['Stage'] = Engine.Stage;
+    // Start the engine
+    Engine.start();
+};
 var NzymDraw = /** @class */ (function () {
     function NzymDraw(engine) {
         this.engine = engine;
@@ -137,6 +166,12 @@ var NzymEngine = /** @class */ (function () {
         this.Scene.start();
         this.Runner.start();
     };
+    NzymEngine.prototype.run = function () {
+        this.Scene.update();
+        this.Draw.clear();
+        this.Scene.render();
+        this.Scene.renderUI();
+    };
     return NzymEngine;
 }());
 var NzymRunner = /** @class */ (function () {
@@ -146,19 +181,16 @@ var NzymRunner = /** @class */ (function () {
     }
     NzymRunner.prototype.start = function () {
         this.isRunning = true;
-        this.run();
+        this.loop();
     };
     NzymRunner.prototype.stop = function () {
         this.isRunning = false;
     };
-    NzymRunner.prototype.run = function () {
+    NzymRunner.prototype.loop = function () {
         var _this = this;
-        this.engine.Scene.update();
-        this.engine.Draw.clear();
-        this.engine.Scene.render();
-        this.engine.Scene.renderUI();
+        this.engine.run();
         if (this.isRunning) {
-            window.requestAnimationFrame(function () { return _this.run(); });
+            window.requestAnimationFrame(function () { return _this.loop(); });
         }
     };
     return NzymRunner;

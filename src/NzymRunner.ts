@@ -8,21 +8,18 @@ class NzymRunner {
 
     start() {
         this.isRunning = true;
-        this.run();
+        this.loop();
     }
     
     stop() {
         this.isRunning = false;
     }
 
-    run() {
-        this.engine.Scene.update();
-        this.engine.Draw.clear();
-        this.engine.Scene.render();
-        this.engine.Scene.renderUI();
+    loop() {
+        this.engine.run();
         if (this.isRunning) {
-            window.requestAnimationFrame(() => this.run());
+            window.requestAnimationFrame(() => this.loop());
         }
     }
 
-}
+} 

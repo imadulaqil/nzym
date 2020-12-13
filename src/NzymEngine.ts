@@ -31,4 +31,11 @@ class NzymEngine {
         this.Scene.start();
         this.Runner.start();
     }
+
+    run() {
+        this.Scene.update();
+        this.Draw.clear();
+        this.Scene.render();
+        this.Scene.renderUI();
+    }
 }

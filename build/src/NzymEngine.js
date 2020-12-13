@@ -19,5 +19,11 @@ var NzymEngine = /** @class */ (function () {
         this.Scene.start();
         this.Runner.start();
     };
+    NzymEngine.prototype.run = function () {
+        this.Scene.update();
+        this.Draw.clear();
+        this.Scene.render();
+        this.Scene.renderUI();
+    };
     return NzymEngine;
 }());
