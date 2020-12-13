@@ -30,5 +30,11 @@ var NzymStage = /** @class */ (function () {
     NzymStage.prototype.randomY = function () {
         return Math.random() * this.h;
     };
+    NzymStage.prototype.hide = function () {
+        this.canvas.style.display = 'none';
+    };
+    NzymStage.prototype.show = function () {
+        this.canvas.style.display = 'initial';
+    };
     return NzymStage;
 }());

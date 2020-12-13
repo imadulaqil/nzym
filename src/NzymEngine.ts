@@ -31,13 +31,29 @@ class NzymEngine {
 
         this.Draw.init();
         this.Input.init();
+
+        this.stop();
     }
 
     start() {
+        this.Stage.show();
         this.Scene.start();
         this.Runner.start();
     }
+    
+    stop() {
+        this.Stage.hide();
+        this.Runner.stop();
+    }
+    
+    pause() {
+        this.Runner.stop();
+    }
 
+    resume() {
+        this.Runner.start();
+    }
+    
     run() {
         this.Scene.update();
         this.Draw.clear();

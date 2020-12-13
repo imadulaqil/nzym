@@ -19,9 +19,21 @@ var NzymEngine = /** @class */ (function () {
         this.Runner = new NzymRunner(this);
         this.Draw.init();
         this.Input.init();
+        this.stop();
     }
     NzymEngine.prototype.start = function () {
+        this.Stage.show();
         this.Scene.start();
+        this.Runner.start();
+    };
+    NzymEngine.prototype.stop = function () {
+        this.Stage.hide();
+        this.Runner.stop();
+    };
+    NzymEngine.prototype.pause = function () {
+        this.Runner.stop();
+    };
+    NzymEngine.prototype.resume = function () {
         this.Runner.start();
     };
     NzymEngine.prototype.run = function () {

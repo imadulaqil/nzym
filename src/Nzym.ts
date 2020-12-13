@@ -1,8 +1,9 @@
 /**
  * Nzym quick start.
  */
-Nzym.start = (
+Nzym.createEngine = (
         options: {
+            autoStart?: boolean,
             onInit?: Function,
             onStart?: Function,
             onUpdate?: Function,
@@ -33,9 +34,9 @@ Nzym.start = (
     Draw.Font.embedGoogleFonts('Quicksand');
 
     // Make global aliases
-    window['Common'] = Nzym.Common;
-    window['Events'] = Nzym.Events;
-    window['KeyCode']  = Nzym.KeyCode;
+    window['Common']  = Nzym.Common;
+    window['Events']  = Nzym.Events;
+    window['KeyCode'] = Nzym.KeyCode;
 
     window['Engine'] = Engine;
     window['Draw']   = Engine.Draw;
@@ -44,6 +45,7 @@ Nzym.start = (
     window['Scene']  = Engine.Scene;
     window['Stage']  = Engine.Stage;
 
+    window['C']         = Nzym.DrawConstants.C;
     window['Align']     = Nzym.DrawConstants.Align;
     window['LineCap']   = Nzym.DrawConstants.LineCap;
     window['LineJoin']  = Nzym.DrawConstants.LineJoin;
@@ -52,7 +54,11 @@ Nzym.start = (
 
     if (options.onInit) options.onInit();
 
-    // Start the engine
-    Engine.start();
+    if (options.autoStart) {
+        // Start the engine
+        Engine.start();
+    }
+
+    return Engine;
 
 };

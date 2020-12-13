@@ -1,7 +1,7 @@
 /**
  * Nzym quick start.
  */
-Nzym.start = function (options) {
+Nzym.createEngine = function (options) {
     if (options === void 0) { options = {}; }
     // Create an engine
     var Engine = new NzymEngine();
@@ -30,6 +30,7 @@ Nzym.start = function (options) {
     window['Input'] = Engine.Input;
     window['Scene'] = Engine.Scene;
     window['Stage'] = Engine.Stage;
+    window['C'] = Nzym.DrawConstants.C;
     window['Align'] = Nzym.DrawConstants.Align;
     window['LineCap'] = Nzym.DrawConstants.LineCap;
     window['LineJoin'] = Nzym.DrawConstants.LineJoin;
@@ -37,6 +38,9 @@ Nzym.start = function (options) {
     window['Primitive'] = Nzym.DrawConstants.Primitive;
     if (options.onInit)
         options.onInit();
-    // Start the engine
-    Engine.start();
+    if (options.autoStart) {
+        // Start the engine
+        Engine.start();
+    }
+    return Engine;
 };

@@ -38,4 +38,12 @@ class NzymStage {
         return Math.random() * this.h;
     }
 
+    hide() {
+        this.canvas.style.display = 'none';
+    }
+
+    show() {
+        this.canvas.style.display = 'initial';
+    }
+
 }
