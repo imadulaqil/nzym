@@ -2,6 +2,13 @@
  * This file will be the first when merging.
  */
 var Nzym = Nzym || {};
+var __spreadArrays = (this && this.__spreadArrays) || function () {
+    for (var s = 0, i = 0, il = arguments.length; i < il; i++) s += arguments[i].length;
+    for (var r = Array(s), k = 0, i = 0; i < il; i++)
+        for (var a = arguments[i], j = 0, jl = a.length; j < jl; j++, k++)
+            r[k] = a[j];
+    return r;
+};
 /**
  * Things that are common througout all modules.
  */
@@ -10,6 +17,7 @@ Nzym.Common = {
     LOG_WARN: 1,
     LOG_ERROR: 2,
     logLevel: 2,
+    preLog: '[Nzym]:',
     setLogLevel: function (level) {
         this.logLevel = level;
     },
@@ -19,7 +27,7 @@ Nzym.Common = {
             data[_i] = arguments[_i];
         }
         if (this.logLevel >= this.LOG_INFO) {
-            console.log.apply(console, data);
+            console.log.apply(console, __spreadArrays([this.preLog], data));
         }
     },
     LogWarn: function () {
@@ -28,7 +36,7 @@ Nzym.Common = {
             data[_i] = arguments[_i];
         }
         if (this.logLevel >= this.LOG_WARN) {
-            console.warn.apply(console, data);
+            console.warn.apply(console, __spreadArrays([this.preLog], data));
         }
     },
     LogError: function () {
@@ -37,7 +45,7 @@ Nzym.Common = {
             data[_i] = arguments[_i];
         }
         if (this.logLevel >= this.LOG_ERROR) {
-            console.error.apply(console, data);
+            console.error.apply(console, __spreadArrays([this.preLog], data));
         }
     },
     pick: function (array) {
@@ -359,6 +367,7 @@ Nzym.createEngine = function (options) {
     window['Engine'] = Engine;
     window['Draw'] = Engine.Draw;
     window['Font'] = Engine.Draw.Font;
+    window['Time'] = Engine.Time;
     window['Input'] = Engine.Input;
     window['Scene'] = Engine.Scene;
     window['Stage'] = Engine.Stage;
@@ -665,6 +674,7 @@ var NzymEngine = /** @class */ (function () {
             document.body.appendChild(options.canvas);
         }
         this.Draw = new NzymDraw(this);
+        this.Time = new NzymTime(this);
         this.Input = new NzymInput(this);
         this.Scene = new NzymScene(this);
         this.Stage = new NzymStage(this, options.canvas, options.pixelRatio);
@@ -674,21 +684,37 @@ var NzymEngine = /** @class */ (function () {
         this.stop();
     }
     NzymEngine.prototype.start = function () {
-        this.Stage.show();
-        this.Scene.start();
-        this.Runner.start();
+        if (!this.Runner.isRunning) {
+            this.Time.start();
+            this.Stage.show();
+            this.Scene.start();
+            this.Runner.start();
+        }
+        else {
+            Nzym.Common.LogInfo('The engine is already running');
+        }
     };
     NzymEngine.prototype.stop = function () {
         this.Stage.hide();
         this.Runner.stop();
     };
+    NzymEngine.prototype.restart = function () {
+        this.Scene.restart();
+    };
     NzymEngine.prototype.pause = function () {
         this.Runner.stop();
     };
     NzymEngine.prototype.resume = function () {
-        this.Runner.start();
+        if (this.Scene.isStarted && !this.Runner.isRunning) {
+            this.Time.start();
+            this.Runner.start();
+        }
+        else {
+            Nzym.Common.LogInfo('The engine is already running');
+        }
     };
     NzymEngine.prototype.run = function () {
+        this.Time.update();
         this.Scene.update();
         this.Draw.clear();
         this.Scene.render();
@@ -980,8 +1006,10 @@ var NzymRunner = /** @class */ (function () {
         this.isRunning = false;
     }
     NzymRunner.prototype.start = function () {
-        this.isRunning = true;
-        this.loop();
+        if (!this.isRunning) {
+            this.isRunning = true;
+            this.loop();
+        }
     };
     NzymRunner.prototype.stop = function () {
         this.isRunning = false;
@@ -999,6 +1027,7 @@ var NzymScene = /** @class */ (function () {
     function NzymScene(engine) {
         this.engine = engine;
         this.events = {};
+        this.isStarted = false;
     }
     NzymScene.prototype.setup = function (options) {
         if (options === void 0) { options = {}; }
@@ -1015,6 +1044,9 @@ var NzymScene = /** @class */ (function () {
         this.start();
     };
     NzymScene.prototype.start = function () {
+        if (!this.isStarted) {
+            this.isStarted = true;
+        }
         Nzym.Events.trigger(this, 'start');
     };
     NzymScene.prototype.update = function () {
@@ -1067,4 +1099,36 @@ var NzymStage = /** @class */ (function () {
         this.canvas.style.display = 'initial';
     };
     return NzymStage;
+}());
+var NzymTime = /** @class */ (function () {
+    function NzymTime(engine) {
+        this.engine = engine;
+        this.FPS = 60;
+        this.time = 0;
+        this.startTime = window.performance.now();
+        this.deltaTime = 0;
+        this.runningTime = 0;
+        this.frameCount = 0;
+        this.clampedDeltaTime = 0;
+        this.unscaledDeltaTime = 0;
+    }
+    NzymTime.prototype.start = function (t) {
+        if (t === void 0) { t = window.performance.now(); }
+        this.time = t - this.startTime;
+    };
+    NzymTime.prototype.update = function (t) {
+        if (t === void 0) { t = window.performance.now(); }
+        this.unscaledDeltaTime = t - this.time - this.startTime;
+        this.deltaTime = this.unscaledDeltaTime * 0.06;
+        this.clampedDeltaTime = Math.min(2, this.deltaTime);
+        this.time = t - this.startTime;
+        if (this.engine.Runner.isRunning) {
+            this.runningTime += this.unscaledDeltaTime;
+        }
+        this.frameCount++;
+        if (this.frameCount % 20 === 0) {
+            this.FPS = Math.floor(this.deltaTime * 60);
+        }
+    };
+    return NzymTime;
 }());

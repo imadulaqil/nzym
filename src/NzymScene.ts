@@ -1,6 +1,7 @@
 class NzymScene {
 
     events = {};
+    isStarted = false;
 
     constructor(
         public engine: NzymEngine
@@ -25,6 +26,9 @@ class NzymScene {
     }
 
     start() {
+        if (!this.isStarted) {
+            this.isStarted = true;
+        }
         Nzym.Events.trigger(this, 'start');
     }
 

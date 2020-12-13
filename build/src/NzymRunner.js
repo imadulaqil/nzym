@@ -7,8 +7,10 @@ var NzymRunner = /** @class */ (function () {
         this.isRunning = false;
     }
     NzymRunner.prototype.start = function () {
-        this.isRunning = true;
-        this.loop();
+        if (!this.isRunning) {
+            this.isRunning = true;
+            this.loop();
+        }
     };
     NzymRunner.prototype.stop = function () {
         this.isRunning = false;

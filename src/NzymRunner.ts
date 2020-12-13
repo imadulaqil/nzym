@@ -10,8 +10,10 @@ class NzymRunner {
     ) {}
 
     start() {
-        this.isRunning = true;
-        this.loop();
+        if (!this.isRunning) {
+            this.isRunning = true;
+            this.loop();
+        }
     }
     
     stop() {

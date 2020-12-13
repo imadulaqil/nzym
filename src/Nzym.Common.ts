@@ -6,22 +6,23 @@ Nzym.Common = {
     LOG_WARN: 1,
     LOG_ERROR: 2,
     logLevel: 2,
+    preLog: '[Nzym]:',
     setLogLevel(level: number) {
         this.logLevel = level;
     },
     LogInfo(...data: any[]) {
         if (this.logLevel >= this.LOG_INFO) {
-            console.log(...data);
+            console.log(this.preLog, ...data);
         }
     },
     LogWarn(...data: any[]) {
         if (this.logLevel >= this.LOG_WARN) {
-            console.warn(...data);
+            console.warn(this.preLog, ...data);
         }
     },
     LogError(...data: any[]) {
         if (this.logLevel >= this.LOG_ERROR) {
-            console.error(...data);
+            console.error(this.preLog, ...data);
         }
     },
     pick(array: any[]) {

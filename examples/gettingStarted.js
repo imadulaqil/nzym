@@ -19,7 +19,7 @@ Example.gettingStarted = (() => {
             primitiveKind = Common.picko(Primitive);
         },
         onUpdate() {
-            if (Input.keyDown(KeyCode.Space) || Input.mouseDown(0)) {
+            if (Input.keyDown(KeyCode.Space)) {
                 Scene.restart();
             }
         },
@@ -34,12 +34,11 @@ Example.gettingStarted = (() => {
             Draw.primitiveEnd(primitiveKind);
         },
         onRenderUI() {
-            Draw.setFont(Font.l);
+            Draw.setFont(Font.m);
             Draw.setColor(C.black);
-            Draw.setHVAlign(Align.c, Align.m);
-            Draw.text(Input.x, Input.y, primitiveKind.name);
             Draw.setHVAlign(Align.l, Align.t);
-            Draw.text(10, 10, Common.toString(Input.wheelDelta));
+            Draw.text(10, 10, `FPS: ${Time.FPS}\ncolor: ${C.keys[C.list.indexOf(color)]}\nprimitive kind: ${primitiveKind.name}\nrunning time: ${(Time.runningTime * 0.001).toFixed(2)}\ntime since created: ${(Time.time * 0.001).toFixed(2)}`);
+            Draw.setHVAlign(Align.c, Align.m);
         }
     });
 })();

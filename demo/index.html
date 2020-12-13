@@ -1,15 +1,31 @@
 <!DOCTYPE html>
 <html>
 <head>
-	<!-- Metas -->
-	<meta charset="utf-8">
-	<meta name="apple-mobile-web-app-capable" content="yes">
-	<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-	<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
-	<title>Demo</title>
-	<script src="../build/nzym.js"></script>
+    <!-- Metas -->
+    <meta charset="utf-8">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+    <title>Demo</title>
+    <script src="../build/nzym.js"></script>
 </head>
 <body>
-	<script src="../examples/gettingStarted.js"></script>
+    <script src="../examples/gettingStarted.js"></script>
+    <script>
+        const callEngineMethod = (methodName) => {
+            Example[document.getElementById('example-select').value][methodName]();
+        };
+    </script>
+    <div>
+        <select id="example-select">
+            <option value="gettingStarted">1: Getting Started</option>
+        </select>
+        <button onclick="callEngineMethod('start')">Start</button>
+        <button onclick="callEngineMethod('stop')">Stop</button>
+        <button onclick="callEngineMethod('restart')">Restart</button>
+        <button onclick="callEngineMethod('pause')">Pause</button>
+        <button onclick="callEngineMethod('resume')">Resume</button>
+        <button onclick="callEngineMethod('run')">Run</button>
+    </div>
 </body>
 </html>

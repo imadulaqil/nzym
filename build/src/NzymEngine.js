@@ -13,6 +13,7 @@ var NzymEngine = /** @class */ (function () {
             document.body.appendChild(options.canvas);
         }
         this.Draw = new NzymDraw(this);
+        this.Time = new NzymTime(this);
         this.Input = new NzymInput(this);
         this.Scene = new NzymScene(this);
         this.Stage = new NzymStage(this, options.canvas, options.pixelRatio);
@@ -22,21 +23,37 @@ var NzymEngine = /** @class */ (function () {
         this.stop();
     }
     NzymEngine.prototype.start = function () {
-        this.Stage.show();
-        this.Scene.start();
-        this.Runner.start();
+        if (!this.Runner.isRunning) {
+            this.Time.start();
+            this.Stage.show();
+            this.Scene.start();
+            this.Runner.start();
+        }
+        else {
+            Nzym.Common.LogInfo('The engine is already running');
+        }
     };
     NzymEngine.prototype.stop = function () {
         this.Stage.hide();
         this.Runner.stop();
     };
+    NzymEngine.prototype.restart = function () {
+        this.Scene.restart();
+    };
     NzymEngine.prototype.pause = function () {
         this.Runner.stop();
     };
     NzymEngine.prototype.resume = function () {
-        this.Runner.start();
+        if (this.Scene.isStarted && !this.Runner.isRunning) {
+            this.Time.start();
+            this.Runner.start();
+        }
+        else {
+            Nzym.Common.LogInfo('The engine is already running');
+        }
     };
     NzymEngine.prototype.run = function () {
+        this.Time.update();
         this.Scene.update();
         this.Draw.clear();
         this.Scene.render();

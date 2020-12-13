@@ -41,6 +41,7 @@ Nzym.createEngine = (
     window['Engine'] = Engine;
     window['Draw']   = Engine.Draw;
     window['Font']   = Engine.Draw.Font;
+    window['Time']   = Engine.Time;
     window['Input']  = Engine.Input;
     window['Scene']  = Engine.Scene;
     window['Stage']  = Engine.Stage;

@@ -1,3 +1,10 @@
+var __spreadArrays = (this && this.__spreadArrays) || function () {
+    for (var s = 0, i = 0, il = arguments.length; i < il; i++) s += arguments[i].length;
+    for (var r = Array(s), k = 0, i = 0; i < il; i++)
+        for (var a = arguments[i], j = 0, jl = a.length; j < jl; j++, k++)
+            r[k] = a[j];
+    return r;
+};
 /**
  * Things that are common througout all modules.
  */
@@ -6,6 +13,7 @@ Nzym.Common = {
     LOG_WARN: 1,
     LOG_ERROR: 2,
     logLevel: 2,
+    preLog: '[Nzym]:',
     setLogLevel: function (level) {
         this.logLevel = level;
     },
@@ -15,7 +23,7 @@ Nzym.Common = {
             data[_i] = arguments[_i];
         }
         if (this.logLevel >= this.LOG_INFO) {
-            console.log.apply(console, data);
+            console.log.apply(console, __spreadArrays([this.preLog], data));
         }
     },
     LogWarn: function () {
@@ -24,7 +32,7 @@ Nzym.Common = {
             data[_i] = arguments[_i];
         }
         if (this.logLevel >= this.LOG_WARN) {
-            console.warn.apply(console, data);
+            console.warn.apply(console, __spreadArrays([this.preLog], data));
         }
     },
     LogError: function () {
@@ -33,7 +41,7 @@ Nzym.Common = {
             data[_i] = arguments[_i];
         }
         if (this.logLevel >= this.LOG_ERROR) {
-            console.error.apply(console, data);
+            console.error.apply(console, __spreadArrays([this.preLog], data));
         }
     },
     pick: function (array) {

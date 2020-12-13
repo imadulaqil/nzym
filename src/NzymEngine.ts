@@ -4,6 +4,7 @@
 class NzymEngine {
 
     Draw: NzymDraw;
+    Time: NzymTime;
     Input: NzymInput;
     Scene: NzymScene;
     Stage: NzymStage;
@@ -24,6 +25,7 @@ class NzymEngine {
         }
         
         this.Draw = new NzymDraw(this);
+        this.Time = new NzymTime(this);
         this.Input = new NzymInput(this);
         this.Scene = new NzymScene(this);
         this.Stage = new NzymStage(this, options.canvas, options.pixelRatio);
@@ -36,14 +38,24 @@ class NzymEngine {
     }
 
     start() {
-        this.Stage.show();
-        this.Scene.start();
-        this.Runner.start();
+        if (!this.Runner.isRunning) {
+            this.Time.start();
+            this.Stage.show();
+            this.Scene.start();
+            this.Runner.start();
+        }
+        else {
+            Nzym.Common.LogInfo('The engine is already running');
+        }
     }
     
     stop() {
         this.Stage.hide();
         this.Runner.stop();
+    }
+
+    restart() {
+        this.Scene.restart();
     }
     
     pause() {
@@ -51,10 +63,17 @@ class NzymEngine {
     }
 
     resume() {
-        this.Runner.start();
+        if (this.Scene.isStarted && !this.Runner.isRunning) {
+            this.Time.start();
+            this.Runner.start();
+        }
+        else {
+            Nzym.Common.LogInfo('The engine is already running');
+        }
     }
-    
+
     run() {
+        this.Time.update();
         this.Scene.update();
         this.Draw.clear();
         this.Scene.render();

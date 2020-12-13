@@ -2,6 +2,7 @@ var NzymScene = /** @class */ (function () {
     function NzymScene(engine) {
         this.engine = engine;
         this.events = {};
+        this.isStarted = false;
     }
     NzymScene.prototype.setup = function (options) {
         if (options === void 0) { options = {}; }
@@ -18,6 +19,9 @@ var NzymScene = /** @class */ (function () {
         this.start();
     };
     NzymScene.prototype.start = function () {
+        if (!this.isStarted) {
+            this.isStarted = true;
+        }
         Nzym.Events.trigger(this, 'start');
     };
     NzymScene.prototype.update = function () {
