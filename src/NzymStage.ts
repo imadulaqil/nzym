@@ -30,4 +30,12 @@ class NzymStage {
         this.canvas.getContext('2d').scale(this.pixelRatio, this.pixelRatio);
     }
 
+    randomX() {
+        return Math.random() * this.w;
+    }
+
+    randomY() {
+        return Math.random() * this.h;
+    }
+
 }

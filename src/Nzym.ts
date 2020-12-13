@@ -32,14 +32,18 @@ Nzym.start = (
     Draw.Font.embedGoogleFonts('Quicksand');
 
     // Make global aliases
+    window['Common'] = Nzym.Common;
+    window['Events'] = Nzym.Events;
+
     window['Engine'] = Engine;
-    window['Draw'] = Engine.Draw;
-    window['Font'] = Engine.Draw.Font;
-    window['Stage'] = Engine.Stage;
-    window['Align'] = Nzym.DrawConstants.Align;
-    window['LineCap'] = Nzym.DrawConstants.LineCap;
-    window['LineJoin'] = Nzym.DrawConstants.LineJoin;
-    window['LineDash'] = Nzym.DrawConstants.LineDash;
+    window['Draw']   = Engine.Draw;
+    window['Font']   = Engine.Draw.Font;
+    window['Stage']  = Engine.Stage;
+
+    window['Align']     = Nzym.DrawConstants.Align;
+    window['LineCap']   = Nzym.DrawConstants.LineCap;
+    window['LineJoin']  = Nzym.DrawConstants.LineJoin;
+    window['LineDash']  = Nzym.DrawConstants.LineDash;
     window['Primitive'] = Nzym.DrawConstants.Primitive;
 
     // Start the engine

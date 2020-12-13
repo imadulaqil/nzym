@@ -14,7 +14,7 @@ Nzym.DrawConstants = {
     LineCap: {
         butt: 'butt',
         round: 'round',
-        default: 'round'
+        default: 'butt'
     },
     LineJoin: {
         miter: 'miter',

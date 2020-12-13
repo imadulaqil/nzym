@@ -5,6 +5,8 @@ var NzymDraw = /** @class */ (function () {
     function NzymDraw(engine) {
         this.engine = engine;
         this.Font = new NzymFont();
+        this.vertices = [];
+        this.primitive = { name: 'Fill', quantity: 0, closePath: true, isStroke: false };
         this.currentFont = this.Font['m'];
     }
     NzymDraw.prototype.init = function () {
@@ -70,6 +72,23 @@ var NzymDraw = /** @class */ (function () {
     NzymDraw.prototype.textHeight = function (text) {
         return this.currentFont.size * this.splitText(text).length;
     };
+    NzymDraw.prototype.setLineCap = function (lineCap) {
+        this.ctx.lineCap = lineCap;
+    };
+    NzymDraw.prototype.setLineJoin = function (lineJoin) {
+        this.ctx.lineJoin = lineJoin;
+    };
+    NzymDraw.prototype.setLineWidth = function (width) {
+        this.ctx.lineWidth = width;
+    };
+    NzymDraw.prototype.setStrokeWeight = function (weight) {
+        this.setLineWidth(weight);
+    };
+    NzymDraw.prototype.setLineDash = function (segments, offset) {
+        if (offset === void 0) { offset = 0; }
+        this.ctx.setLineDash(segments);
+        this.ctx.lineDashOffset = offset;
+    };
     NzymDraw.prototype.fill = function () {
         this.ctx.fill();
     };
@@ -96,6 +115,47 @@ var NzymDraw = /** @class */ (function () {
         this.ctx.beginPath();
         this.ctx.arc(x, y, r, startAngle, endAngle, anticlockwise);
         this.ctx.stroke();
+    };
+    NzymDraw.prototype.primitiveBegin = function () {
+        this.vertices.length = 0;
+    };
+    NzymDraw.prototype.vertex = function (x, y) {
+        this.vertices.push({ x: x, y: y });
+    };
+    NzymDraw.prototype.primitiveEnd = function (primitive) {
+        if (primitive === void 0) { primitive = this.primitive; }
+        this.primitive = primitive;
+        var q = this.primitive.quantity;
+        this.ctx.save();
+        if (q === 1) {
+            this.ctx.lineCap = 'round';
+            if (this.ctx.lineWidth < 3.5) {
+                this.ctx.lineWidth = 3.5;
+            }
+        }
+        this.ctx.beginPath();
+        for (var i = 0; i < this.vertices.length; i++) {
+            var v = this.vertices[i];
+            if (q === 1) {
+                this.draw(this.primitive.isStroke);
+                this.ctx.beginPath();
+                this.ctx.moveTo(v.x, v.y);
+                this.ctx.lineTo(v.x, v.y);
+            }
+            else if (i === 0 || (q > 1 && i % q === 0)) {
+                if (this.primitive.closePath)
+                    this.ctx.closePath();
+                this.draw(this.primitive.isStroke);
+                this.ctx.beginPath();
+                this.ctx.moveTo(v.x, v.y);
+            }
+            else
+                this.ctx.lineTo(v.x, v.y);
+        }
+        if (this.primitive.closePath)
+            this.ctx.closePath();
+        this.draw(this.primitive.isStroke);
+        this.ctx.restore();
     };
     NzymDraw.prototype.clear = function () {
         this.ctx.clearRect(0, 0, this.ctx.canvas.width, this.ctx.canvas.height);

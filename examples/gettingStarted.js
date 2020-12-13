@@ -1,17 +1,33 @@
+let points, primitive;
+
 Nzym.start({
     onStart() {
-        console.log('start');
+        points = [];
+        for (let i = 0; i < 9; i++) {
+            points.push({
+                x: Stage.randomX(),
+                y: Stage.randomY()
+            });
+        }
+
+        primitive = Common.picko(Primitive);
     },
     onUpdate() {
-        console.log('update');
     },
     onRender() {
-        Draw.ctx.fillRect(100 + 40 * Math.sin(window.performance.now() * 0.01), 20, 30, 60);
+        Draw.primitiveBegin();
+
+        for (const p of points) {
+            Draw.vertex(p.x, p.y);
+        }
+
+        Draw.setColor('red');
+        Draw.primitiveEnd(primitive);
     },
     onRenderUI() {
         Draw.setFont(Font.l);
         Draw.setColor('blue');
         Draw.setHVAlign(Align.c, Align.m);
-        Draw.text(Stage.mid.w, Stage.mid.h, window.performance.now());
+        Draw.text(Stage.mid.w, Stage.mid.h, primitive.name);
     }
 });

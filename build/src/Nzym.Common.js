@@ -35,5 +35,22 @@ Nzym.Common = {
         if (this.logLevel >= this.LOG_ERROR) {
             console.error.apply(console, data);
         }
+    },
+    pick: function (array) {
+        return array[Math.floor(Math.random() * array.length)];
+    },
+    choose: function () {
+        var args = [];
+        for (var _i = 0; _i < arguments.length; _i++) {
+            args[_i] = arguments[_i];
+        }
+        return this.pick(args);
+    },
+    picko: function (object) {
+        var values = [];
+        for (var key in object) {
+            values.push(object[key]);
+        }
+        return this.pick(values);
     }
 };

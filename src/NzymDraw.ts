@@ -8,6 +8,8 @@ class NzymDraw {
     currentFont: NzymFontFormat;
 
     Font = new NzymFont();
+    vertices = [];
+    primitive = { name: 'Fill', quantity: 0, closePath: true, isStroke: false };
 
     constructor(
         public engine: NzymEngine
@@ -88,6 +90,27 @@ class NzymDraw {
         return this.currentFont.size * this.splitText(text).length;
     }
 
+    setLineCap(lineCap) {
+        this.ctx.lineCap = lineCap;
+    }
+
+    setLineJoin(lineJoin) {
+        this.ctx.lineJoin = lineJoin;
+    }
+
+    setLineWidth(width: number) {
+        this.ctx.lineWidth = width;
+    }
+
+    setStrokeWeight(weight: number) {
+        this.setLineWidth(weight);
+    }
+
+    setLineDash(segments: number[], offset: number = 0) {
+        this.ctx.setLineDash(segments);
+        this.ctx.lineDashOffset = offset;
+    }
+
     fill() {
         this.ctx.fill();
     }
@@ -120,6 +143,46 @@ class NzymDraw {
         this.ctx.beginPath();
         this.ctx.arc(x, y, r, startAngle, endAngle, anticlockwise);
         this.ctx.stroke();
+    }
+
+    primitiveBegin() {
+        this.vertices.length = 0;
+    }
+
+    vertex(x: number, y: number) {
+        this.vertices.push({ x, y });
+    }
+
+    primitiveEnd(primitive = this.primitive) {
+        this.primitive = primitive;
+        const q = this.primitive.quantity;
+        this.ctx.save();
+        if (q === 1) {
+            this.ctx.lineCap = 'round';
+            if (this.ctx.lineWidth < 3.5) {
+                this.ctx.lineWidth = 3.5;
+            }
+        }
+        this.ctx.beginPath();
+        for (let i = 0; i < this.vertices.length; i++) {
+            const v = this.vertices[i];
+            if (q === 1) {
+                this.draw(this.primitive.isStroke);
+                this.ctx.beginPath();
+                this.ctx.moveTo(v.x, v.y);
+                this.ctx.lineTo(v.x, v.y);
+            }
+            else if (i === 0 || (q > 1 && i % q === 0)) {
+                if (this.primitive.closePath) this.ctx.closePath();
+                this.draw(this.primitive.isStroke);
+                this.ctx.beginPath();
+                this.ctx.moveTo(v.x, v.y);
+            }
+            else this.ctx.lineTo(v.x, v.y);
+        }
+        if (this.primitive.closePath) this.ctx.closePath();
+        this.draw(this.primitive.isStroke);
+        this.ctx.restore();
     }
 
     clear() {

@@ -24,5 +24,11 @@ var NzymStage = /** @class */ (function () {
         this.canvas.getContext('2d').resetTransform();
         this.canvas.getContext('2d').scale(this.pixelRatio, this.pixelRatio);
     };
+    NzymStage.prototype.randomX = function () {
+        return Math.random() * this.w;
+    };
+    NzymStage.prototype.randomY = function () {
+        return Math.random() * this.h;
+    };
     return NzymStage;
 }());

@@ -21,6 +21,8 @@ Nzym.start = function (options) {
     // Link default font
     Draw.Font.embedGoogleFonts('Quicksand');
     // Make global aliases
+    window['Common'] = Nzym.Common;
+    window['Events'] = Nzym.Events;
     window['Engine'] = Engine;
     window['Draw'] = Engine.Draw;
     window['Font'] = Engine.Draw.Font;
