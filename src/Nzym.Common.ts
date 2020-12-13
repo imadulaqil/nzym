@@ -32,9 +32,19 @@ Nzym.Common = {
     },
     picko(object: any) {
         const values = [];
-        for (const key in object) {
-            values.push(object[key]);
+        for (const prop in object) {
+            values.push(object[prop]);
         }
         return this.pick(values);
+    },
+    toString(object: any) {
+        const values = [];
+        for (const prop in object) {
+            const value = object[prop];
+            if (typeof value === 'number' ||  typeof value === 'string') {
+                values.push(`${prop}: ${value}`);
+            }
+        }
+        return values.join('\n');
     }
 };

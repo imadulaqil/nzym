@@ -15,7 +15,7 @@ Nzym.start({
         primitive = Common.picko(Primitive);
     },
     onUpdate() {
-        if (Input.keys[KeyCode.Space].repeated) {
+        if (Input.mouseDown(0)) {
             Scene.restart();
         }
     },
@@ -33,6 +33,8 @@ Nzym.start({
         Draw.setFont(Font.l);
         Draw.setColor('blue');
         Draw.setHVAlign(Align.c, Align.m);
-        Draw.text(Stage.mid.w, Stage.mid.h, primitive.name);
+        Draw.text(Input.x, Input.y, primitive.name);
+        Draw.setHVAlign(Align.l, Align.t);
+        Draw.text(10, 10, Common.toString(Input.wheelDelta));
     }
 });

@@ -48,9 +48,19 @@ Nzym.Common = {
     },
     picko: function (object) {
         var values = [];
-        for (var key in object) {
-            values.push(object[key]);
+        for (var prop in object) {
+            values.push(object[prop]);
         }
         return this.pick(values);
+    },
+    toString: function (object) {
+        var values = [];
+        for (var prop in object) {
+            var value = object[prop];
+            if (typeof value === 'number' || typeof value === 'string') {
+                values.push(prop + ": " + value);
+            }
+        }
+        return values.join('\n');
     }
 };
