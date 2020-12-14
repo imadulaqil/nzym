@@ -74,5 +74,9 @@ Nzym.Common = {
             }
         }
         return values.join('\n');
+    },
+    range: function (min, max) {
+        if (max === void 0) { max = 0; }
+        return min + Math.random() * (max - min);
     }
 };

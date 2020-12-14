@@ -116,6 +116,18 @@ var NzymDraw = /** @class */ (function () {
         this.ctx.arc(x, y, r, startAngle, endAngle, anticlockwise);
         this.ctx.stroke();
     };
+    NzymDraw.prototype.line = function (x1, y1, x2, y2) {
+        this.ctx.beginPath();
+        this.ctx.moveTo(x1, y1);
+        this.ctx.lineTo(x2, y2);
+        this.ctx.stroke();
+    };
+    NzymDraw.prototype.linePoint = function (p1, p2) {
+        this.ctx.beginPath();
+        this.ctx.moveTo(p1.x, p1.y);
+        this.ctx.lineTo(p2.x, p2.y);
+        this.ctx.stroke();
+    };
     NzymDraw.prototype.primitiveBegin = function () {
         this.vertices.length = 0;
     };

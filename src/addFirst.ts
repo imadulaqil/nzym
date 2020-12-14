@@ -4,3 +4,4 @@
 var Nzym = Nzym || {};
 
 type NzymFontFormat = { size: number, style: string, family: string };
+type NzymPointFormat = { x: number, y: number };

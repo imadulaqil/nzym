@@ -51,5 +51,8 @@ Nzym.Common = {
             }
         }
         return values.join('\n');
+    },
+    range(min: number, max: number = 0) {
+        return min + Math.random() * (max - min);
     }
 };

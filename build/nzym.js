@@ -78,6 +78,10 @@ Nzym.Common = {
             }
         }
         return values.join('\n');
+    },
+    range: function (min, max) {
+        if (max === void 0) { max = 0; }
+        return min + Math.random() * (max - min);
     }
 };
 /**
@@ -599,6 +603,18 @@ var NzymDraw = /** @class */ (function () {
     NzymDraw.prototype.arc = function (x, y, r, startAngle, endAngle, anticlockwise) {
         this.ctx.beginPath();
         this.ctx.arc(x, y, r, startAngle, endAngle, anticlockwise);
+        this.ctx.stroke();
+    };
+    NzymDraw.prototype.line = function (x1, y1, x2, y2) {
+        this.ctx.beginPath();
+        this.ctx.moveTo(x1, y1);
+        this.ctx.lineTo(x2, y2);
+        this.ctx.stroke();
+    };
+    NzymDraw.prototype.linePoint = function (p1, p2) {
+        this.ctx.beginPath();
+        this.ctx.moveTo(p1.x, p1.y);
+        this.ctx.lineTo(p2.x, p2.y);
         this.ctx.stroke();
     };
     NzymDraw.prototype.primitiveBegin = function () {
