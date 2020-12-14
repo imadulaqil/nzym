@@ -20,23 +20,7 @@ Nzym.createEngine = function (options) {
     Scene.setup(sceneSetupOptions);
     // Link default font
     Draw.Font.embedGoogleFonts('Quicksand');
-    // Make global aliases
-    window['Common'] = Nzym.Common;
-    window['Events'] = Nzym.Events;
-    window['KeyCode'] = Nzym.KeyCode;
-    window['Engine'] = Engine;
-    window['Draw'] = Engine.Draw;
-    window['Font'] = Engine.Draw.Font;
-    window['Time'] = Engine.Time;
-    window['Input'] = Engine.Input;
-    window['Scene'] = Engine.Scene;
-    window['Stage'] = Engine.Stage;
-    window['C'] = Nzym.DrawConstants.C;
-    window['Align'] = Nzym.DrawConstants.Align;
-    window['LineCap'] = Nzym.DrawConstants.LineCap;
-    window['LineJoin'] = Nzym.DrawConstants.LineJoin;
-    window['LineDash'] = Nzym.DrawConstants.LineDash;
-    window['Primitive'] = Nzym.DrawConstants.Primitive;
+    Engine.makeGlobalAliases();
     if (options.onInit)
         options.onInit();
     if (options.autoStart) {

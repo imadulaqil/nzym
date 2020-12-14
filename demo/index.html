@@ -11,14 +11,29 @@
 </head>
 <body>
     <script src="../examples/gettingStarted.js"></script>
+    <script src="../examples/verletPhysics.js"></script>
     <script>
+        let currentEngineName = '';
         const callEngineMethod = (methodName) => {
-            Example[document.getElementById('example-select').value][methodName]();
+            const engineName = document.getElementById('example-select').value;
+            if (engineName !== currentEngineName && window['Engine']) {
+                if (window['Engine'].stop instanceof Function) {
+                    window['Engine'].stop();
+                }
+            }
+
+            currentEngineName = engineName;
+
+            const engine = Example[currentEngineName];
+            engine.makeGlobalAliases();
+            engine[methodName]();
         };
+        Example.verletPhysics.start();
     </script>
     <div>
         <select id="example-select">
             <option value="gettingStarted">1: Getting Started</option>
+            <option value="verletPhysics">2: Verlet Physics</option>
         </select>
         <button onclick="callEngineMethod('start')">Start</button>
         <button onclick="callEngineMethod('stop')">Stop</button>

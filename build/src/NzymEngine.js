@@ -30,7 +30,7 @@ var NzymEngine = /** @class */ (function () {
             this.Runner.start();
         }
         else {
-            Nzym.Common.LogInfo('The engine is already running');
+            Nzym.Common.LogWarn('The engine is already running');
         }
     };
     NzymEngine.prototype.stop = function () {
@@ -44,12 +44,17 @@ var NzymEngine = /** @class */ (function () {
         this.Runner.stop();
     };
     NzymEngine.prototype.resume = function () {
-        if (this.Scene.isStarted && !this.Runner.isRunning) {
-            this.Time.start();
-            this.Runner.start();
+        if (this.Scene.isStarted) {
+            if (!this.Runner.isRunning) {
+                this.Time.start();
+                this.Runner.start();
+            }
+            else {
+                Nzym.Common.LogWarn('The engine is already running');
+            }
         }
         else {
-            Nzym.Common.LogInfo('The engine is already running');
+            Nzym.Common.LogWarn('The scene has not started yet, nothing to resume');
         }
     };
     NzymEngine.prototype.run = function () {
@@ -59,6 +64,24 @@ var NzymEngine = /** @class */ (function () {
         this.Scene.render();
         this.Scene.renderUI();
         this.Input.reset();
+    };
+    NzymEngine.prototype.makeGlobalAliases = function () {
+        window['Common'] = Nzym.Common;
+        window['Events'] = Nzym.Events;
+        window['KeyCode'] = Nzym.KeyCode;
+        window['Engine'] = this;
+        window['Draw'] = this.Draw;
+        window['Font'] = this.Draw.Font;
+        window['Time'] = this.Time;
+        window['Input'] = this.Input;
+        window['Scene'] = this.Scene;
+        window['Stage'] = this.Stage;
+        window['C'] = Nzym.DrawConstants.C;
+        window['Align'] = Nzym.DrawConstants.Align;
+        window['LineCap'] = Nzym.DrawConstants.LineCap;
+        window['LineJoin'] = Nzym.DrawConstants.LineJoin;
+        window['LineDash'] = Nzym.DrawConstants.LineDash;
+        window['Primitive'] = Nzym.DrawConstants.Primitive;
     };
     return NzymEngine;
 }());

@@ -2,11 +2,15 @@
  * Things that are common througout all modules.
  */
 Nzym.Common = {
+    ID: 0,
     LOG_INFO: 0,
     LOG_WARN: 1,
     LOG_ERROR: 2,
     logLevel: 2,
     preLog: '[Nzym]:',
+    getID() {
+        return this.ID++;
+    },
     setLogLevel(level: number) {
         this.logLevel = level;
     },
