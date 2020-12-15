@@ -19,79 +19,75 @@ class NzymEngine {
      * @param options 
      */
     constructor(
-        public options: {
+        options: {
             w?: number,
             h?: number,
             canvas?: HTMLCanvasElement,
             parent?: HTMLElement,
             bgColor?: string,
             pixelRatio?: number,
+            autoStart?: boolean,
             autoClear?: boolean,
             autoUpdate?: boolean,
-            autoRender?: boolean
+            autoRender?: boolean,
+            scenes?: Function[],
+            onInit?: Function,
+            onStart?: Function,
+            onUpdate?: Function,
+            onRender?: Function,
+            onRenderUI?: Function
         } = {}
     ) {
-        if (!options.canvas) {
-            // Create the default canvas
-            options.canvas = document.createElement('canvas');
 
-            if (options.w && options.h) {
-                // Both `w` and `h` have to be exists to set the canvas size
-                options.canvas.style.width = `${options.w}px`;
-                options.canvas.style.height = `${options.h}px`;
+        // Get OBJ options
+        const OBJOptions = {};
+        for (const prop of ['autoClear', 'autoUpdate', 'autoRender']) {
+            if (options[prop]) {
+                OBJOptions[prop] = options[prop];
             }
-            else {
-                // Otherwise set to default
-                options.canvas.style.width = '800px';
-                options.canvas.style.height = '600px';
+        }
+
+        // Get scene options
+        const sceneOptions = {};
+        for (const prop of ['scenes', 'onStart', 'onUpdate', 'onRender', 'onRenderUI']) {
+            if (options[prop]) {
+                sceneOptions[prop] = options[prop];
             }
-            if (options.bgColor) {
-                // Set style background color if provided
-                options.canvas.style.backgroundColor = options.bgColor;
-            }
-            else {
-                // Otherwise make a nice little gradient as the background
-                options.canvas.style.backgroundImage = 'radial-gradient(white 33%, mintcream)';
-            }
-            if (options.parent) {
-                options.parent.appendChild(options.canvas);
-            }
-            else {
-                document.body.appendChild(options.canvas);
+        }
+
+        // Get Stage options
+        const stageOptions = {};
+        for (const prop of ['w', 'h', 'canvas', 'parent', 'bgColor', 'pixelRatio']) {
+            if (options[prop]) {
+                stageOptions[prop] = options[prop];
             }
         }
 
         // Instantiate all modules
-        this.OBJ = new NzymOBJ(this);
+        this.OBJ = new NzymOBJ(this, OBJOptions);
         this.Draw = new NzymDraw(this);
         this.Time = new NzymTime(this);
         this.Input = new NzymInput(this);
-        this.Scene = new NzymScene(this);
-        this.Stage = new NzymStage(this, options.canvas, options.pixelRatio);
+        this.Scene = new NzymScene(this, sceneOptions);
+        this.Stage = new NzymStage(this, stageOptions);
         this.Runner = new NzymRunner(this);
 
-        if (options.autoClear === false) {
-            this.OBJ.autoClear = false;
-        }
-
-        if (options.autoUpdate === false) {
-            this.OBJ.autoUpdate = false;
-        }
-
-        if (options.autoRender === false) {
-            this.OBJ.autoRender = false;
-        }
-
-        Nzym.Events.on(this.Scene, 'beforestart', () => {
-            if (this.OBJ.autoClear) {
-                this.OBJ.clearAll();
-            }
-        });
-
+        this.OBJ.init();
         this.Draw.init();
         this.Input.init();
 
         this.stop();
+        this.makeGlobalAliases();
+
+        if (options.scenes) {
+            if (options.scenes['init']) options.scenes['init'].call(this);
+        }
+        if (options.onInit) options.onInit.call(this);
+
+        if (options.autoStart) {
+            // Start the engine
+            this.start();
+        }
     }
 
     start() {

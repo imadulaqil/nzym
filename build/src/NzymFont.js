@@ -16,6 +16,7 @@ var NzymFont = /** @class */ (function () {
         this['m'] = this.makeFont(20);
         this['sm'] = this.makeFont(16);
         this['s'] = this.makeFont(10);
+        this['xs'] = this.makeFont(8);
         this['xxlb'] = this.makeFont(this['xxl'].size, this.bold);
         this['xlb'] = this.makeFont(this['xl'].size, this.bold);
         this['lb'] = this.makeFont(this['l'].size, this.bold);
@@ -23,6 +24,7 @@ var NzymFont = /** @class */ (function () {
         this['mb'] = this.makeFont(this['m'].size, this.bold);
         this['smb'] = this.makeFont(this['sm'].size, this.bold);
         this['sb'] = this.makeFont(this['s'].size, this.bold);
+        this['xsb'] = this.makeFont(this['xs'].size, this.bold);
     }
     NzymFont.prototype.makeFont = function (size, style, family) {
         if (style === void 0) { style = this.regular; }

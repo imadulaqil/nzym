@@ -2,14 +2,29 @@
  * Object manager.
  */
 var NzymOBJ = /** @class */ (function () {
-    function NzymOBJ(engine) {
+    function NzymOBJ(engine, options) {
+        if (options === void 0) { options = {}; }
         this.engine = engine;
         this.list = [];
         this.tags = [];
         this.autoClear = true;
         this.autoUpdate = true;
         this.autoRender = true;
+        if (options.autoClear === false)
+            this.autoClear = false;
+        if (options.autoUpdate === false)
+            this.autoUpdate = false;
+        if (options.autoRender === false)
+            this.autoRender = false;
     }
+    NzymOBJ.prototype.init = function () {
+        var _this = this;
+        Nzym.Events.on(this.engine.Scene, 'beforestart', function () {
+            if (_this.autoClear) {
+                _this.clearAll();
+            }
+        });
+    };
     NzymOBJ.prototype.addTag = function () {
         var tags = [];
         for (var _i = 0; _i < arguments.length; _i++) {

@@ -3,15 +3,43 @@
  */
 class NzymStage {
 
-    public w: number;
-    public h: number;
-    public mid: { w: number, h: number };
+    w: number;
+    h: number;
+    mid: { w: number, h: number };
+
+    canvas: HTMLCanvasElement;
+    pixelRatio = 2;
 
     constructor(
         public engine: NzymEngine,
-        public canvas: HTMLCanvasElement,
-        public pixelRatio?: number
+        options: {
+            w?: number,
+            h?: number,
+            canvas?: HTMLCanvasElement,
+            parent?: HTMLElement,
+            bgColor?: string,
+            pixelRatio?: number
+        } = {}
     ) {
+        if (options.canvas) {
+            this.canvas = options.canvas;
+        }
+        else {
+            const canvasOptions = {
+                autoAppend: true
+            };
+            for (const prop of ['w', 'h', 'parent', 'bgColor']) {
+                if (options[prop]) {
+                    canvasOptions[prop] = options[prop];
+                }
+            }
+            this.canvas = this.createCanvas(canvasOptions);
+        }
+        this.init();
+        this.applyPixelRatio(options.pixelRatio);
+    }
+    
+    init() {
         const b = this.canvas.getBoundingClientRect();
         this.w = b.width;
         this.h = b.height;
@@ -19,10 +47,6 @@ class NzymStage {
             w: this.w / 2,
             h: this.h / 2
         };
-        if (typeof this.pixelRatio !== "number") {
-            this.pixelRatio = 2;
-        }
-        this.applyPixelRatio();
     }
 
     applyPixelRatio(pixelRatio: number = this.pixelRatio) {
@@ -31,6 +55,46 @@ class NzymStage {
         this.canvas.height = this.h * this.pixelRatio;
         this.canvas.getContext('2d').resetTransform();
         this.canvas.getContext('2d').scale(this.pixelRatio, this.pixelRatio);
+    }
+
+    createCanvas(
+        options: {
+            w?: number,
+            h?: number,
+            parent?: HTMLElement,
+            bgColor?: string,
+            autoAppend?: boolean
+        } = {}
+    ) {
+        // Create the default canvas
+        const canvas = document.createElement('canvas');
+        if (options.w && options.h) {
+            // Both `w` and `h` have to be exists to set the canvas size
+            canvas.style.width = `${options.w}px`;
+            canvas.style.height = `${options.h}px`;
+        }
+        else {
+            // Otherwise set to default
+            canvas.style.width = '800px';
+            canvas.style.height = '600px';
+        }
+        if (options.bgColor) {
+            // Set style background color if provided
+            canvas.style.backgroundColor = options.bgColor;
+        }
+        else {
+            // Otherwise make a nice little gradient as the background
+            canvas.style.backgroundImage = 'radial-gradient(white 33%, mintcream)';
+        }
+        if (options.autoAppend) {
+            if (options.parent) {
+                options.parent.appendChild(canvas);
+            }
+            else {
+                document.body.appendChild(canvas);
+            }
+        }
+        return canvas;
     }
 
     randomX() {

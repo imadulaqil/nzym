@@ -22,6 +22,7 @@ class NzymDraw {
 
     init() {
         this.ctx = this.defaultCtx = this.engine.Stage.canvas.getContext('2d');
+        this.Font.embedGoogleFonts('Quicksand');
     }
 
     onCtx(ctx: CanvasRenderingContext2D, drawFn: Function) {

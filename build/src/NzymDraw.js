@@ -12,6 +12,7 @@ var NzymDraw = /** @class */ (function () {
     }
     NzymDraw.prototype.init = function () {
         this.ctx = this.defaultCtx = this.engine.Stage.canvas.getContext('2d');
+        this.Font.embedGoogleFonts('Quicksand');
     };
     NzymDraw.prototype.onCtx = function (ctx, drawFn) {
         this.ctx = ctx;

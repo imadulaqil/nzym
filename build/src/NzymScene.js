@@ -1,11 +1,21 @@
 var NzymScene = /** @class */ (function () {
-    function NzymScene(engine) {
+    function NzymScene(engine, options) {
+        if (options === void 0) { options = {}; }
         this.engine = engine;
         this.events = {};
         this.isStarted = false;
+        this.setup(options);
     }
     NzymScene.prototype.setup = function (options) {
         if (options === void 0) { options = {}; }
+        if (options.scenes) {
+            for (var _i = 0, _a = ['start', 'update', 'render', 'renderUI']; _i < _a.length; _i++) {
+                var prop = _a[_i];
+                if (options.scenes[prop]) {
+                    Nzym.Events.on(this, prop, options.scenes[prop]);
+                }
+            }
+        }
         if (options.onStart)
             Nzym.Events.on(this, 'start', options.onStart);
         if (options.onUpdate)
@@ -13,7 +23,7 @@ var NzymScene = /** @class */ (function () {
         if (options.onRender)
             Nzym.Events.on(this, 'render', options.onRender);
         if (options.onRenderUI)
-            Nzym.Events.on(this, 'renderui', options.onRenderUI);
+            Nzym.Events.on(this, 'renderUI', options.onRenderUI);
     };
     NzymScene.prototype.restart = function () {
         this.start();
@@ -32,7 +42,7 @@ var NzymScene = /** @class */ (function () {
         Nzym.Events.trigger(this, 'render');
     };
     NzymScene.prototype.renderUI = function () {
-        Nzym.Events.trigger(this, 'renderui');
+        Nzym.Events.trigger(this, 'renderUI');
     };
     return NzymScene;
 }());

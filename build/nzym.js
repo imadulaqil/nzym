@@ -359,43 +359,7 @@ Nzym.Events = {
  */
 Nzym.createEngine = function (options) {
     if (options === void 0) { options = {}; }
-    // Get engine options
-    var engineOptions = {};
-    for (var _i = 0, _a = ['w', 'h', 'canvas', 'parent', 'bgColor', 'pixelRatio']; _i < _a.length; _i++) {
-        var prop = _a[_i];
-        if (options[prop]) {
-            engineOptions[prop] = options[prop];
-        }
-    }
-    for (var _b = 0, _c = ['autoClear', 'autoUpdate', 'autoRender']; _b < _c.length; _b++) {
-        var prop = _c[_b];
-        if (options[prop] === false) {
-            engineOptions[prop] = false;
-        }
-    }
-    // Create an engine
-    var Engine = new NzymEngine(engineOptions);
-    // Make aliases
-    var Draw = Engine.Draw, Scene = Engine.Scene;
-    // Get scene options
-    var sceneSetupOptions = {};
-    for (var _d = 0, _e = ['onStart', 'onUpdate', 'onRender', 'onRenderUI']; _d < _e.length; _d++) {
-        var prop = _e[_d];
-        if (options[prop]) {
-            sceneSetupOptions[prop] = options[prop];
-        }
-    }
-    Scene.setup(sceneSetupOptions);
-    // Link default font
-    Draw.Font.embedGoogleFonts('Quicksand');
-    Engine.makeGlobalAliases();
-    if (options.onInit)
-        options.onInit.call(Engine);
-    if (options.autoStart) {
-        // Start the engine
-        Engine.start();
-    }
-    return Engine;
+    return new NzymEngine(options);
 };
 /**
  * List of KeyboardEvent.code
@@ -521,6 +485,7 @@ var NzymDraw = /** @class */ (function () {
     }
     NzymDraw.prototype.init = function () {
         this.ctx = this.defaultCtx = this.engine.Stage.canvas.getContext('2d');
+        this.Font.embedGoogleFonts('Quicksand');
     };
     NzymDraw.prototype.onCtx = function (ctx, drawFn) {
         this.ctx = ctx;
@@ -748,62 +713,54 @@ var NzymEngine = /** @class */ (function () {
      * @param options
      */
     function NzymEngine(options) {
-        var _this = this;
         if (options === void 0) { options = {}; }
-        this.options = options;
-        if (!options.canvas) {
-            // Create the default canvas
-            options.canvas = document.createElement('canvas');
-            if (options.w && options.h) {
-                // Both `w` and `h` have to be exists to set the canvas size
-                options.canvas.style.width = options.w + "px";
-                options.canvas.style.height = options.h + "px";
+        // Get OBJ options
+        var OBJOptions = {};
+        for (var _i = 0, _a = ['autoClear', 'autoUpdate', 'autoRender']; _i < _a.length; _i++) {
+            var prop = _a[_i];
+            if (options[prop]) {
+                OBJOptions[prop] = options[prop];
             }
-            else {
-                // Otherwise set to default
-                options.canvas.style.width = '800px';
-                options.canvas.style.height = '600px';
+        }
+        // Get scene options
+        var sceneOptions = {};
+        for (var _b = 0, _c = ['scenes', 'onStart', 'onUpdate', 'onRender', 'onRenderUI']; _b < _c.length; _b++) {
+            var prop = _c[_b];
+            if (options[prop]) {
+                sceneOptions[prop] = options[prop];
             }
-            if (options.bgColor) {
-                // Set style background color if provided
-                options.canvas.style.backgroundColor = options.bgColor;
-            }
-            else {
-                // Otherwise make a nice little gradient as the background
-                options.canvas.style.backgroundImage = 'radial-gradient(white 33%, mintcream)';
-            }
-            if (options.parent) {
-                options.parent.appendChild(options.canvas);
-            }
-            else {
-                document.body.appendChild(options.canvas);
+        }
+        // Get Stage options
+        var stageOptions = {};
+        for (var _d = 0, _e = ['w', 'h', 'canvas', 'parent', 'bgColor', 'pixelRatio']; _d < _e.length; _d++) {
+            var prop = _e[_d];
+            if (options[prop]) {
+                stageOptions[prop] = options[prop];
             }
         }
         // Instantiate all modules
-        this.OBJ = new NzymOBJ(this);
+        this.OBJ = new NzymOBJ(this, OBJOptions);
         this.Draw = new NzymDraw(this);
         this.Time = new NzymTime(this);
         this.Input = new NzymInput(this);
-        this.Scene = new NzymScene(this);
-        this.Stage = new NzymStage(this, options.canvas, options.pixelRatio);
+        this.Scene = new NzymScene(this, sceneOptions);
+        this.Stage = new NzymStage(this, stageOptions);
         this.Runner = new NzymRunner(this);
-        if (options.autoClear === false) {
-            this.OBJ.autoClear = false;
-        }
-        if (options.autoUpdate === false) {
-            this.OBJ.autoUpdate = false;
-        }
-        if (options.autoRender === false) {
-            this.OBJ.autoRender = false;
-        }
-        Nzym.Events.on(this.Scene, 'beforestart', function () {
-            if (_this.OBJ.autoClear) {
-                _this.OBJ.clearAll();
-            }
-        });
+        this.OBJ.init();
         this.Draw.init();
         this.Input.init();
         this.stop();
+        this.makeGlobalAliases();
+        if (options.scenes) {
+            if (options.scenes['init'])
+                options.scenes['init'].call(this);
+        }
+        if (options.onInit)
+            options.onInit.call(this);
+        if (options.autoStart) {
+            // Start the engine
+            this.start();
+        }
     }
     NzymEngine.prototype.start = function () {
         if (!this.Runner.isRunning) {
@@ -891,6 +848,7 @@ var NzymFont = /** @class */ (function () {
         this['m'] = this.makeFont(20);
         this['sm'] = this.makeFont(16);
         this['s'] = this.makeFont(10);
+        this['xs'] = this.makeFont(8);
         this['xxlb'] = this.makeFont(this['xxl'].size, this.bold);
         this['xlb'] = this.makeFont(this['xl'].size, this.bold);
         this['lb'] = this.makeFont(this['l'].size, this.bold);
@@ -898,6 +856,7 @@ var NzymFont = /** @class */ (function () {
         this['mb'] = this.makeFont(this['m'].size, this.bold);
         this['smb'] = this.makeFont(this['sm'].size, this.bold);
         this['sb'] = this.makeFont(this['s'].size, this.bold);
+        this['xsb'] = this.makeFont(this['xs'].size, this.bold);
     }
     NzymFont.prototype.makeFont = function (size, style, family) {
         if (style === void 0) { style = this.regular; }
@@ -1154,14 +1113,29 @@ var NzymInputKey = /** @class */ (function () {
  * Object manager.
  */
 var NzymOBJ = /** @class */ (function () {
-    function NzymOBJ(engine) {
+    function NzymOBJ(engine, options) {
+        if (options === void 0) { options = {}; }
         this.engine = engine;
         this.list = [];
         this.tags = [];
         this.autoClear = true;
         this.autoUpdate = true;
         this.autoRender = true;
+        if (options.autoClear === false)
+            this.autoClear = false;
+        if (options.autoUpdate === false)
+            this.autoUpdate = false;
+        if (options.autoRender === false)
+            this.autoRender = false;
     }
+    NzymOBJ.prototype.init = function () {
+        var _this = this;
+        Nzym.Events.on(this.engine.Scene, 'beforestart', function () {
+            if (_this.autoClear) {
+                _this.clearAll();
+            }
+        });
+    };
     NzymOBJ.prototype.addTag = function () {
         var tags = [];
         for (var _i = 0; _i < arguments.length; _i++) {
@@ -1391,13 +1365,23 @@ var NzymRunner = /** @class */ (function () {
     return NzymRunner;
 }());
 var NzymScene = /** @class */ (function () {
-    function NzymScene(engine) {
+    function NzymScene(engine, options) {
+        if (options === void 0) { options = {}; }
         this.engine = engine;
         this.events = {};
         this.isStarted = false;
+        this.setup(options);
     }
     NzymScene.prototype.setup = function (options) {
         if (options === void 0) { options = {}; }
+        if (options.scenes) {
+            for (var _i = 0, _a = ['start', 'update', 'render', 'renderUI']; _i < _a.length; _i++) {
+                var prop = _a[_i];
+                if (options.scenes[prop]) {
+                    Nzym.Events.on(this, prop, options.scenes[prop]);
+                }
+            }
+        }
         if (options.onStart)
             Nzym.Events.on(this, 'start', options.onStart);
         if (options.onUpdate)
@@ -1405,7 +1389,7 @@ var NzymScene = /** @class */ (function () {
         if (options.onRender)
             Nzym.Events.on(this, 'render', options.onRender);
         if (options.onRenderUI)
-            Nzym.Events.on(this, 'renderui', options.onRenderUI);
+            Nzym.Events.on(this, 'renderUI', options.onRenderUI);
     };
     NzymScene.prototype.restart = function () {
         this.start();
@@ -1424,7 +1408,7 @@ var NzymScene = /** @class */ (function () {
         Nzym.Events.trigger(this, 'render');
     };
     NzymScene.prototype.renderUI = function () {
-        Nzym.Events.trigger(this, 'renderui');
+        Nzym.Events.trigger(this, 'renderUI');
     };
     return NzymScene;
 }());
@@ -1432,10 +1416,29 @@ var NzymScene = /** @class */ (function () {
  * HTML canvas wrapper.
  */
 var NzymStage = /** @class */ (function () {
-    function NzymStage(engine, canvas, pixelRatio) {
+    function NzymStage(engine, options) {
+        if (options === void 0) { options = {}; }
         this.engine = engine;
-        this.canvas = canvas;
-        this.pixelRatio = pixelRatio;
+        this.pixelRatio = 2;
+        if (options.canvas) {
+            this.canvas = options.canvas;
+        }
+        else {
+            var canvasOptions = {
+                autoAppend: true
+            };
+            for (var _i = 0, _a = ['w', 'h', 'parent', 'bgColor']; _i < _a.length; _i++) {
+                var prop = _a[_i];
+                if (options[prop]) {
+                    canvasOptions[prop] = options[prop];
+                }
+            }
+            this.canvas = this.createCanvas(canvasOptions);
+        }
+        this.init();
+        this.applyPixelRatio(options.pixelRatio);
+    }
+    NzymStage.prototype.init = function () {
         var b = this.canvas.getBoundingClientRect();
         this.w = b.width;
         this.h = b.height;
@@ -1443,11 +1446,7 @@ var NzymStage = /** @class */ (function () {
             w: this.w / 2,
             h: this.h / 2
         };
-        if (typeof this.pixelRatio !== "number") {
-            this.pixelRatio = 2;
-        }
-        this.applyPixelRatio();
-    }
+    };
     NzymStage.prototype.applyPixelRatio = function (pixelRatio) {
         if (pixelRatio === void 0) { pixelRatio = this.pixelRatio; }
         this.pixelRatio = pixelRatio;
@@ -1455,6 +1454,38 @@ var NzymStage = /** @class */ (function () {
         this.canvas.height = this.h * this.pixelRatio;
         this.canvas.getContext('2d').resetTransform();
         this.canvas.getContext('2d').scale(this.pixelRatio, this.pixelRatio);
+    };
+    NzymStage.prototype.createCanvas = function (options) {
+        if (options === void 0) { options = {}; }
+        // Create the default canvas
+        var canvas = document.createElement('canvas');
+        if (options.w && options.h) {
+            // Both `w` and `h` have to be exists to set the canvas size
+            canvas.style.width = options.w + "px";
+            canvas.style.height = options.h + "px";
+        }
+        else {
+            // Otherwise set to default
+            canvas.style.width = '800px';
+            canvas.style.height = '600px';
+        }
+        if (options.bgColor) {
+            // Set style background color if provided
+            canvas.style.backgroundColor = options.bgColor;
+        }
+        else {
+            // Otherwise make a nice little gradient as the background
+            canvas.style.backgroundImage = 'radial-gradient(white 33%, mintcream)';
+        }
+        if (options.autoAppend) {
+            if (options.parent) {
+                options.parent.appendChild(canvas);
+            }
+            else {
+                document.body.appendChild(canvas);
+            }
+        }
+        return canvas;
     };
     NzymStage.prototype.randomX = function () {
         return Math.random() * this.w;

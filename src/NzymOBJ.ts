@@ -11,8 +11,25 @@ class NzymOBJ {
     autoRender = true;
 
     constructor(
-        public engine: NzymEngine
-    ) {}
+        public engine: NzymEngine,
+        options: {
+            autoClear?: boolean,
+            autoUpdate?: boolean,
+            autoRender?: boolean
+        } = {}
+    ) {
+        if (options.autoClear === false) this.autoClear = false;
+        if (options.autoUpdate === false) this.autoUpdate = false;
+        if (options.autoRender === false) this.autoRender = false;
+    }
+
+    init() {
+        Nzym.Events.on(this.engine.Scene, 'beforestart', () => {
+            if (this.autoClear) {
+                this.clearAll();
+            }
+        });
+    }
 
     addTag(...tags: string[]) {
         for (const tag of tags) {
