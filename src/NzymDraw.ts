@@ -199,6 +199,15 @@ class NzymDraw {
         this.ctx.restore();
     }
 
+    onTransform(x: number, y: number, xscale: number, yscale: number, angle: number, drawFn: Function, isRadians?: boolean) {
+        this.ctx.save();
+        this.ctx.translate(x, y);
+        this.ctx.rotate(isRadians? angle : Nzym.Common.degtorad(angle));
+        this.ctx.scale(xscale, yscale);
+        drawFn();
+        this.ctx.restore();
+    }
+
     clear() {
         this.ctx.clearRect(0, 0, this.ctx.canvas.width, this.ctx.canvas.height);
     }

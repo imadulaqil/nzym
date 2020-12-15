@@ -3,6 +3,7 @@
  */
 class NzymEngine {
 
+    OBJ: NzymOBJ;
     Draw: NzymDraw;
     Time: NzymTime;
     Input: NzymInput;
@@ -13,7 +14,10 @@ class NzymEngine {
     constructor(
         public options: {
             canvas?: HTMLCanvasElement,
-            pixelRatio?: number
+            pixelRatio?: number,
+            autoClear?: boolean,
+            autoUpdate?: boolean,
+            autoRender?: boolean
         } = {}
     ) {
         if (!options.canvas) {
@@ -24,12 +28,31 @@ class NzymEngine {
             document.body.appendChild(options.canvas);
         }
         
+        this.OBJ = new NzymOBJ(this);
         this.Draw = new NzymDraw(this);
         this.Time = new NzymTime(this);
         this.Input = new NzymInput(this);
         this.Scene = new NzymScene(this);
         this.Stage = new NzymStage(this, options.canvas, options.pixelRatio);
         this.Runner = new NzymRunner(this);
+
+        if (options.autoClear === false) {
+            this.OBJ.autoClear = false;
+        }
+
+        if (options.autoUpdate === false) {
+            this.OBJ.autoUpdate = false;
+        }
+
+        if (options.autoRender === false) {
+            this.OBJ.autoRender = false;
+        }
+
+        Nzym.Events.on(this.Scene, 'beforestart', () => {
+            if (this.OBJ.autoClear) {
+                this.OBJ.clearAll();
+            }
+        });
 
         this.Draw.init();
         this.Input.init();
@@ -80,8 +103,10 @@ class NzymEngine {
     run() {
         this.Time.update();
         this.Scene.update();
+        if (this.OBJ.autoUpdate) this.OBJ.updateAll();
         this.Draw.clear();
         this.Scene.render();
+        if (this.OBJ.autoRender) this.OBJ.renderAll();
         this.Scene.renderUI();
         this.Input.reset();
     }
@@ -92,6 +117,7 @@ class NzymEngine {
         window['KeyCode'] = Nzym.KeyCode;
 
         window['Engine'] = this;
+        window['OBJ'] = this.OBJ;
         window['Draw']   = this.Draw;
         window['Font']   = this.Draw.Font;
         window['Time']   = this.Time;

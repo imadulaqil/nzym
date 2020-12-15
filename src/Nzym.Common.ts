@@ -8,6 +8,8 @@ Nzym.Common = {
     LOG_ERROR: 2,
     logLevel: 2,
     preLog: '[Nzym]:',
+    RAD_TO_DEG: 180 / Math.PI,
+    DEG_TO_RAD: Math.PI / 180,
     getID() {
         return this.ID++;
     },
@@ -54,5 +56,11 @@ Nzym.Common = {
     },
     range(min: number, max: number = 0) {
         return min + Math.random() * (max - min);
+    },
+    radtodeg(radians: number) {
+        return radians * this.RAD_TO_DEG;
+    },
+    degtorad(degrees: number) {
+        return degrees * this.DEG_TO_RAD;
     }
 };

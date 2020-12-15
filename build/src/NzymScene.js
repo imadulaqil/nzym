@@ -22,6 +22,7 @@ var NzymScene = /** @class */ (function () {
         if (!this.isStarted) {
             this.isStarted = true;
         }
+        Nzym.Events.trigger(this, 'beforestart');
         Nzym.Events.trigger(this, 'start');
     };
     NzymScene.prototype.update = function () {

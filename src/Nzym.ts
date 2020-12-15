@@ -4,6 +4,9 @@
 Nzym.createEngine = (
         options: {
             autoStart?: boolean,
+            autoClear?: boolean,
+            autoUpdate?: boolean,
+            autoRender?: boolean,
             onInit?: Function,
             onStart?: Function,
             onUpdate?: Function,
@@ -12,8 +15,20 @@ Nzym.createEngine = (
         } = {}
     ) => {
 
+    // Get engine options
+    const engineOptions = {};
+    if (options.autoClear === false) {
+        engineOptions['autoClear'] = false;
+    }
+    if (options.autoUpdate === false) {
+        engineOptions['autoUpdate'] = false;
+    }
+    if (options.autoRender === false) {
+        engineOptions['autoRender'] = false;
+    }
+
     // Create an engine
-    const Engine = new NzymEngine();
+    const Engine = new NzymEngine(engineOptions);
 
     // Make aliases
     const {
@@ -35,7 +50,7 @@ Nzym.createEngine = (
 
     Engine.makeGlobalAliases();
 
-    if (options.onInit) options.onInit();
+    if (options.onInit) options.onInit.call(Engine);
 
     if (options.autoStart) {
         // Start the engine

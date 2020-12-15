@@ -30,6 +30,8 @@ class NzymInput {
         }
     };
 
+    isMoving = false;
+
     constructor(
         public engine: NzymEngine
     ) {}
@@ -66,6 +68,7 @@ class NzymInput {
             mouse.reset();
         }
         this.wheelDelta.reset();
+        this.isMoving = false;
     }
 
     // --- KEY METHODS ---
@@ -204,6 +207,7 @@ class NzymInput {
 
     mouseMoveEvent(e: MouseEvent) {
         this.updatePosition(e.clientX, e.clientY);
+        this.isMoving = true;
         Nzym.Events.trigger(this, 'mousemove', e);
     }
 

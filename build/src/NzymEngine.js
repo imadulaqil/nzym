@@ -3,6 +3,7 @@
  */
 var NzymEngine = /** @class */ (function () {
     function NzymEngine(options) {
+        var _this = this;
         if (options === void 0) { options = {}; }
         this.options = options;
         if (!options.canvas) {
@@ -12,12 +13,27 @@ var NzymEngine = /** @class */ (function () {
             options.canvas.style.backgroundImage = 'radial-gradient(white 33%, mintcream)';
             document.body.appendChild(options.canvas);
         }
+        this.OBJ = new NzymOBJ(this);
         this.Draw = new NzymDraw(this);
         this.Time = new NzymTime(this);
         this.Input = new NzymInput(this);
         this.Scene = new NzymScene(this);
         this.Stage = new NzymStage(this, options.canvas, options.pixelRatio);
         this.Runner = new NzymRunner(this);
+        if (options.autoClear === false) {
+            this.OBJ.autoClear = false;
+        }
+        if (options.autoUpdate === false) {
+            this.OBJ.autoUpdate = false;
+        }
+        if (options.autoRender === false) {
+            this.OBJ.autoRender = false;
+        }
+        Nzym.Events.on(this.Scene, 'beforestart', function () {
+            if (_this.OBJ.autoClear) {
+                _this.OBJ.clearAll();
+            }
+        });
         this.Draw.init();
         this.Input.init();
         this.stop();
@@ -60,8 +76,12 @@ var NzymEngine = /** @class */ (function () {
     NzymEngine.prototype.run = function () {
         this.Time.update();
         this.Scene.update();
+        if (this.OBJ.autoUpdate)
+            this.OBJ.updateAll();
         this.Draw.clear();
         this.Scene.render();
+        if (this.OBJ.autoRender)
+            this.OBJ.renderAll();
         this.Scene.renderUI();
         this.Input.reset();
     };
@@ -70,6 +90,7 @@ var NzymEngine = /** @class */ (function () {
         window['Events'] = Nzym.Events;
         window['KeyCode'] = Nzym.KeyCode;
         window['Engine'] = this;
+        window['OBJ'] = this.OBJ;
         window['Draw'] = this.Draw;
         window['Font'] = this.Draw.Font;
         window['Time'] = this.Time;

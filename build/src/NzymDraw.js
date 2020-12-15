@@ -169,6 +169,14 @@ var NzymDraw = /** @class */ (function () {
         this.draw(this.primitive.isStroke);
         this.ctx.restore();
     };
+    NzymDraw.prototype.onTransform = function (x, y, xscale, yscale, angle, drawFn, isRadians) {
+        this.ctx.save();
+        this.ctx.translate(x, y);
+        this.ctx.rotate(isRadians ? angle : Nzym.Common.degtorad(angle));
+        this.ctx.scale(xscale, yscale);
+        drawFn();
+        this.ctx.restore();
+    };
     NzymDraw.prototype.clear = function () {
         this.ctx.clearRect(0, 0, this.ctx.canvas.width, this.ctx.canvas.height);
     };

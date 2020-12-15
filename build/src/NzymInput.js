@@ -24,6 +24,7 @@ var NzymInput = /** @class */ (function () {
                 this.z = 0;
             }
         };
+        this.isMoving = false;
     }
     NzymInput.prototype.init = function () {
         var _this = this;
@@ -54,6 +55,7 @@ var NzymInput = /** @class */ (function () {
             mouse.reset();
         }
         this.wheelDelta.reset();
+        this.isMoving = false;
     };
     // --- KEY METHODS ---
     NzymInput.prototype.addKey = function (code) {
@@ -178,6 +180,7 @@ var NzymInput = /** @class */ (function () {
     };
     NzymInput.prototype.mouseMoveEvent = function (e) {
         this.updatePosition(e.clientX, e.clientY);
+        this.isMoving = true;
         Nzym.Events.trigger(this, 'mousemove', e);
     };
     NzymInput.prototype.wheelEvent = function (e) {
