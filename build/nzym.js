@@ -361,6 +361,12 @@ Nzym.createEngine = function (options) {
     if (options === void 0) { options = {}; }
     // Get engine options
     var engineOptions = {};
+    if (options.canvas) {
+        engineOptions['canvas'] = options.canvas;
+    }
+    if (options.pixelRatio) {
+        engineOptions['pixelRatio'] = options.pixelRatio;
+    }
     if (options.autoClear === false) {
         engineOptions['autoClear'] = false;
     }
@@ -686,7 +692,8 @@ var NzymDraw = /** @class */ (function () {
         this.ctx.restore();
     };
     NzymDraw.prototype.clear = function () {
-        this.ctx.clearRect(0, 0, this.ctx.canvas.width, this.ctx.canvas.height);
+        var b = this.ctx.canvas.getBoundingClientRect();
+        this.ctx.clearRect(0, 0, b.width, b.height);
     };
     return NzymDraw;
 }());
@@ -1358,7 +1365,6 @@ var NzymScene = /** @class */ (function () {
  */
 var NzymStage = /** @class */ (function () {
     function NzymStage(engine, canvas, pixelRatio) {
-        if (pixelRatio === void 0) { pixelRatio = 2; }
         this.engine = engine;
         this.canvas = canvas;
         this.pixelRatio = pixelRatio;
@@ -1369,6 +1375,9 @@ var NzymStage = /** @class */ (function () {
             w: this.w / 2,
             h: this.h / 2
         };
+        if (typeof this.pixelRatio !== "number") {
+            this.pixelRatio = 2;
+        }
         this.applyPixelRatio();
     }
     NzymStage.prototype.applyPixelRatio = function (pixelRatio) {

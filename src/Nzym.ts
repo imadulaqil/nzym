@@ -3,6 +3,8 @@
  */
 Nzym.createEngine = (
         options: {
+            canvas?: HTMLCanvasElement,
+            pixelRatio?: number,
             autoStart?: boolean,
             autoClear?: boolean,
             autoUpdate?: boolean,
@@ -17,6 +19,12 @@ Nzym.createEngine = (
 
     // Get engine options
     const engineOptions = {};
+    if (options.canvas) {
+        engineOptions['canvas'] = options.canvas;
+    }
+    if (options.pixelRatio) {
+        engineOptions['pixelRatio'] = options.pixelRatio;
+    }
     if (options.autoClear === false) {
         engineOptions['autoClear'] = false;
     }

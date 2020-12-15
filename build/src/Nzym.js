@@ -5,6 +5,12 @@ Nzym.createEngine = function (options) {
     if (options === void 0) { options = {}; }
     // Get engine options
     var engineOptions = {};
+    if (options.canvas) {
+        engineOptions['canvas'] = options.canvas;
+    }
+    if (options.pixelRatio) {
+        engineOptions['pixelRatio'] = options.pixelRatio;
+    }
     if (options.autoClear === false) {
         engineOptions['autoClear'] = false;
     }

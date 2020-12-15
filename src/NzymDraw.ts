@@ -209,7 +209,8 @@ class NzymDraw {
     }
 
     clear() {
-        this.ctx.clearRect(0, 0, this.ctx.canvas.width, this.ctx.canvas.height);
+        const b = this.ctx.canvas.getBoundingClientRect();
+        this.ctx.clearRect(0, 0, b.width, b.height);
     }
 
 }

@@ -3,7 +3,6 @@
  */
 var NzymStage = /** @class */ (function () {
     function NzymStage(engine, canvas, pixelRatio) {
-        if (pixelRatio === void 0) { pixelRatio = 2; }
         this.engine = engine;
         this.canvas = canvas;
         this.pixelRatio = pixelRatio;
@@ -14,6 +13,9 @@ var NzymStage = /** @class */ (function () {
             w: this.w / 2,
             h: this.h / 2
         };
+        if (typeof this.pixelRatio !== "number") {
+            this.pixelRatio = 2;
+        }
         this.applyPixelRatio();
     }
     NzymStage.prototype.applyPixelRatio = function (pixelRatio) {

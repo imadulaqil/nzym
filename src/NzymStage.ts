@@ -10,7 +10,7 @@ class NzymStage {
     constructor(
         public engine: NzymEngine,
         public canvas: HTMLCanvasElement,
-        public pixelRatio: number = 2
+        public pixelRatio?: number
     ) {
         const b = this.canvas.getBoundingClientRect();
         this.w = b.width;
@@ -19,6 +19,9 @@ class NzymStage {
             w: this.w / 2,
             h: this.h / 2
         };
+        if (typeof this.pixelRatio !== "number") {
+            this.pixelRatio = 2;
+        }
         this.applyPixelRatio();
     }
 

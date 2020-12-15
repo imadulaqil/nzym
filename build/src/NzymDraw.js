@@ -178,7 +178,8 @@ var NzymDraw = /** @class */ (function () {
         this.ctx.restore();
     };
     NzymDraw.prototype.clear = function () {
-        this.ctx.clearRect(0, 0, this.ctx.canvas.width, this.ctx.canvas.height);
+        var b = this.ctx.canvas.getBoundingClientRect();
+        this.ctx.clearRect(0, 0, b.width, b.height);
     };
     return NzymDraw;
 }());
