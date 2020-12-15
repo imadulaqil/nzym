@@ -3,13 +3,16 @@
  */
 class NzymDraw {
 
+    Font = new NzymFont();
+
     ctx: CanvasRenderingContext2D;
     defaultCtx: CanvasRenderingContext2D;
     currentFont: NzymFontFormat;
 
-    Font = new NzymFont();
     vertices = [];
     primitive = { name: 'Fill', quantity: 0, closePath: true, isStroke: false };
+
+    images = {};
 
     constructor(
         public engine: NzymEngine
@@ -25,6 +28,26 @@ class NzymDraw {
         this.ctx = ctx;
         drawFn();
         this.ctx = this.defaultCtx;
+    }
+
+    onCanvas(canvas: HTMLCanvasElement, drawFn: Function) {
+        this.onCtx(canvas.getContext('2d'), drawFn);
+    }
+
+    createCanvas(w: number, h: number, drawFn?: Function) {
+        const canvas = document.createElement('canvas');
+        canvas.width = w;
+        canvas.height = h;
+        if (drawFn) {
+            this.ctx = canvas.getContext('2d');
+            drawFn(canvas, canvas.width, canvas.height);
+            this.ctx = this.defaultCtx;
+        }
+        return canvas;
+    }
+
+    setAlpha(alpha: number) {
+        this.ctx.globalAlpha = alpha;
     }
 
     setFill(color: string) {
@@ -206,6 +229,29 @@ class NzymDraw {
         this.ctx.scale(xscale, yscale);
         drawFn();
         this.ctx.restore();
+    }
+
+    addImage(name: string, img: CanvasImageSource) {
+        this.images[name] = img;
+    }
+    
+    getImage(name: string) {
+        return this.images[name];
+    }
+    
+    image(name: string | CanvasImageSource, x: number, y: number, xscale=1, yscale=1, angle=0, originX=0.5, originY=0.5, isRadians?: boolean) {
+        let img: CanvasImageSource;
+        if (typeof name === 'string') {
+            img = this.images[name];
+        }
+        else {
+            img = name;
+        }
+        originX *= -img.width;
+        originY *= -img.height;
+        this.onTransform(x, y, xscale, yscale, angle, () => {
+            this.ctx.drawImage(img, originX, originY);
+        }, isRadians);
     }
 
     clear() {

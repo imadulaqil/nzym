@@ -7,6 +7,7 @@ var NzymDraw = /** @class */ (function () {
         this.Font = new NzymFont();
         this.vertices = [];
         this.primitive = { name: 'Fill', quantity: 0, closePath: true, isStroke: false };
+        this.images = {};
         this.currentFont = this.Font['m'];
     }
     NzymDraw.prototype.init = function () {
@@ -16,6 +17,23 @@ var NzymDraw = /** @class */ (function () {
         this.ctx = ctx;
         drawFn();
         this.ctx = this.defaultCtx;
+    };
+    NzymDraw.prototype.onCanvas = function (canvas, drawFn) {
+        this.onCtx(canvas.getContext('2d'), drawFn);
+    };
+    NzymDraw.prototype.createCanvas = function (w, h, drawFn) {
+        var canvas = document.createElement('canvas');
+        canvas.width = w;
+        canvas.height = h;
+        if (drawFn) {
+            this.ctx = canvas.getContext('2d');
+            drawFn(canvas, canvas.width, canvas.height);
+            this.ctx = this.defaultCtx;
+        }
+        return canvas;
+    };
+    NzymDraw.prototype.setAlpha = function (alpha) {
+        this.ctx.globalAlpha = alpha;
     };
     NzymDraw.prototype.setFill = function (color) {
         this.ctx.fillStyle = color;
@@ -176,6 +194,32 @@ var NzymDraw = /** @class */ (function () {
         this.ctx.scale(xscale, yscale);
         drawFn();
         this.ctx.restore();
+    };
+    NzymDraw.prototype.addImage = function (name, img) {
+        this.images[name] = img;
+    };
+    NzymDraw.prototype.getImage = function (name) {
+        return this.images[name];
+    };
+    NzymDraw.prototype.image = function (name, x, y, xscale, yscale, angle, originX, originY, isRadians) {
+        var _this = this;
+        if (xscale === void 0) { xscale = 1; }
+        if (yscale === void 0) { yscale = 1; }
+        if (angle === void 0) { angle = 0; }
+        if (originX === void 0) { originX = 0.5; }
+        if (originY === void 0) { originY = 0.5; }
+        var img;
+        if (typeof name === 'string') {
+            img = this.images[name];
+        }
+        else {
+            img = name;
+        }
+        originX *= -img.width;
+        originY *= -img.height;
+        this.onTransform(x, y, xscale, yscale, angle, function () {
+            _this.ctx.drawImage(img, originX, originY);
+        }, isRadians);
     };
     NzymDraw.prototype.clear = function () {
         var b = this.ctx.canvas.getBoundingClientRect();
