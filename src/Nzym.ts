@@ -3,7 +3,11 @@
  */
 Nzym.createEngine = (
         options: {
+            w?: number,
+            h?: number,
             canvas?: HTMLCanvasElement,
+            parent?: HTMLElement,
+            bgColor?: string,
             pixelRatio?: number,
             autoStart?: boolean,
             autoClear?: boolean,
@@ -19,20 +23,15 @@ Nzym.createEngine = (
 
     // Get engine options
     const engineOptions = {};
-    if (options.canvas) {
-        engineOptions['canvas'] = options.canvas;
+    for (const prop of ['w', 'h', 'canvas', 'parent', 'bgColor', 'pixelRatio']) {
+        if (options[prop]) {
+            engineOptions[prop] = options[prop];
+        }
     }
-    if (options.pixelRatio) {
-        engineOptions['pixelRatio'] = options.pixelRatio;
-    }
-    if (options.autoClear === false) {
-        engineOptions['autoClear'] = false;
-    }
-    if (options.autoUpdate === false) {
-        engineOptions['autoUpdate'] = false;
-    }
-    if (options.autoRender === false) {
-        engineOptions['autoRender'] = false;
+    for (const prop of ['autoClear', 'autoUpdate', 'autoRender']) {
+        if (options[prop] === false) {
+            engineOptions[prop] = false;
+        }
     }
 
     // Create an engine
@@ -46,10 +45,11 @@ Nzym.createEngine = (
 
     // Get scene options
     const sceneSetupOptions = {};
-    if (options.onStart) sceneSetupOptions['onStart'] = options.onStart;
-    if (options.onUpdate) sceneSetupOptions['onUpdate'] = options.onUpdate;
-    if (options.onRender) sceneSetupOptions['onRender'] = options.onRender;
-    if (options.onRenderUI) sceneSetupOptions['onRenderUI'] = options.onRenderUI;
+    for (const prop of ['onStart', 'onUpdate', 'onRender', 'onRenderUI']) {
+        if (options[prop]) {
+            sceneSetupOptions[prop] = options[prop];
+        }
+    }
 
     Scene.setup(sceneSetupOptions);
     

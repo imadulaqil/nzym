@@ -5,20 +5,17 @@ Nzym.createEngine = function (options) {
     if (options === void 0) { options = {}; }
     // Get engine options
     var engineOptions = {};
-    if (options.canvas) {
-        engineOptions['canvas'] = options.canvas;
+    for (var _i = 0, _a = ['w', 'h', 'canvas', 'parent', 'bgColor', 'pixelRatio']; _i < _a.length; _i++) {
+        var prop = _a[_i];
+        if (options[prop]) {
+            engineOptions[prop] = options[prop];
+        }
     }
-    if (options.pixelRatio) {
-        engineOptions['pixelRatio'] = options.pixelRatio;
-    }
-    if (options.autoClear === false) {
-        engineOptions['autoClear'] = false;
-    }
-    if (options.autoUpdate === false) {
-        engineOptions['autoUpdate'] = false;
-    }
-    if (options.autoRender === false) {
-        engineOptions['autoRender'] = false;
+    for (var _b = 0, _c = ['autoClear', 'autoUpdate', 'autoRender']; _b < _c.length; _b++) {
+        var prop = _c[_b];
+        if (options[prop] === false) {
+            engineOptions[prop] = false;
+        }
     }
     // Create an engine
     var Engine = new NzymEngine(engineOptions);
@@ -26,14 +23,12 @@ Nzym.createEngine = function (options) {
     var Draw = Engine.Draw, Scene = Engine.Scene;
     // Get scene options
     var sceneSetupOptions = {};
-    if (options.onStart)
-        sceneSetupOptions['onStart'] = options.onStart;
-    if (options.onUpdate)
-        sceneSetupOptions['onUpdate'] = options.onUpdate;
-    if (options.onRender)
-        sceneSetupOptions['onRender'] = options.onRender;
-    if (options.onRenderUI)
-        sceneSetupOptions['onRenderUI'] = options.onRenderUI;
+    for (var _d = 0, _e = ['onStart', 'onUpdate', 'onRender', 'onRenderUI']; _d < _e.length; _d++) {
+        var prop = _e[_d];
+        if (options[prop]) {
+            sceneSetupOptions[prop] = options[prop];
+        }
+    }
     Scene.setup(sceneSetupOptions);
     // Link default font
     Draw.Font.embedGoogleFonts('Quicksand');

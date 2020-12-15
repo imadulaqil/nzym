@@ -2,17 +2,46 @@
  * Initializes and runs all Nzym modules.
  */
 var NzymEngine = /** @class */ (function () {
+    /**
+     * Set `options.canvas` to the target canvas element.
+     * Or else the engine will create a default canvas with default width and height.
+     * Setting `options.w` and `options.h` will set the size of the engine default canvas.
+     * `options.parent` is the parent element of the engine default canvas (default parent is `body` element.)
+     * @param options
+     */
     function NzymEngine(options) {
         var _this = this;
         if (options === void 0) { options = {}; }
         this.options = options;
         if (!options.canvas) {
+            // Create the default canvas
             options.canvas = document.createElement('canvas');
-            options.canvas.style.width = '800px';
-            options.canvas.style.height = '600px';
-            options.canvas.style.backgroundImage = 'radial-gradient(white 33%, mintcream)';
-            document.body.appendChild(options.canvas);
+            if (options.w && options.h) {
+                // Both `w` and `h` have to be exists to set the canvas size
+                options.canvas.style.width = options.w + "px";
+                options.canvas.style.height = options.h + "px";
+            }
+            else {
+                // Otherwise set to default
+                options.canvas.style.width = '800px';
+                options.canvas.style.height = '600px';
+            }
+            if (options.bgColor) {
+                // Set style background color if provided
+                options.canvas.style.backgroundColor = options.bgColor;
+            }
+            else {
+                // Otherwise make a nice little gradient as the background
+                options.canvas.style.backgroundImage = 'radial-gradient(white 33%, mintcream)';
+            }
+            if (options.parent) {
+                options.parent.appendChild(options.canvas);
+            }
+            else {
+                document.body.appendChild(options.canvas);
+            }
         }
+        // Instantiate all modules
         this.OBJ = new NzymOBJ(this);
         this.Draw = new NzymDraw(this);
         this.Time = new NzymTime(this);
