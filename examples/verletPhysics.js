@@ -1,7 +1,7 @@
 var Example = Example || {};
 
 Example.verletPhysics = (() => {
-    let points, sticks;
+    let points, sticks, dragged;
 
     class Point {
         constructor(x, y, vx=0, vy=0, r=10) {
@@ -13,8 +13,11 @@ Example.verletPhysics = (() => {
             this.bounce = 0.97;
             this.gravity = 0.5;
             this.friction = 0.99;
+            this.isPinned = false;
         }
         update() {
+            if (this.isPinned) return;
+
             let vx = this.x - this.px,
                 vy = this.y - this.py;
 
@@ -47,7 +50,7 @@ Example.verletPhysics = (() => {
         }
         draw() {
             Draw.setColor(C.black);
-            Draw.circle(this.x, this.y, this.r, true);
+            Draw.circle(this.x, this.y, this.r, !this.isPinned);
         }
     }
 
@@ -68,10 +71,14 @@ Example.verletPhysics = (() => {
                 offsetX = dx * percent,
                 offsetY = dy * percent;
 
-            this.p0.x -= offsetX;
-            this.p0.y -= offsetY;
-            this.p1.x += offsetX;
-            this.p1.y += offsetY;
+            if (!this.p0.isPinned) {
+                this.p0.x -= offsetX;
+                this.p0.y -= offsetY;
+            }
+            if (!this.p1.isPinned) {
+                this.p1.x += offsetX;
+                this.p1.y += offsetY;
+            }
         }
         draw() {
             if (!this.isHidden) {
@@ -109,6 +116,18 @@ Example.verletPhysics = (() => {
         addStick(p[1], p[3], true);
     };
 
+    const addRope = (x, y, length, segments) => {
+        const p = [];
+        length /= segments;
+        for (let i = 0; i <= segments; i++) {
+            p.push(addPoint(new Point(x, y + i * length, 0, 0, 5)));
+        }
+        for (let i = 0; i < p.length - 1; i++) {
+            addStick(p[i], p[i + 1]);
+        }
+        p[0].isPinned = true;
+    };
+
     return Nzym.createEngine({
         onInit() {
             points = [];
@@ -120,12 +139,33 @@ Example.verletPhysics = (() => {
             for (let i = 0; i < 3; i++) {
                 addRect(
                     Stage.randomX(), Stage.randomY(),
-                    Common.range(20, 70), Common.range(20, 70),
+                    Common.range(50, 90), Common.range(50, 90),
                     Common.range(-5, 5), Common.range(-5, 5)
                 );
             }
+            addRope(Stage.mid.w, Stage.h * 0.2, Stage.mid.h, 10);
         },
         onUpdate() {
+            if (Input.mouseDown(0)) {
+                dragged = null;
+                let nearestDistance = 100; // minimum distance to get grabbed
+                for (let i = 0; i < points.length; i++) {
+                    const distance = Math.hypot(Input.x - points[i].x, Input.y - points[i].y);
+                    if (distance < nearestDistance) {
+                        nearestDistance = distance;
+                        dragged = points[i];
+                    }
+                }
+            }
+            if (dragged) {
+                if (Input.mouseHold(0)) {
+                    dragged.px = dragged.x = Input.x;
+                    dragged.py = dragged.y = Input.y;
+                }
+                else {
+                    dragged = null;
+                }
+            }
             for (const p of points) {
                 p.update();
             }
