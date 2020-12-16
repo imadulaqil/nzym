@@ -9,6 +9,7 @@ class NzymEngine {
     Input: NzymInput;
     Scene: NzymScene;
     Stage: NzymStage;
+    Loader: NzymLoader;
     Runner: NzymRunner;
 
     /**
@@ -18,71 +19,27 @@ class NzymEngine {
      * `options.parent` is the parent element of the engine default canvas (default parent is `body` element.)
      * @param options 
      */
-    constructor(
-        options: {
-            w?: number,
-            h?: number,
-            canvas?: HTMLCanvasElement,
-            parent?: HTMLElement,
-            bgColor?: string,
-            pixelRatio?: number,
-            autoStart?: boolean,
-            autoClear?: boolean,
-            autoUpdate?: boolean,
-            autoRender?: boolean,
-            scenes?: Function[],
-            onInit?: Function,
-            onStart?: Function,
-            onUpdate?: Function,
-            onRender?: Function,
-            onRenderUI?: Function
-        } = {}
-    ) {
-
-        // Get OBJ options
-        const OBJOptions = {};
-        for (const prop of ['autoClear', 'autoUpdate', 'autoRender']) {
-            if (options[prop]) {
-                OBJOptions[prop] = options[prop];
-            }
-        }
-
-        // Get scene options
-        const sceneOptions = {};
-        for (const prop of ['scenes', 'onStart', 'onUpdate', 'onRender', 'onRenderUI']) {
-            if (options[prop]) {
-                sceneOptions[prop] = options[prop];
-            }
-        }
-
-        // Get Stage options
-        const stageOptions = {};
-        for (const prop of ['w', 'h', 'canvas', 'parent', 'bgColor', 'pixelRatio']) {
-            if (options[prop]) {
-                stageOptions[prop] = options[prop];
-            }
-        }
+    constructor(options: NzymEngineOptions = {}) {
 
         // Instantiate all modules
-        this.OBJ = new NzymOBJ(this, OBJOptions);
+        this.OBJ = new NzymOBJ(this, options);
         this.Draw = new NzymDraw(this);
         this.Time = new NzymTime(this);
         this.Input = new NzymInput(this);
-        this.Scene = new NzymScene(this, sceneOptions);
-        this.Stage = new NzymStage(this, stageOptions);
+        this.Scene = new NzymScene(this);
+        this.Stage = new NzymStage(this, options);
+        this.Loader = new NzymLoader(this);
         this.Runner = new NzymRunner(this);
 
         this.OBJ.init();
         this.Draw.init();
         this.Input.init();
+        this.Scene.setup(options);
 
         this.stop();
         this.makeGlobalAliases();
 
-        if (options.scenes) {
-            if (options.scenes['init']) options.scenes['init'].call(this);
-        }
-        if (options.onInit) options.onInit.call(this);
+        this.Scene.boot();
 
         if (options.autoStart) {
             // Start the engine
@@ -147,13 +104,14 @@ class NzymEngine {
         window['KeyCode'] = Nzym.KeyCode;
 
         window['Engine'] = this;
-        window['OBJ'] = this.OBJ;
+        window['OBJ']    = this.OBJ;
         window['Draw']   = this.Draw;
         window['Font']   = this.Draw.Font;
         window['Time']   = this.Time;
         window['Input']  = this.Input;
         window['Scene']  = this.Scene;
         window['Stage']  = this.Stage;
+        window['Loader'] = this.Loader;
 
         window['C']         = Nzym.DrawConstants.C;
         window['Align']     = Nzym.DrawConstants.Align;

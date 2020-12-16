@@ -11,49 +11,22 @@ var NzymEngine = /** @class */ (function () {
      */
     function NzymEngine(options) {
         if (options === void 0) { options = {}; }
-        // Get OBJ options
-        var OBJOptions = {};
-        for (var _i = 0, _a = ['autoClear', 'autoUpdate', 'autoRender']; _i < _a.length; _i++) {
-            var prop = _a[_i];
-            if (options[prop]) {
-                OBJOptions[prop] = options[prop];
-            }
-        }
-        // Get scene options
-        var sceneOptions = {};
-        for (var _b = 0, _c = ['scenes', 'onStart', 'onUpdate', 'onRender', 'onRenderUI']; _b < _c.length; _b++) {
-            var prop = _c[_b];
-            if (options[prop]) {
-                sceneOptions[prop] = options[prop];
-            }
-        }
-        // Get Stage options
-        var stageOptions = {};
-        for (var _d = 0, _e = ['w', 'h', 'canvas', 'parent', 'bgColor', 'pixelRatio']; _d < _e.length; _d++) {
-            var prop = _e[_d];
-            if (options[prop]) {
-                stageOptions[prop] = options[prop];
-            }
-        }
         // Instantiate all modules
-        this.OBJ = new NzymOBJ(this, OBJOptions);
+        this.OBJ = new NzymOBJ(this, options);
         this.Draw = new NzymDraw(this);
         this.Time = new NzymTime(this);
         this.Input = new NzymInput(this);
-        this.Scene = new NzymScene(this, sceneOptions);
-        this.Stage = new NzymStage(this, stageOptions);
+        this.Scene = new NzymScene(this);
+        this.Stage = new NzymStage(this, options);
+        this.Loader = new NzymLoader(this);
         this.Runner = new NzymRunner(this);
         this.OBJ.init();
         this.Draw.init();
         this.Input.init();
+        this.Scene.setup(options);
         this.stop();
         this.makeGlobalAliases();
-        if (options.scenes) {
-            if (options.scenes['init'])
-                options.scenes['init'].call(this);
-        }
-        if (options.onInit)
-            options.onInit.call(this);
+        this.Scene.boot();
         if (options.autoStart) {
             // Start the engine
             this.start();
@@ -118,6 +91,7 @@ var NzymEngine = /** @class */ (function () {
         window['Input'] = this.Input;
         window['Scene'] = this.Scene;
         window['Stage'] = this.Stage;
+        window['Loader'] = this.Loader;
         window['C'] = Nzym.DrawConstants.C;
         window['Align'] = Nzym.DrawConstants.Align;
         window['LineCap'] = Nzym.DrawConstants.LineCap;

@@ -1,24 +1,8 @@
-/**
- * Nzym quick start.
- */
-Nzym.createEngine = (
-        options: {
-            w?: number,
-            h?: number,
-            canvas?: HTMLCanvasElement,
-            parent?: HTMLElement,
-            bgColor?: string,
-            pixelRatio?: number,
-            autoStart?: boolean,
-            autoClear?: boolean,
-            autoUpdate?: boolean,
-            autoRender?: boolean,
-            onInit?: Function,
-            onStart?: Function,
-            onUpdate?: Function,
-            onRender?: Function,
-            onRenderUI?: Function
-        } = {}
-    ) => {
+Nzym.createEngine = (options: NzymEngineOptions = {}) => {
     return new NzymEngine(options);
+};
+
+Nzym.start = (options: NzymEngineOptions = {}) => {
+    options.autoStart = true;
+    return Nzym.createEngine(options);
 };

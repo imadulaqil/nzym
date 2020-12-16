@@ -28,7 +28,7 @@ Example.gettingStarted = (() => {
     }
     
     return Nzym.createEngine({
-        onInit() {
+        onBoot() {
             OBJ.addTag('box');
         },
         onStart() {

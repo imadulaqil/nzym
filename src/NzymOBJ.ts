@@ -10,14 +10,7 @@ class NzymOBJ {
     autoUpdate = true;
     autoRender = true;
 
-    constructor(
-        public engine: NzymEngine,
-        options: {
-            autoClear?: boolean,
-            autoUpdate?: boolean,
-            autoRender?: boolean
-        } = {}
-    ) {
+    constructor(public engine: NzymEngine, options: NzymOBJOptions = {}) {
         if (options.autoClear === false) this.autoClear = false;
         if (options.autoUpdate === false) this.autoUpdate = false;
         if (options.autoRender === false) this.autoRender = false;

@@ -129,7 +129,7 @@ Example.verletPhysics = (() => {
     };
 
     return Nzym.createEngine({
-        onInit() {
+        onBoot() {
             points = [];
             sticks = [];
         },

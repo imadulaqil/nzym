@@ -354,12 +354,14 @@ Nzym.Events = {
         }
     }
 };
-/**
- * Nzym quick start.
- */
 Nzym.createEngine = function (options) {
     if (options === void 0) { options = {}; }
     return new NzymEngine(options);
+};
+Nzym.start = function (options) {
+    if (options === void 0) { options = {}; }
+    options.autoStart = true;
+    return Nzym.createEngine(options);
 };
 /**
  * List of KeyboardEvent.code
@@ -367,10 +369,10 @@ Nzym.createEngine = function (options) {
 Nzym.KeyCode = {
     AltLeft: 'AltLeft',
     AltRight: 'AltRight',
-    ArrowDown: 'ArrowDown',
-    ArrowLeft: 'ArrowLeft',
-    ArrowRight: 'ArrowRight',
-    ArrowUp: 'ArrowUp',
+    Down: 'ArrowDown',
+    Left: 'ArrowLeft',
+    Right: 'ArrowRight',
+    Up: 'ArrowUp',
     AudioVolumeDown: 'AudioVolumeDown',
     AudioVolumeMute: 'AudioVolumeMute',
     AudioVolumeUp: 'AudioVolumeUp',
@@ -714,49 +716,22 @@ var NzymEngine = /** @class */ (function () {
      */
     function NzymEngine(options) {
         if (options === void 0) { options = {}; }
-        // Get OBJ options
-        var OBJOptions = {};
-        for (var _i = 0, _a = ['autoClear', 'autoUpdate', 'autoRender']; _i < _a.length; _i++) {
-            var prop = _a[_i];
-            if (options[prop]) {
-                OBJOptions[prop] = options[prop];
-            }
-        }
-        // Get scene options
-        var sceneOptions = {};
-        for (var _b = 0, _c = ['scenes', 'onStart', 'onUpdate', 'onRender', 'onRenderUI']; _b < _c.length; _b++) {
-            var prop = _c[_b];
-            if (options[prop]) {
-                sceneOptions[prop] = options[prop];
-            }
-        }
-        // Get Stage options
-        var stageOptions = {};
-        for (var _d = 0, _e = ['w', 'h', 'canvas', 'parent', 'bgColor', 'pixelRatio']; _d < _e.length; _d++) {
-            var prop = _e[_d];
-            if (options[prop]) {
-                stageOptions[prop] = options[prop];
-            }
-        }
         // Instantiate all modules
-        this.OBJ = new NzymOBJ(this, OBJOptions);
+        this.OBJ = new NzymOBJ(this, options);
         this.Draw = new NzymDraw(this);
         this.Time = new NzymTime(this);
         this.Input = new NzymInput(this);
-        this.Scene = new NzymScene(this, sceneOptions);
-        this.Stage = new NzymStage(this, stageOptions);
+        this.Scene = new NzymScene(this);
+        this.Stage = new NzymStage(this, options);
+        this.Loader = new NzymLoader(this);
         this.Runner = new NzymRunner(this);
         this.OBJ.init();
         this.Draw.init();
         this.Input.init();
+        this.Scene.setup(options);
         this.stop();
         this.makeGlobalAliases();
-        if (options.scenes) {
-            if (options.scenes['init'])
-                options.scenes['init'].call(this);
-        }
-        if (options.onInit)
-            options.onInit.call(this);
+        this.Scene.boot();
         if (options.autoStart) {
             // Start the engine
             this.start();
@@ -821,6 +796,7 @@ var NzymEngine = /** @class */ (function () {
         window['Input'] = this.Input;
         window['Scene'] = this.Scene;
         window['Stage'] = this.Stage;
+        window['Loader'] = this.Loader;
         window['C'] = Nzym.DrawConstants.C;
         window['Align'] = Nzym.DrawConstants.Align;
         window['LineCap'] = Nzym.DrawConstants.LineCap;
@@ -1109,6 +1085,63 @@ var NzymInputKey = /** @class */ (function () {
     };
     return NzymInputKey;
 }());
+var NzymLoader = /** @class */ (function () {
+    function NzymLoader(engine) {
+        this.engine = engine;
+        this.events = {};
+        this.list = {
+            image: []
+        };
+        this.isLoaded = false;
+    }
+    NzymLoader.prototype.getLoadAmount = function () {
+        var amount = 0;
+        for (var tag in this.list) {
+            amount += this.list[tag].length;
+        }
+        return amount;
+    };
+    NzymLoader.prototype.getLoadedCount = function () {
+        var count = 0;
+        for (var tag in this.list) {
+            for (var _i = 0, _a = this.list[tag]; _i < _a.length; _i++) {
+                var data = _a[_i];
+                if (data['isLoaded']) {
+                    count++;
+                }
+            }
+        }
+        return count;
+    };
+    NzymLoader.prototype.getLoadProgress = function () {
+        var n = this.getLoadAmount();
+        return n < 1 ? 1 : this.getLoadedCount() / n;
+    };
+    NzymLoader.prototype.completeLoad = function () {
+        this.isLoaded = true;
+        Nzym.Events.trigger(this, 'loaded');
+    };
+    NzymLoader.prototype.onLoadEvent = function (data) {
+        data['isLoaded'] = true;
+        if (this.getLoadedCount() >= this.getLoadAmount()) {
+            this.completeLoad();
+        }
+    };
+    NzymLoader.prototype.loadImage = function (name, src) {
+        var _this = this;
+        if (src === undefined) {
+            src = name;
+            name = src.split('/').pop().split('.')[0];
+        }
+        var img = new Image();
+        img.src = src;
+        this.list['image'].push(img);
+        this.engine.Draw.addImage(name, img);
+        img.addEventListener('load', function () { return _this.onLoadEvent(img); });
+    };
+    return NzymLoader;
+}());
+;
 /**
  * Object manager.
  */
@@ -1365,23 +1398,41 @@ var NzymRunner = /** @class */ (function () {
     return NzymRunner;
 }());
 var NzymScene = /** @class */ (function () {
-    function NzymScene(engine, options) {
-        if (options === void 0) { options = {}; }
+    function NzymScene(engine) {
         this.engine = engine;
         this.events = {};
         this.isStarted = false;
-        this.setup(options);
     }
     NzymScene.prototype.setup = function (options) {
         if (options === void 0) { options = {}; }
         if (options.scenes) {
-            for (var _i = 0, _a = ['start', 'update', 'render', 'renderUI']; _i < _a.length; _i++) {
-                var prop = _a[_i];
-                if (options.scenes[prop]) {
-                    Nzym.Events.on(this, prop, options.scenes[prop]);
-                }
+            if (options.scenes.boot)
+                Nzym.Events.on(this, 'boot', options.scenes.boot);
+            if (options.scenes.loaded)
+                Nzym.Events.on(this.engine.Loader, 'loaded', options.scenes.loaded);
+            if (options.scenes.start)
+                Nzym.Events.on(this, 'start', options.scenes.start);
+            if (options.scenes.update)
+                Nzym.Events.on(this, 'update', options.scenes.update);
+            if (options.scenes.render)
+                Nzym.Events.on(this, 'render', options.scenes.render);
+            if (options.scenes.renderUI)
+                Nzym.Events.on(this, 'renderUI', options.scenes.renderUI);
+            if (options.scenes.onLoad) {
+                if (options.scenes.onLoad.start)
+                    Nzym.Events.on(this, 'loadstart', options.scenes.onLoad.start);
+                if (options.scenes.onLoad.update)
+                    Nzym.Events.on(this, 'loadupdate', options.scenes.onLoad.update);
+                if (options.scenes.onLoad.render)
+                    Nzym.Events.on(this, 'loadrender', options.scenes.onLoad.render);
+                if (options.scenes.onLoad.renderUI)
+                    Nzym.Events.on(this, 'loadrenderUI', options.scenes.onLoad.renderUI);
             }
         }
+        if (options.onBoot)
+            Nzym.Events.on(this, 'boot', options.onBoot);
+        if (options.onLoaded)
+            Nzym.Events.on(this.engine.Loader, 'loaded', options.onLoaded);
         if (options.onStart)
             Nzym.Events.on(this, 'start', options.onStart);
         if (options.onUpdate)
@@ -1390,6 +1441,20 @@ var NzymScene = /** @class */ (function () {
             Nzym.Events.on(this, 'render', options.onRender);
         if (options.onRenderUI)
             Nzym.Events.on(this, 'renderUI', options.onRenderUI);
+        if (options.onLoadStart)
+            Nzym.Events.on(this, 'loadstart', options.onLoadStart);
+        if (options.onLoadUpdate)
+            Nzym.Events.on(this, 'loadupdate', options.onLoadUpdate);
+        if (options.onLoadRender)
+            Nzym.Events.on(this, 'loadrender', options.onLoadRender);
+        if (options.onLoadRenderUI)
+            Nzym.Events.on(this, 'loadrenderUI', options.onLoadRenderUI);
+    };
+    NzymScene.prototype.boot = function () {
+        Nzym.Events.trigger(this, 'boot');
+        if (this.engine.Loader.getLoadAmount() < 1) {
+            this.engine.Loader.completeLoad();
+        }
     };
     NzymScene.prototype.restart = function () {
         this.start();
@@ -1398,17 +1463,37 @@ var NzymScene = /** @class */ (function () {
         if (!this.isStarted) {
             this.isStarted = true;
         }
-        Nzym.Events.trigger(this, 'beforestart');
-        Nzym.Events.trigger(this, 'start');
+        if (!this.engine.Loader.isLoaded) {
+            Nzym.Events.trigger(this, 'loadstart');
+        }
+        else {
+            Nzym.Events.trigger(this, 'beforestart');
+            Nzym.Events.trigger(this, 'start');
+        }
     };
     NzymScene.prototype.update = function () {
-        Nzym.Events.trigger(this, 'update');
+        if (!this.engine.Loader.isLoaded) {
+            Nzym.Events.trigger(this, 'loadupdate');
+        }
+        else {
+            Nzym.Events.trigger(this, 'update');
+        }
     };
     NzymScene.prototype.render = function () {
-        Nzym.Events.trigger(this, 'render');
+        if (!this.engine.Loader.isLoaded) {
+            Nzym.Events.trigger(this, 'loadrender');
+        }
+        else {
+            Nzym.Events.trigger(this, 'render');
+        }
     };
     NzymScene.prototype.renderUI = function () {
-        Nzym.Events.trigger(this, 'renderUI');
+        if (!this.engine.Loader.isLoaded) {
+            Nzym.Events.trigger(this, 'loadrenderUI');
+        }
+        else {
+            Nzym.Events.trigger(this, 'renderUI');
+        }
     };
     return NzymScene;
 }());
@@ -1424,15 +1509,8 @@ var NzymStage = /** @class */ (function () {
             this.canvas = options.canvas;
         }
         else {
-            var canvasOptions = {
-                autoAppend: true
-            };
-            for (var _i = 0, _a = ['w', 'h', 'parent', 'bgColor']; _i < _a.length; _i++) {
-                var prop = _a[_i];
-                if (options[prop]) {
-                    canvasOptions[prop] = options[prop];
-                }
-            }
+            var canvasOptions = options;
+            canvasOptions.autoAppend = true;
             this.canvas = this.createCanvas(canvasOptions);
         }
         this.init();

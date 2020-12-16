@@ -10,15 +10,8 @@ var NzymStage = /** @class */ (function () {
             this.canvas = options.canvas;
         }
         else {
-            var canvasOptions = {
-                autoAppend: true
-            };
-            for (var _i = 0, _a = ['w', 'h', 'parent', 'bgColor']; _i < _a.length; _i++) {
-                var prop = _a[_i];
-                if (options[prop]) {
-                    canvasOptions[prop] = options[prop];
-                }
-            }
+            var canvasOptions = options;
+            canvasOptions.autoAppend = true;
             this.canvas = this.createCanvas(canvasOptions);
         }
         this.init();

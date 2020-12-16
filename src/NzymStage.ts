@@ -10,29 +10,13 @@ class NzymStage {
     canvas: HTMLCanvasElement;
     pixelRatio = 2;
 
-    constructor(
-        public engine: NzymEngine,
-        options: {
-            w?: number,
-            h?: number,
-            canvas?: HTMLCanvasElement,
-            parent?: HTMLElement,
-            bgColor?: string,
-            pixelRatio?: number
-        } = {}
-    ) {
+    constructor(public engine: NzymEngine, options: NzymStageOptions = {}) {
         if (options.canvas) {
             this.canvas = options.canvas;
         }
         else {
-            const canvasOptions = {
-                autoAppend: true
-            };
-            for (const prop of ['w', 'h', 'parent', 'bgColor']) {
-                if (options[prop]) {
-                    canvasOptions[prop] = options[prop];
-                }
-            }
+            const canvasOptions: NzymStageOptions & NzymSceneCreateCanvasOptions = options;
+            canvasOptions.autoAppend = true;
             this.canvas = this.createCanvas(canvasOptions);
         }
         this.init();
@@ -57,15 +41,7 @@ class NzymStage {
         this.canvas.getContext('2d').scale(this.pixelRatio, this.pixelRatio);
     }
 
-    createCanvas(
-        options: {
-            w?: number,
-            h?: number,
-            parent?: HTMLElement,
-            bgColor?: string,
-            autoAppend?: boolean
-        } = {}
-    ) {
+    createCanvas(options: NzymSceneCreateCanvasOptions = {}) {
         // Create the default canvas
         const canvas = document.createElement('canvas');
         if (options.w && options.h) {
