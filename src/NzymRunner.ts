@@ -3,7 +3,8 @@
  */
 class NzymRunner {
 
-    public isRunning: boolean = false;
+    isRunning = false;
+    loopHandle = 0;
 
     constructor(
         public engine: NzymEngine
@@ -12,19 +13,23 @@ class NzymRunner {
     start() {
         if (!this.isRunning) {
             this.isRunning = true;
-            this.loop();
+            this.run();
         }
     }
     
     stop() {
         this.isRunning = false;
+        window.cancelAnimationFrame(this.loopHandle);
+    }
+
+    run() {
+        this.loopHandle = window.requestAnimationFrame(() => this.loop());
     }
 
     loop() {
         this.engine.run();
         if (this.isRunning) {
-            window.requestAnimationFrame(() => this.loop());
+            this.run();
         }
     }
-
-} 
+}

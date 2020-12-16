@@ -3,6 +3,7 @@
  */
 class NzymEngine {
 
+    Log: NzymLog;
     OBJ: NzymOBJ;
     Draw: NzymDraw;
     Time: NzymTime;
@@ -22,6 +23,7 @@ class NzymEngine {
     constructor(options: NzymEngineOptions = {}) {
 
         // Instantiate all modules
+        this.Log = new NzymLog(options.name);
         this.OBJ = new NzymOBJ(this, options);
         this.Draw = new NzymDraw(this);
         this.Time = new NzymTime(this);
@@ -55,7 +57,7 @@ class NzymEngine {
             this.Runner.start();
         }
         else {
-            Nzym.Common.LogWarn('The engine is already running');
+            this.Log.warn('The engine is already running');
         }
     }
     
@@ -75,27 +77,37 @@ class NzymEngine {
     resume() {
         if (this.Scene.isStarted) {
             if (!this.Runner.isRunning) {
-                this.Time.start();
-                this.Runner.start();
+                if (!this.Stage.isHidden) {
+                    this.Time.start();
+                    this.Runner.start();
+                }
+                else {
+                    this.Log.warn('Failed to resume, the stage is hidden');
+                }
             }
             else {
-                Nzym.Common.LogWarn('The engine is already running');
+                this.Log.warn('The engine is already running');
             }
         }
         else {
-            Nzym.Common.LogWarn('The scene has not started yet, nothing to resume');
+            this.Log.warn('The scene has not started yet, nothing to resume');
         }
     }
 
     run() {
-        this.Time.update();
-        this.Scene.update();
-        if (this.OBJ.autoUpdate) this.OBJ.updateAll();
-        this.Draw.clear();
-        this.Scene.render();
-        if (this.OBJ.autoRender) this.OBJ.renderAll();
-        this.Scene.renderUI();
-        this.Input.reset();
+        // if (this.Scene.isStarted) {
+            this.Time.update();
+            this.Scene.update();
+            if (this.OBJ.autoUpdate) this.OBJ.updateAll();
+            this.Draw.clear();
+            this.Scene.render();
+            if (this.OBJ.autoRender) this.OBJ.renderAll();
+            this.Scene.renderUI();
+            this.Input.reset();
+        // }
+        // else {
+        //     this.Log.warn(`Failed to execute 'Engine.run': The scene has not started yet, please start the scene at least once before run`);
+        // }
     }
 
     makeGlobalAliases() {

@@ -78,5 +78,12 @@ var NzymStage = /** @class */ (function () {
     NzymStage.prototype.show = function () {
         this.canvas.style.display = 'initial';
     };
+    Object.defineProperty(NzymStage.prototype, "isHidden", {
+        get: function () {
+            return this.canvas.style.display === 'none';
+        },
+        enumerable: false,
+        configurable: true
+    });
     return NzymStage;
 }());

@@ -100,7 +100,7 @@ var NzymOBJ = /** @class */ (function () {
             list.push(instance);
         }
         else {
-            Nzym.Common.LogError("[OBJ.push] Tag not found: " + tag + ", failed to push instance");
+            this.engine.Log.error("'OBJ.push' Tag not found: " + tag + ", failed to push instance");
             return null;
         }
         return instance;
@@ -145,7 +145,7 @@ var NzymOBJ = /** @class */ (function () {
             }
         }
         else {
-            Nzym.Common.LogError("[OBJ.update] Tag not found: " + tag + ", failed to update");
+            this.engine.Log.error("'OBJ.update' Tag not found: " + tag + ", failed to update");
         }
     };
     /**
@@ -169,7 +169,7 @@ var NzymOBJ = /** @class */ (function () {
             }
         }
         else {
-            Nzym.Common.LogError("[OBJ.render] Tag not found: " + tag + ", failed to render");
+            this.engine.Log.error("'OBJ.render' Tag not found: " + tag + ", failed to render");
         }
     };
     NzymOBJ.prototype.renderUnsorted = function (tag) {
@@ -183,7 +183,7 @@ var NzymOBJ = /** @class */ (function () {
             }
         }
         else {
-            Nzym.Common.LogError("[OBJ.renderUnsorted] Tag not found: " + tag + ", failed to renderUnsorted");
+            this.engine.Log.error("'OBJ.renderUnsorted' Tag not found: " + tag + ", failed to renderUnsorted");
         }
     };
     NzymOBJ.prototype.updateAll = function () {

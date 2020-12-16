@@ -2,57 +2,15 @@
  * This file will be the first when merging.
  */
 var Nzym = Nzym || {};
-var __spreadArrays = (this && this.__spreadArrays) || function () {
-    for (var s = 0, i = 0, il = arguments.length; i < il; i++) s += arguments[i].length;
-    for (var r = Array(s), k = 0, i = 0; i < il; i++)
-        for (var a = arguments[i], j = 0, jl = a.length; j < jl; j++, k++)
-            r[k] = a[j];
-    return r;
-};
 /**
  * Things that are common througout all modules.
  */
 Nzym.Common = {
     ID: 0,
-    LOG_INFO: 0,
-    LOG_WARN: 1,
-    LOG_ERROR: 2,
-    logLevel: 2,
-    preLog: '[Nzym]:',
     RAD_TO_DEG: 180 / Math.PI,
     DEG_TO_RAD: Math.PI / 180,
     getID: function () {
         return this.ID++;
-    },
-    setLogLevel: function (level) {
-        this.logLevel = level;
-    },
-    LogInfo: function () {
-        var data = [];
-        for (var _i = 0; _i < arguments.length; _i++) {
-            data[_i] = arguments[_i];
-        }
-        if (this.logLevel >= this.LOG_INFO) {
-            console.log.apply(console, __spreadArrays([this.preLog], data));
-        }
-    },
-    LogWarn: function () {
-        var data = [];
-        for (var _i = 0; _i < arguments.length; _i++) {
-            data[_i] = arguments[_i];
-        }
-        if (this.logLevel >= this.LOG_WARN) {
-            console.warn.apply(console, __spreadArrays([this.preLog], data));
-        }
-    },
-    LogError: function () {
-        var data = [];
-        for (var _i = 0; _i < arguments.length; _i++) {
-            data[_i] = arguments[_i];
-        }
-        if (this.logLevel >= this.LOG_ERROR) {
-            console.error.apply(console, __spreadArrays([this.preLog], data));
-        }
     },
     pick: function (array) {
         return array[Math.floor(Math.random() * array.length)];
@@ -312,7 +270,7 @@ Nzym.Events = {
             object.events[eventName].push(callbackFn);
         }
         else {
-            Nzym.Common.LogError("Property 'events' does not exists on given 'object'.");
+            Nzym.Log.error("Property 'events' does not exists on given 'object'.");
         }
     },
     off: function (object, eventName, callbackFn) {
@@ -329,11 +287,11 @@ Nzym.Events = {
                 object.events[eventName] = newCallbacks;
             }
             else {
-                Nzym.Common.LogInfo("There are no callbacks on the events['eventName'] of 'object'.");
+                Nzym.Log.info("There are no callbacks on the events['eventName'] of 'object'.");
             }
         }
         else {
-            Nzym.Common.LogError("Property 'events' does not exists on given 'object'.");
+            Nzym.Log.error("Property 'events' does not exists on given 'object'.");
         }
     },
     trigger: function (object, eventNames, events) {
@@ -717,6 +675,7 @@ var NzymEngine = /** @class */ (function () {
     function NzymEngine(options) {
         if (options === void 0) { options = {}; }
         // Instantiate all modules
+        this.Log = new NzymLog(options.name);
         this.OBJ = new NzymOBJ(this, options);
         this.Draw = new NzymDraw(this);
         this.Time = new NzymTime(this);
@@ -745,7 +704,7 @@ var NzymEngine = /** @class */ (function () {
             this.Runner.start();
         }
         else {
-            Nzym.Common.LogWarn('The engine is already running');
+            this.Log.warn('The engine is already running');
         }
     };
     NzymEngine.prototype.stop = function () {
@@ -761,18 +720,24 @@ var NzymEngine = /** @class */ (function () {
     NzymEngine.prototype.resume = function () {
         if (this.Scene.isStarted) {
             if (!this.Runner.isRunning) {
-                this.Time.start();
-                this.Runner.start();
+                if (!this.Stage.isHidden) {
+                    this.Time.start();
+                    this.Runner.start();
+                }
+                else {
+                    this.Log.warn('Failed to resume, the stage is hidden');
+                }
             }
             else {
-                Nzym.Common.LogWarn('The engine is already running');
+                this.Log.warn('The engine is already running');
             }
         }
         else {
-            Nzym.Common.LogWarn('The scene has not started yet, nothing to resume');
+            this.Log.warn('The scene has not started yet, nothing to resume');
         }
     };
     NzymEngine.prototype.run = function () {
+        // if (this.Scene.isStarted) {
         this.Time.update();
         this.Scene.update();
         if (this.OBJ.autoUpdate)
@@ -783,6 +748,10 @@ var NzymEngine = /** @class */ (function () {
             this.OBJ.renderAll();
         this.Scene.renderUI();
         this.Input.reset();
+        // }
+        // else {
+        //     this.Log.warn(`Failed to execute 'Engine.run': The scene has not started yet, please start the scene at least once before run`);
+        // }
     };
     NzymEngine.prototype.makeGlobalAliases = function () {
         window['Common'] = Nzym.Common;
@@ -1142,6 +1111,57 @@ var NzymLoader = /** @class */ (function () {
     return NzymLoader;
 }());
 ;
+var __spreadArrays = (this && this.__spreadArrays) || function () {
+    for (var s = 0, i = 0, il = arguments.length; i < il; i++) s += arguments[i].length;
+    for (var r = Array(s), k = 0, i = 0; i < il; i++)
+        for (var a = arguments[i], j = 0, jl = a.length; j < jl; j++, k++)
+            r[k] = a[j];
+    return r;
+};
+var NzymLog = /** @class */ (function () {
+    function NzymLog(name) {
+        this.LOG_INFO = 0;
+        this.LOG_WARN = 1;
+        this.LOG_ERROR = 2;
+        this.level = 2;
+        this.preLog = '[Nzym-Log]:';
+        if (name) {
+            this.preLog = "[Nzym-" + name + "]:";
+        }
+    }
+    NzymLog.prototype.setLevel = function (level) {
+        this.level = level;
+    };
+    NzymLog.prototype.info = function () {
+        var data = [];
+        for (var _i = 0; _i < arguments.length; _i++) {
+            data[_i] = arguments[_i];
+        }
+        if (this.level >= this.LOG_INFO) {
+            console.log.apply(console, __spreadArrays([this.preLog], data));
+        }
+    };
+    NzymLog.prototype.warn = function () {
+        var data = [];
+        for (var _i = 0; _i < arguments.length; _i++) {
+            data[_i] = arguments[_i];
+        }
+        if (this.level >= this.LOG_WARN) {
+            console.warn.apply(console, __spreadArrays([this.preLog], data));
+        }
+    };
+    NzymLog.prototype.error = function () {
+        var data = [];
+        for (var _i = 0; _i < arguments.length; _i++) {
+            data[_i] = arguments[_i];
+        }
+        if (this.level >= this.LOG_ERROR) {
+            console.error.apply(console, __spreadArrays([this.preLog], data));
+        }
+    };
+    return NzymLog;
+}());
+Nzym.Log = new NzymLog('Main');
 /**
  * Object manager.
  */
@@ -1244,7 +1264,7 @@ var NzymOBJ = /** @class */ (function () {
             list.push(instance);
         }
         else {
-            Nzym.Common.LogError("[OBJ.push] Tag not found: " + tag + ", failed to push instance");
+            this.engine.Log.error("'OBJ.push' Tag not found: " + tag + ", failed to push instance");
             return null;
         }
         return instance;
@@ -1289,7 +1309,7 @@ var NzymOBJ = /** @class */ (function () {
             }
         }
         else {
-            Nzym.Common.LogError("[OBJ.update] Tag not found: " + tag + ", failed to update");
+            this.engine.Log.error("'OBJ.update' Tag not found: " + tag + ", failed to update");
         }
     };
     /**
@@ -1313,7 +1333,7 @@ var NzymOBJ = /** @class */ (function () {
             }
         }
         else {
-            Nzym.Common.LogError("[OBJ.render] Tag not found: " + tag + ", failed to render");
+            this.engine.Log.error("'OBJ.render' Tag not found: " + tag + ", failed to render");
         }
     };
     NzymOBJ.prototype.renderUnsorted = function (tag) {
@@ -1327,7 +1347,7 @@ var NzymOBJ = /** @class */ (function () {
             }
         }
         else {
-            Nzym.Common.LogError("[OBJ.renderUnsorted] Tag not found: " + tag + ", failed to renderUnsorted");
+            this.engine.Log.error("'OBJ.renderUnsorted' Tag not found: " + tag + ", failed to renderUnsorted");
         }
     };
     NzymOBJ.prototype.updateAll = function () {
@@ -1378,21 +1398,26 @@ var NzymRunner = /** @class */ (function () {
     function NzymRunner(engine) {
         this.engine = engine;
         this.isRunning = false;
+        this.loopHandle = 0;
     }
     NzymRunner.prototype.start = function () {
         if (!this.isRunning) {
             this.isRunning = true;
-            this.loop();
+            this.run();
         }
     };
     NzymRunner.prototype.stop = function () {
         this.isRunning = false;
+        window.cancelAnimationFrame(this.loopHandle);
+    };
+    NzymRunner.prototype.run = function () {
+        var _this = this;
+        this.loopHandle = window.requestAnimationFrame(function () { return _this.loop(); });
     };
     NzymRunner.prototype.loop = function () {
-        var _this = this;
         this.engine.run();
         if (this.isRunning) {
-            window.requestAnimationFrame(function () { return _this.loop(); });
+            this.run();
         }
     };
     return NzymRunner;
@@ -1577,6 +1602,13 @@ var NzymStage = /** @class */ (function () {
     NzymStage.prototype.show = function () {
         this.canvas.style.display = 'initial';
     };
+    Object.defineProperty(NzymStage.prototype, "isHidden", {
+        get: function () {
+            return this.canvas.style.display === 'none';
+        },
+        enumerable: false,
+        configurable: true
+    });
     return NzymStage;
 }());
 var NzymTime = /** @class */ (function () {

@@ -12,6 +12,7 @@ var NzymEngine = /** @class */ (function () {
     function NzymEngine(options) {
         if (options === void 0) { options = {}; }
         // Instantiate all modules
+        this.Log = new NzymLog(options.name);
         this.OBJ = new NzymOBJ(this, options);
         this.Draw = new NzymDraw(this);
         this.Time = new NzymTime(this);
@@ -40,7 +41,7 @@ var NzymEngine = /** @class */ (function () {
             this.Runner.start();
         }
         else {
-            Nzym.Common.LogWarn('The engine is already running');
+            this.Log.warn('The engine is already running');
         }
     };
     NzymEngine.prototype.stop = function () {
@@ -56,18 +57,24 @@ var NzymEngine = /** @class */ (function () {
     NzymEngine.prototype.resume = function () {
         if (this.Scene.isStarted) {
             if (!this.Runner.isRunning) {
-                this.Time.start();
-                this.Runner.start();
+                if (!this.Stage.isHidden) {
+                    this.Time.start();
+                    this.Runner.start();
+                }
+                else {
+                    this.Log.warn('Failed to resume, the stage is hidden');
+                }
             }
             else {
-                Nzym.Common.LogWarn('The engine is already running');
+                this.Log.warn('The engine is already running');
             }
         }
         else {
-            Nzym.Common.LogWarn('The scene has not started yet, nothing to resume');
+            this.Log.warn('The scene has not started yet, nothing to resume');
         }
     };
     NzymEngine.prototype.run = function () {
+        // if (this.Scene.isStarted) {
         this.Time.update();
         this.Scene.update();
         if (this.OBJ.autoUpdate)
@@ -78,6 +85,10 @@ var NzymEngine = /** @class */ (function () {
             this.OBJ.renderAll();
         this.Scene.renderUI();
         this.Input.reset();
+        // }
+        // else {
+        //     this.Log.warn(`Failed to execute 'Engine.run': The scene has not started yet, please start the scene at least once before run`);
+        // }
     };
     NzymEngine.prototype.makeGlobalAliases = function () {
         window['Common'] = Nzym.Common;

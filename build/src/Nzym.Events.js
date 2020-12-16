@@ -8,7 +8,7 @@ Nzym.Events = {
             object.events[eventName].push(callbackFn);
         }
         else {
-            Nzym.Common.LogError("Property 'events' does not exists on given 'object'.");
+            Nzym.Log.error("Property 'events' does not exists on given 'object'.");
         }
     },
     off: function (object, eventName, callbackFn) {
@@ -25,11 +25,11 @@ Nzym.Events = {
                 object.events[eventName] = newCallbacks;
             }
             else {
-                Nzym.Common.LogInfo("There are no callbacks on the events['eventName'] of 'object'.");
+                Nzym.Log.info("There are no callbacks on the events['eventName'] of 'object'.");
             }
         }
         else {
-            Nzym.Common.LogError("Property 'events' does not exists on given 'object'.");
+            Nzym.Log.error("Property 'events' does not exists on given 'object'.");
         }
     },
     trigger: function (object, eventNames, events) {

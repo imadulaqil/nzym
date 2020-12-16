@@ -89,7 +89,7 @@ class NzymOBJ {
             list.push(instance);
         }
         else {
-            Nzym.Common.LogError(`[OBJ.push] Tag not found: ${tag}, failed to push instance`);
+            this.engine.Log.error(`'OBJ.push' Tag not found: ${tag}, failed to push instance`);
             return null;
         }
         return instance;
@@ -136,7 +136,7 @@ class NzymOBJ {
             }
         }
         else {
-            Nzym.Common.LogError(`[OBJ.update] Tag not found: ${tag}, failed to update`);
+            this.engine.Log.error(`'OBJ.update' Tag not found: ${tag}, failed to update`);
         }
     }
 
@@ -159,7 +159,7 @@ class NzymOBJ {
             }
         }
         else {
-            Nzym.Common.LogError(`[OBJ.render] Tag not found: ${tag}, failed to render`);
+            this.engine.Log.error(`'OBJ.render' Tag not found: ${tag}, failed to render`);
         }
     }
 
@@ -173,7 +173,7 @@ class NzymOBJ {
             }
         }
         else {
-            Nzym.Common.LogError(`[OBJ.renderUnsorted] Tag not found: ${tag}, failed to renderUnsorted`);
+            this.engine.Log.error(`'OBJ.renderUnsorted' Tag not found: ${tag}, failed to renderUnsorted`);
         }
     }
 

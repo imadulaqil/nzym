@@ -3,33 +3,10 @@
  */
 Nzym.Common = {
     ID: 0,
-    LOG_INFO: 0,
-    LOG_WARN: 1,
-    LOG_ERROR: 2,
-    logLevel: 2,
-    preLog: '[Nzym]:',
     RAD_TO_DEG: 180 / Math.PI,
     DEG_TO_RAD: Math.PI / 180,
     getID() {
         return this.ID++;
-    },
-    setLogLevel(level: number) {
-        this.logLevel = level;
-    },
-    LogInfo(...data: any[]) {
-        if (this.logLevel >= this.LOG_INFO) {
-            console.log(this.preLog, ...data);
-        }
-    },
-    LogWarn(...data: any[]) {
-        if (this.logLevel >= this.LOG_WARN) {
-            console.warn(this.preLog, ...data);
-        }
-    },
-    LogError(...data: any[]) {
-        if (this.logLevel >= this.LOG_ERROR) {
-            console.error(this.preLog, ...data);
-        }
     },
     pick(array: any[]) {
         return array[Math.floor(Math.random() * array.length)];

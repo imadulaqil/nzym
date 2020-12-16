@@ -89,4 +89,8 @@ class NzymStage {
         this.canvas.style.display = 'initial';
     }
 
+    get isHidden() {
+        return this.canvas.style.display === 'none';
+    }
+
 }
