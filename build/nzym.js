@@ -666,6 +666,12 @@ var NzymDraw = /** @class */ (function () {
             _this.ctx.drawImage(img, originX, originY);
         }, isRadians);
     };
+    NzymDraw.prototype.smooth = function () {
+        this.ctx.imageSmoothingEnabled = true;
+    };
+    NzymDraw.prototype.noSmooth = function () {
+        this.ctx.imageSmoothingEnabled = false;
+    };
     NzymDraw.prototype.clear = function () {
         var b = this.ctx.canvas.getBoundingClientRect();
         this.ctx.clearRect(0, 0, b.width, b.height);
@@ -1119,6 +1125,18 @@ var NzymLoader = /** @class */ (function () {
         }
         return count;
     };
+    NzymLoader.prototype.getErrorCount = function () {
+        var count = 0;
+        for (var tag in this.list) {
+            for (var _i = 0, _a = this.list[tag]; _i < _a.length; _i++) {
+                var data = _a[_i];
+                if (data['isError']) {
+                    count++;
+                }
+            }
+        }
+        return count;
+    };
     NzymLoader.prototype.getLoadProgress = function () {
         var n = this.getLoadAmount();
         return n < 1 ? 1 : this.getLoadedCount() / n;
@@ -1133,6 +1151,10 @@ var NzymLoader = /** @class */ (function () {
             this.completeLoad();
         }
     };
+    NzymLoader.prototype.onErrorEvent = function (data) {
+        data['isError'] = true;
+        this.engine.Log.error("Failed to load source: " + data.src + ". Make sure it's exists or make sure it's relative to your document. If you are working with local server, in some browser, you can't use \"C:Users/user/...\" it has to be relative to where your document exists.");
+    };
     NzymLoader.prototype.loadImage = function (name, src) {
         var _this = this;
         if (src === undefined) {
@@ -1140,10 +1162,11 @@ var NzymLoader = /** @class */ (function () {
             name = src.split('/').pop().split('.')[0];
         }
         var img = new Image();
-        img.src = src;
-        this.list['image'].push(img);
-        this.engine.Draw.addImage(name, img);
         img.addEventListener('load', function () { return _this.onLoadEvent(img); });
+        img.addEventListener('error', function () { return _this.onErrorEvent(img); });
+        img.src = src;
+        this.list.image.push(img);
+        this.engine.Draw.addImage(name, img);
     };
     return NzymLoader;
 }());

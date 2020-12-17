@@ -264,6 +264,14 @@ class NzymDraw {
         }, isRadians);
     }
 
+    smooth() {
+        this.ctx.imageSmoothingEnabled = true;
+    }
+
+    noSmooth() {
+        this.ctx.imageSmoothingEnabled = false;
+    }
+
     clear() {
         const b = this.ctx.canvas.getBoundingClientRect();
         this.ctx.clearRect(0, 0, b.width, b.height);

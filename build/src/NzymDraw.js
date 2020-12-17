@@ -230,6 +230,12 @@ var NzymDraw = /** @class */ (function () {
             _this.ctx.drawImage(img, originX, originY);
         }, isRadians);
     };
+    NzymDraw.prototype.smooth = function () {
+        this.ctx.imageSmoothingEnabled = true;
+    };
+    NzymDraw.prototype.noSmooth = function () {
+        this.ctx.imageSmoothingEnabled = false;
+    };
     NzymDraw.prototype.clear = function () {
         var b = this.ctx.canvas.getBoundingClientRect();
         this.ctx.clearRect(0, 0, b.width, b.height);

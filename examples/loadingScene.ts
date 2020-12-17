@@ -36,9 +36,18 @@ Example.loadingScene = (() => {
 
     Game.boot = () => {
         scale = scaleTo;
-        const user = 'yourl';
-        for (let i = 35; i <= 219; i++) {
-            Loader.loadImage(`C:/Users/${user}/Pictures/Screenshots/Screenshot (${i}).png`);
+        for (const name of [
+            '1606295835050-e17a6a239ccf',
+            '1606291229990-be6e7b276e70',
+            '1606291098139-e1b96a1eabe3',
+            '1606206966736-b2971e1d5159',
+            '1606216769898-c88daccaa479',
+            '1606225474652-2893d7bda441',
+            '1606290979721-07c4dd5431a9',
+            '1606291587092-8597fe3d5a2c',
+            '1606293948406-f68ef1fd95a0',
+            '1606291306342-c324b2b16288',]) {
+            Loader.loadImage(name, `https://images.unsplash.com/photo-${name}?ixlib=rb-1.2.1&ixid=MXwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHw%3D&auto=format&fit=crop&w=634&q=80`);
         }
     };
 
@@ -72,18 +81,18 @@ Example.loadingScene = (() => {
     };
 
     Game.renderUI = () => {
+        Draw.setColor(C.white);
         if (names.length > 0) {
             Draw.setFont(Font.l);
-            Draw.setColor(C.white);
             Draw.setHVAlign(Align.l, Align.t);
             const img = Draw.getImage(names[cursor]);
             Draw.text(10, 10, `${names[cursor]} (${img.width}x${img.height})`);
-            Draw.setFont(Font.m);
-            Draw.setVAlign(Align.b);
-            Draw.text(10, Stage.h - 10, 'Press <left> or <right> arrow keys to surf through images.');
-            Draw.setHAlign(Align.r);
-            Draw.text(Stage.w - 10, Stage.h - 10, loadTime);
         }
+        Draw.setFont(Font.m);
+        Draw.setHVAlign(Align.l, Align.b);
+        Draw.text(10, Stage.h - 10, 'Press <left> or <right> arrow keys to surf through images.');
+        Draw.setHAlign(Align.r);
+        Draw.text(Stage.w - 10, Stage.h - 10, loadTime);
     };
 
     Game.onLoad.renderUI = () => {
@@ -95,6 +104,9 @@ Example.loadingScene = (() => {
         Draw.setColor(C.white);
         Draw.setHVAlign(Align.l, Align.t);
         Draw.text(10, 10, `Time elapsed: ${getLoadTime()}s`);
+        Draw.setVAlign(Align.b);
+        const ec = Loader.getErrorCount();
+        Draw.text(10, Stage.h - 10, `Failed to load: ${ec} file${ec > 1? 's' : ''}${ec > 0? ' (check console)' : ''}`);
     };
 
     Scene.setup({
