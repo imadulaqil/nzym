@@ -315,6 +315,19 @@ Nzym.Events = {
         }
     }
 };
+Nzym.getAliases = function () {
+    return {
+        C: Nzym.DrawConstants.C,
+        Align: Nzym.DrawConstants.Align,
+        Common: Nzym.Common,
+        Events: Nzym.Events,
+        KeyCode: Nzym.KeyCode,
+        LineCap: Nzym.DrawConstants.LineCap,
+        LineJoin: Nzym.DrawConstants.LineJoin,
+        LineDash: Nzym.DrawConstants.LineDash,
+        Primitive: Nzym.DrawConstants.Primitive
+    };
+};
 Nzym.createEngine = function (options) {
     if (options === void 0) { options = {}; }
     return new NzymEngine(options);
@@ -444,12 +457,13 @@ var NzymDraw = /** @class */ (function () {
         this.vertices = [];
         this.primitive = { name: 'Fill', quantity: 0, closePath: true, isStroke: false };
         this.images = {};
+        this.currentFont = this.Font.m;
         this.lastText = {
             x: 0,
             y: 0,
-            text: ''
+            text: '',
+            font: this.currentFont
         };
-        this.currentFont = this.Font['m'];
     }
     NzymDraw.prototype.init = function () {
         this.ctx = this.defaultCtx = this.engine.Stage.canvas.getContext('2d');
@@ -514,6 +528,7 @@ var NzymDraw = /** @class */ (function () {
         this.lastText.x = x;
         this.lastText.y = y;
         this.lastText.text = text;
+        this.lastText.font = this.currentFont;
         var baseline = 0;
         var t = this.splitText(text);
         switch (this.ctx.textBaseline) {
@@ -528,12 +543,24 @@ var NzymDraw = /** @class */ (function () {
             this.ctx.fillText(t[i], x, y + baseline + this.currentFont.size * i);
         }
     };
-    NzymDraw.prototype.textWidth = function (text) {
+    NzymDraw.prototype.textWidth = function (text, font) {
         var _this = this;
-        return Math.max.apply(Math, this.splitText(text).map(function (x) { return _this.ctx.measureText(x).width; }));
+        if (font === void 0) { font = this.currentFont; }
+        var temp = this.currentFont;
+        this.setFont(font);
+        var result = Math.max.apply(Math, this.splitText(text).map(function (x) { return _this.ctx.measureText(x).width; }));
+        this.setFont(temp);
+        return result;
     };
-    NzymDraw.prototype.textHeight = function (text) {
-        return this.currentFont.size * this.splitText(text).length;
+    NzymDraw.prototype.textHeight = function (text, charHeight) {
+        if (charHeight === void 0) { charHeight = this.currentFont.size; }
+        return charHeight * this.splitText(text).length;
+    };
+    NzymDraw.prototype.getLastTextWidth = function () {
+        return this.textWidth(this.lastText.text, this.lastText.font);
+    };
+    NzymDraw.prototype.getLastTextHeight = function () {
+        return this.textHeight(this.lastText.text, this.lastText.font.size);
     };
     NzymDraw.prototype.setLineCap = function (lineCap) {
         this.ctx.lineCap = lineCap;
@@ -691,8 +718,12 @@ var NzymEngine = /** @class */ (function () {
      */
     function NzymEngine(options) {
         if (options === void 0) { options = {}; }
+        this.name = '';
+        if (options.name) {
+            this.name = options.name;
+        }
         // Instantiate all modules
-        this.Log = new NzymLog(options.name);
+        this.Log = new NzymLog(this.name);
         this.OBJ = new NzymOBJ(this, options);
         this.Draw = new NzymDraw(this);
         this.Time = new NzymTime(this);
@@ -796,9 +827,6 @@ var NzymEngine = /** @class */ (function () {
     };
     NzymEngine.prototype.getAliases = function () {
         return {
-            Common: Nzym.Common,
-            Events: Nzym.Events,
-            KeyCode: Nzym.KeyCode,
             Engine: this,
             OBJ: this.OBJ,
             Draw: this.Draw,
@@ -808,8 +836,12 @@ var NzymEngine = /** @class */ (function () {
             Scene: this.Scene,
             Stage: this.Stage,
             Loader: this.Loader,
+            // you can also get values below from Nzym.getAliases()
             C: Nzym.DrawConstants.C,
             Align: Nzym.DrawConstants.Align,
+            Common: Nzym.Common,
+            Events: Nzym.Events,
+            KeyCode: Nzym.KeyCode,
             LineCap: Nzym.DrawConstants.LineCap,
             LineJoin: Nzym.DrawConstants.LineJoin,
             LineDash: Nzym.DrawConstants.LineDash,
@@ -829,14 +861,18 @@ var NzymFont = /** @class */ (function () {
         this.bold = 'bold ';
         this.italic = 'italic ';
         this.boldItalic = 'bold italic ';
+        this.vvl = this.makeFont(128);
+        this.vl = this.makeFont(96);
         this.xxl = this.makeFont(64);
         this.xl = this.makeFont(48);
-        this.l = this.makeFont(30);
+        this.l = this.makeFont(32);
         this.ml = this.makeFont(24);
         this.m = this.makeFont(20);
         this.sm = this.makeFont(16);
-        this.s = this.makeFont(10);
+        this.s = this.makeFont(12);
         this.xs = this.makeFont(8);
+        this.vvlb = this.makeFont(this.vvl.size, this.bold);
+        this.vlb = this.makeFont(this.vl.size, this.bold);
         this.xxlb = this.makeFont(this.xxl.size, this.bold);
         this.xlb = this.makeFont(this.xl.size, this.bold);
         this.lb = this.makeFont(this.l.size, this.bold);
@@ -845,6 +881,26 @@ var NzymFont = /** @class */ (function () {
         this.smb = this.makeFont(this.sm.size, this.bold);
         this.sb = this.makeFont(this.s.size, this.bold);
         this.xsb = this.makeFont(this.xs.size, this.bold);
+        this.vvli = this.makeFont(this.vvl.size, this.italic);
+        this.vli = this.makeFont(this.vl.size, this.italic);
+        this.xxli = this.makeFont(this.xxl.size, this.italic);
+        this.xli = this.makeFont(this.xl.size, this.italic);
+        this.li = this.makeFont(this.l.size, this.italic);
+        this.mli = this.makeFont(this.ml.size, this.italic);
+        this.mi = this.makeFont(this.m.size, this.italic);
+        this.smi = this.makeFont(this.sm.size, this.italic);
+        this.si = this.makeFont(this.s.size, this.italic);
+        this.xsi = this.makeFont(this.xs.size, this.italic);
+        this.vvlbi = this.makeFont(this.vvl.size, this.boldItalic);
+        this.vlbi = this.makeFont(this.vl.size, this.boldItalic);
+        this.xxlbi = this.makeFont(this.xxl.size, this.boldItalic);
+        this.xlbi = this.makeFont(this.xl.size, this.boldItalic);
+        this.lbi = this.makeFont(this.l.size, this.boldItalic);
+        this.mlbi = this.makeFont(this.ml.size, this.boldItalic);
+        this.mbi = this.makeFont(this.m.size, this.boldItalic);
+        this.smbi = this.makeFont(this.sm.size, this.boldItalic);
+        this.sbi = this.makeFont(this.s.size, this.boldItalic);
+        this.xsbi = this.makeFont(this.xs.size, this.boldItalic);
     }
     NzymFont.prototype.makeFont = function (size, style, family) {
         if (style === void 0) { style = this.regular; }
@@ -857,7 +913,7 @@ var NzymFont = /** @class */ (function () {
             font = this[prop];
             if (typeof font === 'object') {
                 if (font.size !== undefined && font.style !== undefined && font.family !== undefined) {
-                    callbackFn(font);
+                    callbackFn(font, prop);
                 }
             }
         }
@@ -875,6 +931,18 @@ var NzymFont = /** @class */ (function () {
         link.rel = 'stylesheet';
         document.head.appendChild(prelink);
         document.head.appendChild(link);
+    };
+    NzymFont.prototype.isRegular = function (font) {
+        return font.style === this.regular;
+    };
+    NzymFont.prototype.isBold = function (font) {
+        return font.style.includes(this.bold);
+    };
+    NzymFont.prototype.isItalic = function (font) {
+        return font.style.includes(this.italic);
+    };
+    NzymFont.prototype.isBoldItalic = function (font) {
+        return font.style === this.boldItalic;
     };
     return NzymFont;
 }());
@@ -1669,6 +1737,17 @@ var NzymStage = /** @class */ (function () {
     Object.defineProperty(NzymStage.prototype, "isHidden", {
         get: function () {
             return this.canvas.style.display === 'none';
+        },
+        enumerable: false,
+        configurable: true
+    });
+    Object.defineProperty(NzymStage.prototype, "bgColor", {
+        get: function () {
+            return this.canvas.style.backgroundColor;
+        },
+        set: function (value) {
+            this.canvas.style.backgroundImage = '';
+            this.canvas.style.backgroundColor = value;
         },
         enumerable: false,
         configurable: true

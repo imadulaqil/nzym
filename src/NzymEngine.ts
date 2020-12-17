@@ -3,6 +3,8 @@
  */
 class NzymEngine {
 
+    name = '';
+
     Log: NzymLog;
     OBJ: NzymOBJ;
     Draw: NzymDraw;
@@ -22,8 +24,12 @@ class NzymEngine {
      */
     constructor(options: NzymEngineOptions = {}) {
 
+        if (options.name) {
+            this.name = options.name;
+        }
+
         // Instantiate all modules
-        this.Log = new NzymLog(options.name);
+        this.Log = new NzymLog(this.name);
         this.OBJ = new NzymOBJ(this, options);
         this.Draw = new NzymDraw(this);
         this.Time = new NzymTime(this);
@@ -138,9 +144,6 @@ class NzymEngine {
 
     getAliases() {
         return {
-            Common: Nzym.Common,
-            Events: Nzym.Events,
-            KeyCode: Nzym.KeyCode,
             Engine: this,
             OBJ: this.OBJ,
             Draw: this.Draw,
@@ -150,8 +153,12 @@ class NzymEngine {
             Scene: this.Scene,
             Stage: this.Stage,
             Loader: this.Loader,
+            // you can also get values below from Nzym.getAliases()
             C: Nzym.DrawConstants.C,
             Align: Nzym.DrawConstants.Align,
+            Common: Nzym.Common,
+            Events: Nzym.Events,
+            KeyCode: Nzym.KeyCode,
             LineCap: Nzym.DrawConstants.LineCap,
             LineJoin: Nzym.DrawConstants.LineJoin,
             LineDash: Nzym.DrawConstants.LineDash,

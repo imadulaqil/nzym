@@ -87,5 +87,16 @@ var NzymStage = /** @class */ (function () {
         enumerable: false,
         configurable: true
     });
+    Object.defineProperty(NzymStage.prototype, "bgColor", {
+        get: function () {
+            return this.canvas.style.backgroundColor;
+        },
+        set: function (value) {
+            this.canvas.style.backgroundImage = '';
+            this.canvas.style.backgroundColor = value;
+        },
+        enumerable: false,
+        configurable: true
+    });
     return NzymStage;
 }());

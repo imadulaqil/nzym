@@ -14,16 +14,21 @@ class NzymDraw {
 
     images = {};
 
-    lastText = {
-        x: 0,
-        y: 0,
-        text: ''
+    lastText: {
+        x: number,
+        y: number,
+        text: string,
+        font: NzymFontFormat
     };
 
-    constructor(
-        public engine: NzymEngine
-    ) {
-        this.currentFont = this.Font['m'];
+    constructor(public engine: NzymEngine) {
+        this.currentFont = this.Font.m;
+        this.lastText = {
+            x: 0,
+            y: 0,
+            text: '',
+            font: this.currentFont
+        };
     }
 
     init() {
@@ -104,6 +109,7 @@ class NzymDraw {
         this.lastText.x = x;
         this.lastText.y = y;
         this.lastText.text = text as string;
+        this.lastText.font = this.currentFont;
         let baseline = 0;
         const t = this.splitText(text);
         switch (this.ctx.textBaseline) {
@@ -115,12 +121,24 @@ class NzymDraw {
         }
     }
 
-    textWidth(text: any) {
-        return Math.max(...this.splitText(text).map(x => this.ctx.measureText(x).width));
+    textWidth(text: any, font: NzymFontFormat = this.currentFont) {
+        const temp = this.currentFont;
+        this.setFont(font);
+        const result = Math.max(...this.splitText(text).map(x => this.ctx.measureText(x).width));
+        this.setFont(temp);
+        return result;
     }
 
-    textHeight(text: any) {
-        return this.currentFont.size * this.splitText(text).length;
+    textHeight(text: any, charHeight: number = this.currentFont.size) {
+        return charHeight * this.splitText(text).length;
+    }
+
+    getLastTextWidth() {
+        return this.textWidth(this.lastText.text, this.lastText.font);
+    }
+
+    getLastTextHeight() {
+        return this.textHeight(this.lastText.text, this.lastText.font.size);
     }
 
     setLineCap(lineCap: CanvasLineCap) {

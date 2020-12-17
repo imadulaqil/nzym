@@ -95,4 +95,13 @@ class NzymStage {
         return this.canvas.style.display === 'none';
     }
 
+    get bgColor() {
+        return this.canvas.style.backgroundColor;
+    }
+
+    set bgColor(value: string) {
+        this.canvas.style.backgroundImage = '';
+        this.canvas.style.backgroundColor = value;
+    }
+
 }

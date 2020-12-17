@@ -11,8 +11,12 @@ var NzymEngine = /** @class */ (function () {
      */
     function NzymEngine(options) {
         if (options === void 0) { options = {}; }
+        this.name = '';
+        if (options.name) {
+            this.name = options.name;
+        }
         // Instantiate all modules
-        this.Log = new NzymLog(options.name);
+        this.Log = new NzymLog(this.name);
         this.OBJ = new NzymOBJ(this, options);
         this.Draw = new NzymDraw(this);
         this.Time = new NzymTime(this);
@@ -116,9 +120,6 @@ var NzymEngine = /** @class */ (function () {
     };
     NzymEngine.prototype.getAliases = function () {
         return {
-            Common: Nzym.Common,
-            Events: Nzym.Events,
-            KeyCode: Nzym.KeyCode,
             Engine: this,
             OBJ: this.OBJ,
             Draw: this.Draw,
@@ -128,8 +129,12 @@ var NzymEngine = /** @class */ (function () {
             Scene: this.Scene,
             Stage: this.Stage,
             Loader: this.Loader,
+            // you can also get values below from Nzym.getAliases()
             C: Nzym.DrawConstants.C,
             Align: Nzym.DrawConstants.Align,
+            Common: Nzym.Common,
+            Events: Nzym.Events,
+            KeyCode: Nzym.KeyCode,
             LineCap: Nzym.DrawConstants.LineCap,
             LineJoin: Nzym.DrawConstants.LineJoin,
             LineDash: Nzym.DrawConstants.LineDash,

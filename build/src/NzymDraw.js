@@ -8,12 +8,13 @@ var NzymDraw = /** @class */ (function () {
         this.vertices = [];
         this.primitive = { name: 'Fill', quantity: 0, closePath: true, isStroke: false };
         this.images = {};
+        this.currentFont = this.Font.m;
         this.lastText = {
             x: 0,
             y: 0,
-            text: ''
+            text: '',
+            font: this.currentFont
         };
-        this.currentFont = this.Font['m'];
     }
     NzymDraw.prototype.init = function () {
         this.ctx = this.defaultCtx = this.engine.Stage.canvas.getContext('2d');
@@ -78,6 +79,7 @@ var NzymDraw = /** @class */ (function () {
         this.lastText.x = x;
         this.lastText.y = y;
         this.lastText.text = text;
+        this.lastText.font = this.currentFont;
         var baseline = 0;
         var t = this.splitText(text);
         switch (this.ctx.textBaseline) {
@@ -92,12 +94,24 @@ var NzymDraw = /** @class */ (function () {
             this.ctx.fillText(t[i], x, y + baseline + this.currentFont.size * i);
         }
     };
-    NzymDraw.prototype.textWidth = function (text) {
+    NzymDraw.prototype.textWidth = function (text, font) {
         var _this = this;
-        return Math.max.apply(Math, this.splitText(text).map(function (x) { return _this.ctx.measureText(x).width; }));
+        if (font === void 0) { font = this.currentFont; }
+        var temp = this.currentFont;
+        this.setFont(font);
+        var result = Math.max.apply(Math, this.splitText(text).map(function (x) { return _this.ctx.measureText(x).width; }));
+        this.setFont(temp);
+        return result;
     };
-    NzymDraw.prototype.textHeight = function (text) {
-        return this.currentFont.size * this.splitText(text).length;
+    NzymDraw.prototype.textHeight = function (text, charHeight) {
+        if (charHeight === void 0) { charHeight = this.currentFont.size; }
+        return charHeight * this.splitText(text).length;
+    };
+    NzymDraw.prototype.getLastTextWidth = function () {
+        return this.textWidth(this.lastText.text, this.lastText.font);
+    };
+    NzymDraw.prototype.getLastTextHeight = function () {
+        return this.textHeight(this.lastText.text, this.lastText.font.size);
     };
     NzymDraw.prototype.setLineCap = function (lineCap) {
         this.ctx.lineCap = lineCap;
