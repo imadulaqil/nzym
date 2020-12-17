@@ -61,7 +61,7 @@ class NzymLoader {
 
     onErrorEvent(data: HTMLImageElement) {
         data['isError'] = true;
-        this.engine.Log.error(`Failed to load source: ${data.src}. Make sure it's exists or make sure it's relative to your document. If you are working with local server, in some browser, you can't use "C:Users/user/..." it has to be relative to where your document exists.`);
+        this.engine.Log.error(`Failed to load source: "${data.src}" Make sure it's exists or, if you are working with local server, in some browser, you can't use "C:Users/user/..." It has to be relative to where your document exists, try add "file:///C:Users/user/..."`);
     }
 
     loadImage(name: any, src?: any) {
@@ -76,4 +76,4 @@ class NzymLoader {
         this.list.image.push(img);
         this.engine.Draw.addImage(name, img);
     }
-};
+}

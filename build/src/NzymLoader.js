@@ -54,7 +54,7 @@ var NzymLoader = /** @class */ (function () {
     };
     NzymLoader.prototype.onErrorEvent = function (data) {
         data['isError'] = true;
-        this.engine.Log.error("Failed to load source: " + data.src + ". Make sure it's exists or make sure it's relative to your document. If you are working with local server, in some browser, you can't use \"C:Users/user/...\" it has to be relative to where your document exists.");
+        this.engine.Log.error("Failed to load source: \"" + data.src + "\" Make sure it's exists or, if you are working with local server, in some browser, you can't use \"C:Users/user/...\" It has to be relative to where your document exists, try add \"file:///C:Users/user/...\"");
     };
     NzymLoader.prototype.loadImage = function (name, src) {
         var _this = this;
@@ -71,4 +71,3 @@ var NzymLoader = /** @class */ (function () {
     };
     return NzymLoader;
 }());
-;

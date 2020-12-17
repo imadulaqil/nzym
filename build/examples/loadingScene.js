@@ -4,7 +4,8 @@ Example.loadingScene = (function () {
         name: 'Loading Scene',
         w: 1280,
         h: 720,
-        bgColor: 'royalblue'
+        bgColor: 'royalblue',
+        parent: document.getElementById('gameContainer')
     });
     var _a = Engine.getAliases(), C = _a.C, Draw = _a.Draw, Font = _a.Font, Time = _a.Time, Align = _a.Align, Input = _a.Input, Scene = _a.Scene, Stage = _a.Stage, Loader = _a.Loader, KeyCode = _a.KeyCode;
     var Game = {

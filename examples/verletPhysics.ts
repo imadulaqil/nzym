@@ -2,7 +2,10 @@ var Example = Example || {};
 
 Example.verletPhysics = (() => {
 
-    const Engine = new NzymEngine({ name: 'Verlet Physics' });
+    const Engine = new NzymEngine({
+        name: 'Verlet Physics',
+        parent: document.getElementById('gameContainer')
+    });
     const {
         C,
         Draw,

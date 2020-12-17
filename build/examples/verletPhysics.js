@@ -1,6 +1,9 @@
 var Example = Example || {};
 Example.verletPhysics = (function () {
-    var Engine = new NzymEngine({ name: 'Verlet Physics' });
+    var Engine = new NzymEngine({
+        name: 'Verlet Physics',
+        parent: document.getElementById('gameContainer')
+    });
     var _a = Engine.getAliases(), C = _a.C, Draw = _a.Draw, Font = _a.Font, Time = _a.Time, Align = _a.Align, Input = _a.Input, Scene = _a.Scene, Stage = _a.Stage, Common = _a.Common, KeyCode = _a.KeyCode;
     var points, sticks, dragged;
     var Point = /** @class */ (function () {

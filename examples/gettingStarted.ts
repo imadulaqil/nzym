@@ -2,7 +2,10 @@ var Example = Example || {};
 
 Example.gettingStarted = (() => {
 
-    const Engine = new NzymEngine({ name: 'Getting Started' });
+    const Engine = new NzymEngine({
+        name: 'Getting Started',
+        parent: document.getElementById('gameContainer')
+    });
     const {
         C,
         OBJ,

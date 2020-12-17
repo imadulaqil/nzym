@@ -6,7 +6,8 @@ Example.loadingScene = (() => {
         name: 'Loading Scene',
         w: 1280,
         h: 720,
-        bgColor: 'royalblue'
+        bgColor: 'royalblue',
+        parent: document.getElementById('gameContainer')
     });
 
     const {

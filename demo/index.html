@@ -8,12 +8,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
     <title>Demo</title>
     <script src="../build/nzym.js"></script>
+    <script src="../build/demo/app.js"></script>
 </head>
 <body>
-    <script src="../build/examples/gettingStarted.js"></script>
-    <script src="../build/examples/verletPhysics.js"></script>
-    <script src="../build/examples/loadingScene.js"></script>
-    <script src="../build/demo/app.js"></script>
+    <div id="gameContainer" style="margin-bottom: 0.5rem;"></div>
     <div>
         <select id="example-select">
             <option value="gettingStarted">1: Getting Started</option>
@@ -29,5 +27,8 @@
         <button id="start-prev-button" onclick="startPrev()">Start Previous (-)</button>
         <button id="start-next-button" onclick="startNext()">Start Next (-)</button>
     </div>
+    <script src="../build/examples/gettingStarted.js"></script>
+    <script src="../build/examples/verletPhysics.js"></script>
+    <script src="../build/examples/loadingScene.js"></script>
 </body>
 </html>

@@ -1,6 +1,9 @@
 var Example = Example || {};
 Example.gettingStarted = (function () {
-    var Engine = new NzymEngine({ name: 'Getting Started' });
+    var Engine = new NzymEngine({
+        name: 'Getting Started',
+        parent: document.getElementById('gameContainer')
+    });
     var _a = Engine.getAliases(), C = _a.C, OBJ = _a.OBJ, Draw = _a.Draw, Font = _a.Font, Time = _a.Time, Align = _a.Align, Input = _a.Input, Scene = _a.Scene, Stage = _a.Stage, Common = _a.Common, KeyCode = _a.KeyCode, Primitive = _a.Primitive;
     var Box = /** @class */ (function () {
         function Box(x, y) {
