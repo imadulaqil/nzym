@@ -47,7 +47,7 @@ class NzymLoader {
         }
     }
     
-    loadImage(name: string, src: string) {
+    loadImage(name: string, src?: string) {
         if (src === undefined) {
             src = name;
             name = src.split('/').pop().split('.')[0];

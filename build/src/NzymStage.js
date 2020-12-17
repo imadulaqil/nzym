@@ -31,7 +31,9 @@ var NzymStage = /** @class */ (function () {
         this.pixelRatio = pixelRatio;
         this.canvas.width = this.w * this.pixelRatio;
         this.canvas.height = this.h * this.pixelRatio;
-        this.canvas.getContext('2d').resetTransform();
+        if (this.canvas.getContext('2d').resetTransform) {
+            this.canvas.getContext('2d').resetTransform();
+        }
         this.canvas.getContext('2d').scale(this.pixelRatio, this.pixelRatio);
     };
     NzymStage.prototype.createCanvas = function (options) {
@@ -76,7 +78,7 @@ var NzymStage = /** @class */ (function () {
         this.canvas.style.display = 'none';
     };
     NzymStage.prototype.show = function () {
-        this.canvas.style.display = 'initial';
+        this.canvas.style.display = 'block';
     };
     Object.defineProperty(NzymStage.prototype, "isHidden", {
         get: function () {

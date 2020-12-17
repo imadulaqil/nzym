@@ -49,7 +49,7 @@ Example.gettingStarted = (function () {
         if (Input.isMoving) {
             n.color = C.orangeRed;
         }
-        if (Input.keyDown(KeyCode.Space)) {
+        if (Input.keyDown(KeyCode.M)) {
             Scene.restart();
         }
     };

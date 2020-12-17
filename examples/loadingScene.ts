@@ -1,26 +1,50 @@
 var Example = Example || {};
 
 Example.loadingScene = (() => {
-    const Game = {
+
+    const Engine = new NzymEngine({
+        name: 'Loading Scene',
+        w: 1280,
+        h: 720,
+        bgColor: 'royalblue'
+    });
+
+    const {
+        C,
+        Draw,
+        Font,
+        Time,
+        Align,
+        Input,
+        Scene,
+        Stage,
+        Loader,
+        KeyCode
+    } = Engine.getAliases();
+
+    const Game: NzymGame = {
         onLoad: {}
     };
 
     let names = [],
         cursor = 0,
         scaleTo = 0.6,
-        scale;
+        loadTime = '',
+        scale: number;
+
+    const getLoadTime = () => ((Time.runningTime) / 1000).toFixed(4);
 
     Game.boot = () => {
-        Engine.Log.info('to see loading scene in process, call `Example.loadingScene.start()` immediately after the html document loaded OR uncomment `autoStart: true` below in this file.');
         scale = scaleTo;
-        // const user = 'johndoe';
-        // for (let i = 35; i <= 219; i++) {
-        //     Loader.loadImage(`C:/Users/${user}/Pictures/Screenshots/Screenshot (${i}).png`);
-        // }
+        const user = 'yourl';
+        for (let i = 35; i <= 219; i++) {
+            Loader.loadImage(`C:/Users/${user}/Pictures/Screenshots/Screenshot (${i}).png`);
+        }
     };
 
     Game.loaded = () => {
-        Engine.Log.info(`Load time: ${(window.performance.now() / 1000).toFixed(4)}s`);
+        loadTime = `Load time: ${getLoadTime()}s`;
+        Engine.Log.info(loadTime);
         for (const name in Draw.images) {
             names.push(name);
         }
@@ -57,6 +81,8 @@ Example.loadingScene = (() => {
             Draw.setFont(Font.m);
             Draw.setVAlign(Align.b);
             Draw.text(10, Stage.h - 10, 'Press <left> or <right> arrow keys to surf through images.');
+            Draw.setHAlign(Align.r);
+            Draw.text(Stage.w - 10, Stage.h - 10, loadTime);
         }
     };
 
@@ -65,14 +91,15 @@ Example.loadingScene = (() => {
         Draw.setColor(C.black);
         Draw.setHVAlign(Align.c, Align.m);
         Draw.text(Stage.mid.w, Stage.mid.h, `Loading ${Loader.getLoadedCount()}/${Loader.getLoadAmount()} files...`);
+        Draw.setFont(Font.l);
+        Draw.setColor(C.white);
+        Draw.setHVAlign(Align.l, Align.t);
+        Draw.text(10, 10, `Time elapsed: ${getLoadTime()}s`);
     };
 
-    return Nzym.createEngine({
-        name: 'Loading Scene',
-        w: 1280,
-        h: 720,
-        bgColor: 'royalblue',
-        // autoStart: true,
+    Scene.setup({
         scenes: Game
     });
+
+    return Engine;
 })();

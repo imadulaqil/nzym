@@ -39,5 +39,8 @@ Nzym.Common = {
     },
     degtorad(degrees: number) {
         return degrees * this.DEG_TO_RAD;
+    },
+    hypot(a: number, b: number) {
+        return Math.sqrt(a * a + b * b);
     }
 };

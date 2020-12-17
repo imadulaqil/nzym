@@ -14,6 +14,12 @@ class NzymDraw {
 
     images = {};
 
+    lastText = {
+        x: 0,
+        y: 0,
+        text: ''
+    };
+
     constructor(
         public engine: NzymEngine
     ) {
@@ -69,32 +75,35 @@ class NzymDraw {
         this.currentFont = font;
     }
 
-    setHAlign(align) {
-        this.ctx.textAlign = align;
+    setHAlign(halign: CanvasTextAlign) {
+        this.ctx.textAlign = halign;
     }
 
-    setVAlign(align) {
-        this.ctx.textBaseline = align;
+    setVAlign(valign: CanvasTextBaseline) {
+        this.ctx.textBaseline = valign;
     }
 
-    setHVAlign(halign, valign) {
+    setHVAlign(halign: CanvasTextAlign, valign: CanvasTextBaseline) {
         this.ctx.textAlign = halign;
         this.ctx.textBaseline = valign;
     }
 
-    setAlign(align) {
+    setAlign(align: CanvasTextAlign) {
         this.ctx.textAlign = align;
     }
 
-    setBaseline(align) {
-        this.ctx.textBaseline = align;
+    setBaseline(baseline: CanvasTextBaseline) {
+        this.ctx.textBaseline = baseline;
     }
 
     splitText(text: string) {
         return ('' + text).split('\n');
     }
 
-    text(x: number, y: number, text: string) {
+    text(x: number, y: number, text: any) {
+        this.lastText.x = x;
+        this.lastText.y = y;
+        this.lastText.text = text as string;
         let baseline = 0;
         const t = this.splitText(text);
         switch (this.ctx.textBaseline) {
@@ -106,19 +115,19 @@ class NzymDraw {
         }
     }
 
-    textWidth(text: string) {
+    textWidth(text: any) {
         return Math.max(...this.splitText(text).map(x => this.ctx.measureText(x).width));
     }
 
-    textHeight(text: string) {
+    textHeight(text: any) {
         return this.currentFont.size * this.splitText(text).length;
     }
 
-    setLineCap(lineCap) {
+    setLineCap(lineCap: CanvasLineCap) {
         this.ctx.lineCap = lineCap;
     }
 
-    setLineJoin(lineJoin) {
+    setLineJoin(lineJoin: CanvasLineJoin) {
         this.ctx.lineJoin = lineJoin;
     }
 

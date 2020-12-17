@@ -8,6 +8,11 @@ var NzymDraw = /** @class */ (function () {
         this.vertices = [];
         this.primitive = { name: 'Fill', quantity: 0, closePath: true, isStroke: false };
         this.images = {};
+        this.lastText = {
+            x: 0,
+            y: 0,
+            text: ''
+        };
         this.currentFont = this.Font['m'];
     }
     NzymDraw.prototype.init = function () {
@@ -50,11 +55,11 @@ var NzymDraw = /** @class */ (function () {
         this.ctx.font = "" + font.style + font.size + "px " + font.family + ", serif";
         this.currentFont = font;
     };
-    NzymDraw.prototype.setHAlign = function (align) {
-        this.ctx.textAlign = align;
+    NzymDraw.prototype.setHAlign = function (halign) {
+        this.ctx.textAlign = halign;
     };
-    NzymDraw.prototype.setVAlign = function (align) {
-        this.ctx.textBaseline = align;
+    NzymDraw.prototype.setVAlign = function (valign) {
+        this.ctx.textBaseline = valign;
     };
     NzymDraw.prototype.setHVAlign = function (halign, valign) {
         this.ctx.textAlign = halign;
@@ -63,13 +68,16 @@ var NzymDraw = /** @class */ (function () {
     NzymDraw.prototype.setAlign = function (align) {
         this.ctx.textAlign = align;
     };
-    NzymDraw.prototype.setBaseline = function (align) {
-        this.ctx.textBaseline = align;
+    NzymDraw.prototype.setBaseline = function (baseline) {
+        this.ctx.textBaseline = baseline;
     };
     NzymDraw.prototype.splitText = function (text) {
         return ('' + text).split('\n');
     };
     NzymDraw.prototype.text = function (x, y, text) {
+        this.lastText.x = x;
+        this.lastText.y = y;
+        this.lastText.text = text;
         var baseline = 0;
         var t = this.splitText(text);
         switch (this.ctx.textBaseline) {

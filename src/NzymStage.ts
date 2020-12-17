@@ -37,7 +37,9 @@ class NzymStage {
         this.pixelRatio = pixelRatio;
         this.canvas.width = this.w * this.pixelRatio;
         this.canvas.height = this.h * this.pixelRatio;
-        this.canvas.getContext('2d').resetTransform();
+        if (this.canvas.getContext('2d').resetTransform) {
+            this.canvas.getContext('2d').resetTransform();
+        }
         this.canvas.getContext('2d').scale(this.pixelRatio, this.pixelRatio);
     }
 
@@ -86,7 +88,7 @@ class NzymStage {
     }
 
     show() {
-        this.canvas.style.display = 'initial';
+        this.canvas.style.display = 'block';
     }
 
     get isHidden() {

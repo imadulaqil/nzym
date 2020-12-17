@@ -1,10 +1,36 @@
 var Example = Example || {};
 
 Example.verletPhysics = (() => {
-    let points, sticks, dragged;
+
+    const Engine = new NzymEngine({ name: 'Verlet Physics' });
+    const {
+        C,
+        Draw,
+        Font,
+        Time,
+        Align,
+        Input,
+        Scene,
+        Stage,
+        Common,
+        KeyCode
+    } = Engine.getAliases();
+
+    let points: Point[], sticks: Stick[], dragged: Point;
 
     class Point {
-        constructor(x, y, vx=0, vy=0, r=10) {
+
+        x: number;
+        y: number;
+        px: number;
+        py: number;
+        r: number;
+        bounce: number;
+        gravity: number;
+        friction: number;
+        isPinned: boolean;
+
+        constructor(x: number, y: number, vx=0, vy=0, r=10) {
             this.x = x;
             this.y = y;
             this.px = this.x - vx;
@@ -55,17 +81,25 @@ Example.verletPhysics = (() => {
     }
 
     class Stick {
-        constructor(p0, p1, length) {
+
+        id = 0;
+        p0: Point;
+        p1: Point;
+        length: number;
+        isHidden: boolean;
+        stiffness: number;
+
+        constructor(p0: Point, p1: Point, length?: number) {
             this.p0 = p0;
             this.p1 = p1;
-            this.length = length || Math.hypot(this.p1.x - this.p0.x, this.p1.y - this.p0.y);
+            this.length = length || Common.hypot(this.p1.x - this.p0.x, this.p1.y - this.p0.y);
             this.isHidden = false;
             this.stiffness = 1;
         }
         update() {
             let dx = this.p1.x - this.p0.x,
                 dy = this.p1.y - this.p0.y,
-                dist = Math.hypot(dx, dy),
+                dist = Common.hypot(dx, dy),
                 diff = this.length - dist,
                 percent = diff / dist / 2 * this.stiffness,
                 offsetX = dx * percent,
@@ -94,7 +128,7 @@ Example.verletPhysics = (() => {
         return p;
     };
 
-    const addStick = (p0, p1, isHidden) => {
+    const addStick = (p0: Point, p1: Point, isHidden?: boolean) => {
         const s = new Stick(p0, p1);
         s.id = Common.getID();
         if (isHidden) s.isHidden = true;
@@ -128,8 +162,7 @@ Example.verletPhysics = (() => {
         p[0].isPinned = true;
     };
 
-    return Nzym.createEngine({
-        name: 'Verlet Physics',
+    Scene.setup({
         onBoot() {
             points = [];
             sticks = [];
@@ -151,7 +184,7 @@ Example.verletPhysics = (() => {
                 dragged = null;
                 let nearestDistance = 100; // minimum distance to get grabbed
                 for (let i = 0; i < points.length; i++) {
-                    const distance = Math.hypot(Input.x - points[i].x, Input.y - points[i].y);
+                    const distance = Common.hypot(Input.x - points[i].x, Input.y - points[i].y);
                     if (distance < nearestDistance) {
                         nearestDistance = distance;
                         dragged = points[i];
@@ -194,9 +227,11 @@ Example.verletPhysics = (() => {
             Draw.setHVAlign(Align.l, Align.t);
             Draw.text(10, 10, Time.FPS);
 
-            if (Input.keyDown(KeyCode.Space)) {
+            if (Input.keyDown(KeyCode.M)) {
                 Scene.restart();
             }
         }
     });
+
+    return Engine;
 })();

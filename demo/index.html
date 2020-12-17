@@ -11,68 +11,9 @@
 </head>
 <body>
     <script src="../build/examples/gettingStarted.js"></script>
-    <script src="../examples/verletPhysics.js"></script>
-    <script src="../examples/loadingScene.js"></script>
-    <script>
-        let currentEngineName = '';
-        const updateButtons = () => {
-            let prevEngineName = '-';
-            let nextEngineName = '-';
-            const startPrevButton = document.getElementById('start-prev-button');
-            const startNextButton = document.getElementById('start-next-button');
-            const options = document.getElementById('example-select').options;
-            for (let i = 0; i < options.length; i++) {
-                if (options[i].selected) {
-                    if (i > 0) {
-                        prevEngineName = options[i - 1].innerHTML;
-                    }
-                    if (i < options.length - 1) {
-                        nextEngineName = options[i + 1].innerHTML;
-                    }
-                }
-            }
-            startPrevButton.innerHTML = `Start Previous (${prevEngineName})`;
-            startNextButton.innerHTML = `Start Next (${nextEngineName})`;
-        };
-        const callEngineMethod = (methodName) => {
-            const engineName = document.getElementById('example-select').value;
-            if (engineName !== currentEngineName && window['Engine']) {
-                if (window['Engine'].stop instanceof Function) {
-                    window['Engine'].stop();
-                }
-            }
-
-            currentEngineName = engineName;
-
-            const engine = Example[currentEngineName];
-            engine.makeGlobalAliases();
-            engine[methodName]();
-        };
-        const startPrev = () => {
-            const options = document.getElementById('example-select').options;
-            for (let i = 1; i < options.length; i++) {
-                if (options[i].selected) {
-                    options[i].selected = false;
-                    options[i - 1].selected = true;
-                    callEngineMethod('start');
-                    updateButtons();
-                    break;
-                }
-            }
-        };
-        const startNext = () => {
-            const options = document.getElementById('example-select').options;
-            for (let i = 0; i < options.length - 1; i++) {
-                if (options[i].selected) {
-                    options[i].selected = false;
-                    options[i + 1].selected = true;
-                    callEngineMethod('start');
-                    updateButtons();
-                    break;
-                }
-            }
-        };
-    </script>
+    <script src="../build/examples/verletPhysics.js"></script>
+    <script src="../build/examples/loadingScene.js"></script>
+    <script src="../build/demo/app.js"></script>
     <div>
         <select id="example-select">
             <option value="gettingStarted">1: Getting Started</option>
@@ -88,8 +29,5 @@
         <button id="start-prev-button" onclick="startPrev()">Start Previous (-)</button>
         <button id="start-next-button" onclick="startNext()">Start Next (-)</button>
     </div>
-    <script>
-        updateButtons();
-    </script>
 </body>
 </html>

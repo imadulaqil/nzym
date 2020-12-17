@@ -44,5 +44,8 @@ Nzym.Common = {
     },
     degtorad: function (degrees) {
         return degrees * this.DEG_TO_RAD;
+    },
+    hypot: function (a, b) {
+        return Math.sqrt(a * a + b * b);
     }
 };
