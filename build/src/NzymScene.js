@@ -52,9 +52,12 @@ var NzymScene = /** @class */ (function () {
             Nzym.Events.on(this, 'loadrenderUI', options.onLoadRenderUI);
     };
     NzymScene.prototype.boot = function () {
-        Nzym.Events.trigger(this, 'boot');
-        if (this.engine.Loader.getLoadAmount() < 1) {
-            this.engine.Loader.completeLoad();
+        if (!this.isStarted) {
+            Nzym.Events.trigger(this, 'boot');
+            if (this.engine.Loader.getLoadAmount() < 1) {
+                this.engine.Loader.completeLoad();
+            }
+            this.isStarted = true;
         }
     };
     NzymScene.prototype.restart = function () {

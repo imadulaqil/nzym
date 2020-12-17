@@ -33,9 +33,12 @@ class NzymScene {
     }
 
     boot() {
-        Nzym.Events.trigger(this, 'boot');
-        if (this.engine.Loader.getLoadAmount() < 1) {
-            this.engine.Loader.completeLoad();
+        if (!this.isStarted) {
+            Nzym.Events.trigger(this, 'boot');
+            if (this.engine.Loader.getLoadAmount() < 1) {
+                this.engine.Loader.completeLoad();
+            }
+            this.isStarted = true;
         }
     }
 

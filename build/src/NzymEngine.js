@@ -27,13 +27,17 @@ var NzymEngine = /** @class */ (function () {
         this.Scene.setup(options);
         this.stop();
         this.makeGlobalAliases();
-        this.Scene.boot();
         if (options.autoStart) {
             // Start the engine
+            this.Scene.boot();
             this.start();
         }
     }
     NzymEngine.prototype.start = function () {
+        if (!this.Scene.isStarted) {
+            this.Scene.boot();
+            this.Scene.isStarted = true;
+        }
         if (!this.Runner.isRunning) {
             this.Time.start();
             this.Stage.show();
@@ -109,6 +113,28 @@ var NzymEngine = /** @class */ (function () {
         window['LineJoin'] = Nzym.DrawConstants.LineJoin;
         window['LineDash'] = Nzym.DrawConstants.LineDash;
         window['Primitive'] = Nzym.DrawConstants.Primitive;
+    };
+    NzymEngine.prototype.getAliases = function () {
+        return {
+            Common: Nzym.Common,
+            Events: Nzym.Events,
+            KeyCode: Nzym.KeyCode,
+            Engine: this,
+            OBJ: this.OBJ,
+            Draw: this.Draw,
+            Font: this.Draw.Font,
+            Time: this.Time,
+            Input: this.Input,
+            Scene: this.Scene,
+            Stage: this.Stage,
+            Loader: this.Loader,
+            C: Nzym.DrawConstants.C,
+            Align: Nzym.DrawConstants.Align,
+            LineCap: Nzym.DrawConstants.LineCap,
+            LineJoin: Nzym.DrawConstants.LineJoin,
+            LineDash: Nzym.DrawConstants.LineDash,
+            Primitive: Nzym.DrawConstants.Primitive
+        };
     };
     return NzymEngine;
 }());

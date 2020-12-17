@@ -690,13 +690,17 @@ var NzymEngine = /** @class */ (function () {
         this.Scene.setup(options);
         this.stop();
         this.makeGlobalAliases();
-        this.Scene.boot();
         if (options.autoStart) {
             // Start the engine
+            this.Scene.boot();
             this.start();
         }
     }
     NzymEngine.prototype.start = function () {
+        if (!this.Scene.isStarted) {
+            this.Scene.boot();
+            this.Scene.isStarted = true;
+        }
         if (!this.Runner.isRunning) {
             this.Time.start();
             this.Stage.show();
@@ -773,6 +777,28 @@ var NzymEngine = /** @class */ (function () {
         window['LineDash'] = Nzym.DrawConstants.LineDash;
         window['Primitive'] = Nzym.DrawConstants.Primitive;
     };
+    NzymEngine.prototype.getAliases = function () {
+        return {
+            Common: Nzym.Common,
+            Events: Nzym.Events,
+            KeyCode: Nzym.KeyCode,
+            Engine: this,
+            OBJ: this.OBJ,
+            Draw: this.Draw,
+            Font: this.Draw.Font,
+            Time: this.Time,
+            Input: this.Input,
+            Scene: this.Scene,
+            Stage: this.Stage,
+            Loader: this.Loader,
+            C: Nzym.DrawConstants.C,
+            Align: Nzym.DrawConstants.Align,
+            LineCap: Nzym.DrawConstants.LineCap,
+            LineJoin: Nzym.DrawConstants.LineJoin,
+            LineDash: Nzym.DrawConstants.LineDash,
+            Primitive: Nzym.DrawConstants.Primitive
+        };
+    };
     return NzymEngine;
 }());
 /**
@@ -786,22 +812,22 @@ var NzymFont = /** @class */ (function () {
         this.bold = 'bold ';
         this.italic = 'italic ';
         this.boldItalic = 'bold italic ';
-        this['xxl'] = this.makeFont(64);
-        this['xl'] = this.makeFont(48);
-        this['l'] = this.makeFont(30);
-        this['ml'] = this.makeFont(24);
-        this['m'] = this.makeFont(20);
-        this['sm'] = this.makeFont(16);
-        this['s'] = this.makeFont(10);
-        this['xs'] = this.makeFont(8);
-        this['xxlb'] = this.makeFont(this['xxl'].size, this.bold);
-        this['xlb'] = this.makeFont(this['xl'].size, this.bold);
-        this['lb'] = this.makeFont(this['l'].size, this.bold);
-        this['mlb'] = this.makeFont(this['ml'].size, this.bold);
-        this['mb'] = this.makeFont(this['m'].size, this.bold);
-        this['smb'] = this.makeFont(this['sm'].size, this.bold);
-        this['sb'] = this.makeFont(this['s'].size, this.bold);
-        this['xsb'] = this.makeFont(this['xs'].size, this.bold);
+        this.xxl = this.makeFont(64);
+        this.xl = this.makeFont(48);
+        this.l = this.makeFont(30);
+        this.ml = this.makeFont(24);
+        this.m = this.makeFont(20);
+        this.sm = this.makeFont(16);
+        this.s = this.makeFont(10);
+        this.xs = this.makeFont(8);
+        this.xxlb = this.makeFont(this.xxl.size, this.bold);
+        this.xlb = this.makeFont(this.xl.size, this.bold);
+        this.lb = this.makeFont(this.l.size, this.bold);
+        this.mlb = this.makeFont(this.ml.size, this.bold);
+        this.mb = this.makeFont(this.m.size, this.bold);
+        this.smb = this.makeFont(this.sm.size, this.bold);
+        this.sb = this.makeFont(this.s.size, this.bold);
+        this.xsb = this.makeFont(this.xs.size, this.bold);
     }
     NzymFont.prototype.makeFont = function (size, style, family) {
         if (style === void 0) { style = this.regular; }
@@ -1476,9 +1502,12 @@ var NzymScene = /** @class */ (function () {
             Nzym.Events.on(this, 'loadrenderUI', options.onLoadRenderUI);
     };
     NzymScene.prototype.boot = function () {
-        Nzym.Events.trigger(this, 'boot');
-        if (this.engine.Loader.getLoadAmount() < 1) {
-            this.engine.Loader.completeLoad();
+        if (!this.isStarted) {
+            Nzym.Events.trigger(this, 'boot');
+            if (this.engine.Loader.getLoadAmount() < 1) {
+                this.engine.Loader.completeLoad();
+            }
+            this.isStarted = true;
         }
     };
     NzymScene.prototype.restart = function () {
@@ -1555,7 +1584,7 @@ var NzymStage = /** @class */ (function () {
         this.pixelRatio = pixelRatio;
         this.canvas.width = this.w * this.pixelRatio;
         this.canvas.height = this.h * this.pixelRatio;
-        this.canvas.getContext('2d').resetTransform();
+        // this.canvas.getContext('2d').resetTransform();
         this.canvas.getContext('2d').scale(this.pixelRatio, this.pixelRatio);
     };
     NzymStage.prototype.createCanvas = function (options) {
