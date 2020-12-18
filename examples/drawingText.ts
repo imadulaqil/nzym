@@ -18,7 +18,8 @@ Example.drawingText = (() => {
         name: 'Drawing Text',
         w: 1280,
         h: 720,
-        parent: document.getElementById('gameContainer')
+        parent: document.getElementById('gameContainer'),
+        preventContextMenu: true
     });
 
     const {
@@ -86,6 +87,8 @@ Example.drawingText = (() => {
     Scene.setup({
         scenes: GameScenes
     });
+
+    Engine.start();
 
     return Engine;
 })();

@@ -21,6 +21,9 @@ class NzymStage {
         }
         this.init();
         this.applyPixelRatio(options.pixelRatio);
+        if (options.preventContextMenu) {
+            this.preventContextMenu();
+        }
     }
     
     init() {
@@ -41,6 +44,18 @@ class NzymStage {
             this.canvas.getContext('2d').resetTransform();
         }
         this.canvas.getContext('2d').scale(this.pixelRatio, this.pixelRatio);
+    }
+
+    onContextMenu(e: MouseEvent) {
+        e.preventDefault();
+    }
+
+    allowContextMenu() {
+        this.canvas.removeEventListener('contextmenu', this.onContextMenu);
+    }
+
+    preventContextMenu() {
+        this.canvas.addEventListener('contextmenu', this.onContextMenu);
     }
 
     createCanvas(options: NzymSceneCreateCanvasOptions = {}) {

@@ -369,7 +369,8 @@ type NzymStageOptions = {
     canvas?: HTMLCanvasElement,
     parent?: HTMLElement,
     bgColor?: string,
-    pixelRatio?: number
+    pixelRatio?: number,
+    preventContextMenu?: boolean
 };
 
 type NzymEngineOptions = { name?: string, autoStart?: boolean } & NzymOBJOptions & NzymSceneOptions & NzymStageOptions;

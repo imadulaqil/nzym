@@ -5,7 +5,8 @@ Example.drawingText = (function () {
         name: 'Drawing Text',
         w: 1280,
         h: 720,
-        parent: document.getElementById('gameContainer')
+        parent: document.getElementById('gameContainer'),
+        preventContextMenu: true
     });
     var _b = Engine.getAliases(), OBJ = _b.OBJ, Draw = _b.Draw, Font = _b.Font, Time = _b.Time, Input = _b.Input, Scene = _b.Scene, Stage = _b.Stage, Loader = _b.Loader;
     var GameScenes = {};
@@ -49,5 +50,6 @@ Example.drawingText = (function () {
     Scene.setup({
         scenes: GameScenes
     });
+    Engine.start();
     return Engine;
 })();

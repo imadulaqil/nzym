@@ -16,6 +16,9 @@ var NzymStage = /** @class */ (function () {
         }
         this.init();
         this.applyPixelRatio(options.pixelRatio);
+        if (options.preventContextMenu) {
+            this.preventContextMenu();
+        }
     }
     NzymStage.prototype.init = function () {
         var b = this.canvas.getBoundingClientRect();
@@ -35,6 +38,15 @@ var NzymStage = /** @class */ (function () {
             this.canvas.getContext('2d').resetTransform();
         }
         this.canvas.getContext('2d').scale(this.pixelRatio, this.pixelRatio);
+    };
+    NzymStage.prototype.onContextMenu = function (e) {
+        e.preventDefault();
+    };
+    NzymStage.prototype.allowContextMenu = function () {
+        this.canvas.removeEventListener('contextmenu', this.onContextMenu);
+    };
+    NzymStage.prototype.preventContextMenu = function () {
+        this.canvas.addEventListener('contextmenu', this.onContextMenu);
     };
     NzymStage.prototype.createCanvas = function (options) {
         if (options === void 0) { options = {}; }
