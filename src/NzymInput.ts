@@ -10,6 +10,8 @@ class NzymInput {
     keys = {};
     keyCodes = [];
 
+    preventedKeys = [];
+
     position = {
         x: 0,
         y: 0
@@ -32,9 +34,11 @@ class NzymInput {
 
     isMoving = false;
 
-    constructor(
-        public engine: NzymEngine
-    ) {}
+    constructor(public engine: NzymEngine, options: NzymInputOptions = {}) {
+        if (options.preventKey) {
+            this.preventKey(...options.preventKey);
+        }
+    }
 
     init() {
         this.canvas = this.engine.Stage.canvas;
@@ -69,6 +73,18 @@ class NzymInput {
         }
         this.wheelDelta.reset();
         this.isMoving = false;
+    }
+
+    /**
+     * Add keys that you want to prevent default
+     * @param codes 
+     */
+    preventKey(...codes: string[]) {
+        for (const code of codes) {
+            if (!this.preventedKeys.includes(code)) {
+                this.preventedKeys.push(code);
+            }
+        }
     }
 
     // --- KEY METHODS ---
@@ -183,6 +199,9 @@ class NzymInput {
     }
 
     keyDownEvent(e: KeyboardEvent) {
+        if (this.preventedKeys.includes(e.code)) {
+            e.preventDefault();
+        }
         if (this.keys[e.code]) {
             this.keys[e.code].down();
         }

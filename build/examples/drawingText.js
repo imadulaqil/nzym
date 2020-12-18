@@ -6,7 +6,12 @@ Example.drawingText = (function () {
         w: 1280,
         h: 720,
         parent: document.getElementById('gameContainer'),
-        preventContextMenu: true
+        preventContextMenu: true,
+        preventKey: [
+            KeyCode.Up,
+            KeyCode.Down,
+            KeyCode.Space
+        ]
     });
     var _b = Engine.getAliases(), OBJ = _b.OBJ, Draw = _b.Draw, Font = _b.Font, Time = _b.Time, Input = _b.Input, Scene = _b.Scene, Stage = _b.Stage, Loader = _b.Loader;
     var GameScenes = {};
@@ -40,7 +45,7 @@ Example.drawingText = (function () {
         Draw.text(x - w / 2, y + h / 2, 'This is a italic right align\nand top baseline text\nthat sits on bottom left\nof the center middle text.');
         Draw.setFont(Font.m);
         Draw.setHVAlign(Align.l, Align.t);
-        Draw.text(10, 10, "FPS: " + Time.FPS + "\nname: " + Engine.name + "\nbgColor: " + Stage.bgColor + "\ndefaultFamily: " + Font.defaultFamily);
+        Draw.text(10, 10, "FPS: " + Time.FPS + "\nname: " + Engine.name + "\nbgColor: " + Stage.bgColor + "\ndefaultFamily: " + Font.defaultFamily + "\nIn this example:\nKey space, up, and down are prevented from scrolling\nContext menu is prevented (you can't right click the canvas)");
         Draw.setVAlign(Align.b);
         Draw.text(10, Stage.h - 10, 'Press <M> to change background color');
         if (Input.keyRepeat(KeyCode.M)) {

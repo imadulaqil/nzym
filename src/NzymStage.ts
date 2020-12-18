@@ -46,7 +46,7 @@ class NzymStage {
         this.canvas.getContext('2d').scale(this.pixelRatio, this.pixelRatio);
     }
 
-    onContextMenu(e: MouseEvent) {
+    private onContextMenu(e: MouseEvent) {
         e.preventDefault();
     }
 

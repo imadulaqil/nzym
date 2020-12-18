@@ -19,7 +19,12 @@ Example.drawingText = (() => {
         w: 1280,
         h: 720,
         parent: document.getElementById('gameContainer'),
-        preventContextMenu: true
+        preventContextMenu: true,
+        preventKey: [
+            KeyCode.Up,
+            KeyCode.Down,
+            KeyCode.Space
+        ]
     });
 
     const {
@@ -74,7 +79,7 @@ Example.drawingText = (() => {
 
         Draw.setFont(Font.m);
         Draw.setHVAlign(Align.l, Align.t);
-        Draw.text(10, 10, `FPS: ${Time.FPS}\nname: ${Engine.name}\nbgColor: ${Stage.bgColor}\ndefaultFamily: ${Font.defaultFamily}`);
+        Draw.text(10, 10, `FPS: ${Time.FPS}\nname: ${Engine.name}\nbgColor: ${Stage.bgColor}\ndefaultFamily: ${Font.defaultFamily}\nIn this example:\nKey space, up, and down are prevented from scrolling\nContext menu is prevented (you can't right click the canvas)`);
 
         Draw.setVAlign(Align.b);
         Draw.text(10, Stage.h - 10, 'Press <M> to change background color');

@@ -33,7 +33,7 @@ class NzymEngine {
         this.OBJ = new NzymOBJ(this, options);
         this.Draw = new NzymDraw(this);
         this.Time = new NzymTime(this);
-        this.Input = new NzymInput(this);
+        this.Input = new NzymInput(this, options);
         this.Scene = new NzymScene(this);
         this.Stage = new NzymStage(this, options);
         this.Loader = new NzymLoader(this);

@@ -373,7 +373,11 @@ type NzymStageOptions = {
     preventContextMenu?: boolean
 };
 
-type NzymEngineOptions = { name?: string, autoStart?: boolean } & NzymOBJOptions & NzymSceneOptions & NzymStageOptions;
+type NzymInputOptions = {
+    preventKey?: string[]
+};
+
+type NzymEngineOptions = { name?: string, autoStart?: boolean } & NzymOBJOptions & NzymSceneOptions & NzymStageOptions & NzymInputOptions;
 
 type NzymFontFormat = { size: number, style: string, family: string };
 type NzymPointFormat = { x: number, y: number };

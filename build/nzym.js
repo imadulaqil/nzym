@@ -727,7 +727,7 @@ var NzymEngine = /** @class */ (function () {
         this.OBJ = new NzymOBJ(this, options);
         this.Draw = new NzymDraw(this);
         this.Time = new NzymTime(this);
-        this.Input = new NzymInput(this);
+        this.Input = new NzymInput(this, options);
         this.Scene = new NzymScene(this);
         this.Stage = new NzymStage(this, options);
         this.Loader = new NzymLoader(this);
@@ -950,11 +950,13 @@ var NzymFont = /** @class */ (function () {
  * Input manager.
  */
 var NzymInput = /** @class */ (function () {
-    function NzymInput(engine) {
+    function NzymInput(engine, options) {
+        if (options === void 0) { options = {}; }
         this.engine = engine;
         this.events = {};
         this.keys = {};
         this.keyCodes = [];
+        this.preventedKeys = [];
         this.position = {
             x: 0,
             y: 0
@@ -973,6 +975,9 @@ var NzymInput = /** @class */ (function () {
             }
         };
         this.isMoving = false;
+        if (options.preventKey) {
+            this.preventKey.apply(this, options.preventKey);
+        }
     }
     NzymInput.prototype.init = function () {
         var _this = this;
@@ -1004,6 +1009,22 @@ var NzymInput = /** @class */ (function () {
         }
         this.wheelDelta.reset();
         this.isMoving = false;
+    };
+    /**
+     * Add keys that you want to prevent default
+     * @param codes
+     */
+    NzymInput.prototype.preventKey = function () {
+        var codes = [];
+        for (var _i = 0; _i < arguments.length; _i++) {
+            codes[_i] = arguments[_i];
+        }
+        for (var _a = 0, codes_1 = codes; _a < codes_1.length; _a++) {
+            var code = codes_1[_a];
+            if (!this.preventedKeys.includes(code)) {
+                this.preventedKeys.push(code);
+            }
+        }
     };
     // --- KEY METHODS ---
     NzymInput.prototype.addKey = function (code) {
@@ -1107,6 +1128,9 @@ var NzymInput = /** @class */ (function () {
         Nzym.Events.trigger(this, 'keyup', e);
     };
     NzymInput.prototype.keyDownEvent = function (e) {
+        if (this.preventedKeys.includes(e.code)) {
+            e.preventDefault();
+        }
         if (this.keys[e.code]) {
             this.keys[e.code].down();
         }
