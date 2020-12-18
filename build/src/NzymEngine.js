@@ -57,7 +57,12 @@ var NzymEngine = /** @class */ (function () {
         this.Runner.stop();
     };
     NzymEngine.prototype.restart = function () {
-        this.Scene.restart();
+        if (this.Scene.isStarted) {
+            this.Scene.restart();
+        }
+        else {
+            this.Log.warn("Failed to execute 'Engine.restart': The scene has not started yet, please start the scene at least once before restart");
+        }
     };
     NzymEngine.prototype.pause = function () {
         this.Runner.stop();
@@ -82,21 +87,21 @@ var NzymEngine = /** @class */ (function () {
         }
     };
     NzymEngine.prototype.run = function () {
-        // if (this.Scene.isStarted) {
-        this.Time.update();
-        this.Scene.update();
-        if (this.OBJ.autoUpdate)
-            this.OBJ.updateAll();
-        this.Draw.clear();
-        this.Scene.render();
-        if (this.OBJ.autoRender)
-            this.OBJ.renderAll();
-        this.Scene.renderUI();
-        this.Input.reset();
-        // }
-        // else {
-        //     this.Log.warn(`Failed to execute 'Engine.run': The scene has not started yet, please start the scene at least once before run`);
-        // }
+        if (this.Scene.isStarted) {
+            this.Time.update();
+            this.Scene.update();
+            if (this.OBJ.autoUpdate)
+                this.OBJ.updateAll();
+            this.Draw.clear();
+            this.Scene.render();
+            if (this.OBJ.autoRender)
+                this.OBJ.renderAll();
+            this.Scene.renderUI();
+            this.Input.reset();
+        }
+        else {
+            this.Log.warn("Failed to execute 'Engine.run': The scene has not started yet, please start the scene at least once before run");
+        }
     };
     NzymEngine.prototype.makeGlobalAliases = function () {
         window['Common'] = Nzym.Common;

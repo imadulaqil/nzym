@@ -76,7 +76,12 @@ class NzymEngine {
     }
 
     restart() {
-        this.Scene.restart();
+        if (this.Scene.isStarted) {
+            this.Scene.restart();
+        }
+        else {
+            this.Log.warn(`Failed to execute 'Engine.restart': The scene has not started yet, please start the scene at least once before restart`);
+        }
     }
     
     pause() {
@@ -104,7 +109,7 @@ class NzymEngine {
     }
 
     run() {
-        // if (this.Scene.isStarted) {
+        if (this.Scene.isStarted) {
             this.Time.update();
             this.Scene.update();
             if (this.OBJ.autoUpdate) this.OBJ.updateAll();
@@ -113,10 +118,10 @@ class NzymEngine {
             if (this.OBJ.autoRender) this.OBJ.renderAll();
             this.Scene.renderUI();
             this.Input.reset();
-        // }
-        // else {
-        //     this.Log.warn(`Failed to execute 'Engine.run': The scene has not started yet, please start the scene at least once before run`);
-        // }
+        }
+        else {
+            this.Log.warn(`Failed to execute 'Engine.run': The scene has not started yet, please start the scene at least once before run`);
+        }
     }
 
     makeGlobalAliases() {

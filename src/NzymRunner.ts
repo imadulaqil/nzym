@@ -6,9 +6,7 @@ class NzymRunner {
     isRunning = false;
     loopHandle = 0;
 
-    constructor(
-        public engine: NzymEngine
-    ) {}
+    constructor(public engine: NzymEngine) {}
 
     start() {
         if (!this.isRunning) {

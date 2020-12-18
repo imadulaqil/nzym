@@ -1,5 +1,6 @@
 /**
  * Things that are common througout all modules.
+ * Such as basic math functions.
  */
 Nzym.Common = {
     ID: 0,

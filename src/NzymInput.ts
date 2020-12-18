@@ -81,7 +81,7 @@ class NzymInput {
      */
     preventKey(...codes: string[]) {
         for (const code of codes) {
-            if (!this.preventedKeys.includes(code)) {
+            if (this.preventedKeys.indexOf(code) < 0) {
                 this.preventedKeys.push(code);
             }
         }
@@ -199,7 +199,7 @@ class NzymInput {
     }
 
     keyDownEvent(e: KeyboardEvent) {
-        if (this.engine.Runner.isRunning && this.preventedKeys.includes(e.code)) {
+        if (this.engine.Runner.isRunning && this.preventedKeys.indexOf(e.code) >= 0) {
             e.preventDefault();
         }
         if (this.keys[e.code]) {

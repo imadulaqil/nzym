@@ -73,7 +73,7 @@ var NzymInput = /** @class */ (function () {
         }
         for (var _a = 0, codes_1 = codes; _a < codes_1.length; _a++) {
             var code = codes_1[_a];
-            if (!this.preventedKeys.includes(code)) {
+            if (this.preventedKeys.indexOf(code) < 0) {
                 this.preventedKeys.push(code);
             }
         }
@@ -180,7 +180,7 @@ var NzymInput = /** @class */ (function () {
         Nzym.Events.trigger(this, 'keyup', e);
     };
     NzymInput.prototype.keyDownEvent = function (e) {
-        if (this.engine.Runner.isRunning && this.preventedKeys.includes(e.code)) {
+        if (this.engine.Runner.isRunning && this.preventedKeys.indexOf(e.code) >= 0) {
             e.preventDefault();
         }
         if (this.keys[e.code]) {

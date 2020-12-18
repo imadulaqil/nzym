@@ -4,6 +4,7 @@
 var Nzym = Nzym || {};
 /**
  * Things that are common througout all modules.
+ * Such as basic math functions.
  */
 Nzym.Common = {
     ID: 0,
@@ -764,7 +765,12 @@ var NzymEngine = /** @class */ (function () {
         this.Runner.stop();
     };
     NzymEngine.prototype.restart = function () {
-        this.Scene.restart();
+        if (this.Scene.isStarted) {
+            this.Scene.restart();
+        }
+        else {
+            this.Log.warn("Failed to execute 'Engine.restart': The scene has not started yet, please start the scene at least once before restart");
+        }
     };
     NzymEngine.prototype.pause = function () {
         this.Runner.stop();
@@ -789,21 +795,21 @@ var NzymEngine = /** @class */ (function () {
         }
     };
     NzymEngine.prototype.run = function () {
-        // if (this.Scene.isStarted) {
-        this.Time.update();
-        this.Scene.update();
-        if (this.OBJ.autoUpdate)
-            this.OBJ.updateAll();
-        this.Draw.clear();
-        this.Scene.render();
-        if (this.OBJ.autoRender)
-            this.OBJ.renderAll();
-        this.Scene.renderUI();
-        this.Input.reset();
-        // }
-        // else {
-        //     this.Log.warn(`Failed to execute 'Engine.run': The scene has not started yet, please start the scene at least once before run`);
-        // }
+        if (this.Scene.isStarted) {
+            this.Time.update();
+            this.Scene.update();
+            if (this.OBJ.autoUpdate)
+                this.OBJ.updateAll();
+            this.Draw.clear();
+            this.Scene.render();
+            if (this.OBJ.autoRender)
+                this.OBJ.renderAll();
+            this.Scene.renderUI();
+            this.Input.reset();
+        }
+        else {
+            this.Log.warn("Failed to execute 'Engine.run': The scene has not started yet, please start the scene at least once before run");
+        }
     };
     NzymEngine.prototype.makeGlobalAliases = function () {
         window['Common'] = Nzym.Common;
@@ -1021,7 +1027,7 @@ var NzymInput = /** @class */ (function () {
         }
         for (var _a = 0, codes_1 = codes; _a < codes_1.length; _a++) {
             var code = codes_1[_a];
-            if (!this.preventedKeys.includes(code)) {
+            if (this.preventedKeys.indexOf(code) < 0) {
                 this.preventedKeys.push(code);
             }
         }
@@ -1128,7 +1134,7 @@ var NzymInput = /** @class */ (function () {
         Nzym.Events.trigger(this, 'keyup', e);
     };
     NzymInput.prototype.keyDownEvent = function (e) {
-        if (this.engine.Runner.isRunning && this.preventedKeys.includes(e.code)) {
+        if (this.engine.Runner.isRunning && this.preventedKeys.indexOf(e.code) >= 0) {
             e.preventDefault();
         }
         if (this.keys[e.code]) {
