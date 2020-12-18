@@ -32,6 +32,7 @@ var callEngineMethod = function (methodName) {
     var engine = Example[currentEngineName];
     engine.makeGlobalAliases();
     engine[methodName]();
+    updateButtons();
 };
 var startPrev = function () {
     var options = getCurrentSelection().options;
@@ -40,7 +41,6 @@ var startPrev = function () {
             options[i].selected = false;
             options[i - 1].selected = true;
             callEngineMethod('start');
-            updateButtons();
             break;
         }
     }
@@ -52,7 +52,6 @@ var startNext = function () {
             options[i].selected = false;
             options[i + 1].selected = true;
             callEngineMethod('start');
-            updateButtons();
             break;
         }
     }

@@ -199,7 +199,7 @@ class NzymInput {
     }
 
     keyDownEvent(e: KeyboardEvent) {
-        if (this.preventedKeys.includes(e.code)) {
+        if (this.engine.Runner.isRunning && this.preventedKeys.includes(e.code)) {
             e.preventDefault();
         }
         if (this.keys[e.code]) {

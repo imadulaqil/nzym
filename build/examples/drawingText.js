@@ -8,8 +8,6 @@ Example.drawingText = (function () {
         parent: document.getElementById('gameContainer'),
         preventContextMenu: true,
         preventKey: [
-            KeyCode.Up,
-            KeyCode.Down,
             KeyCode.Space
         ]
     });
@@ -45,7 +43,7 @@ Example.drawingText = (function () {
         Draw.text(x - w / 2, y + h / 2, 'This is a italic right align\nand top baseline text\nthat sits on bottom left\nof the center middle text.');
         Draw.setFont(Font.m);
         Draw.setHVAlign(Align.l, Align.t);
-        Draw.text(10, 10, "FPS: " + Time.FPS + "\nname: " + Engine.name + "\nbgColor: " + Stage.bgColor + "\ndefaultFamily: " + Font.defaultFamily + "\nIn this example:\nKey space, up, and down are prevented from scrolling\nContext menu is prevented (you can't right click the canvas)");
+        Draw.text(10, 10, "FPS: " + Time.FPS + "\nname: " + Engine.name + "\nbgColor: " + Stage.bgColor + "\ndefaultFamily: " + Font.defaultFamily + "\nKey space is prevented from default stuff (e.g. scrolling)\nContext menu is prevented (you can't right click the canvas)");
         Draw.setVAlign(Align.b);
         Draw.text(10, Stage.h - 10, 'Press <M> to change background color');
         if (Input.keyRepeat(KeyCode.M)) {
@@ -55,6 +53,5 @@ Example.drawingText = (function () {
     Scene.setup({
         scenes: GameScenes
     });
-    Engine.start();
     return Engine;
 })();

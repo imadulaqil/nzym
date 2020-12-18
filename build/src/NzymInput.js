@@ -180,7 +180,7 @@ var NzymInput = /** @class */ (function () {
         Nzym.Events.trigger(this, 'keyup', e);
     };
     NzymInput.prototype.keyDownEvent = function (e) {
-        if (this.preventedKeys.includes(e.code)) {
+        if (this.engine.Runner.isRunning && this.preventedKeys.includes(e.code)) {
             e.preventDefault();
         }
         if (this.keys[e.code]) {

@@ -38,6 +38,8 @@ const callEngineMethod = (methodName: string) => {
     const engine = Example[currentEngineName];
     engine.makeGlobalAliases();
     engine[methodName]();
+
+    updateButtons();
 };
 
 const startPrev = () => {
@@ -47,7 +49,6 @@ const startPrev = () => {
             options[i].selected = false;
             options[i - 1].selected = true;
             callEngineMethod('start');
-            updateButtons();
             break;
         }
     }
@@ -60,7 +61,6 @@ const startNext = () => {
             options[i].selected = false;
             options[i + 1].selected = true;
             callEngineMethod('start');
-            updateButtons();
             break;
         }
     }
