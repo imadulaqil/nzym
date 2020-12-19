@@ -3,14 +3,12 @@
  */
 class NzymInput {
 
+    events: NzymEventsHandler = {};
     canvas: HTMLCanvasElement;
 
-    events = {};
-
-    keys = {};
-    keyCodes = [];
-
-    preventedKeys = [];
+    keys: { [code: string]: NzymInputKey } = {};
+    keyCodes: string[] = [];
+    preventedKeys: string[] = [];
 
     position = {
         x: 0,

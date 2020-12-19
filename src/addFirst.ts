@@ -2,6 +2,10 @@
  * This file will be the first when merging.
  */
 
+type NzymEventsHandler = {
+    [eventName: string]: Function[]
+};
+
 type NzymCommon = {
     ID: number,
     RAD_TO_DEG: number,

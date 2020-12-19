@@ -1,15 +1,20 @@
 class NzymLoader {
 
-    events = {}
+    events: NzymEventsHandler = {};
 
-    list = {
-        image: [],
-        sound: []
+    list: {
+        image: HTMLImageElement[],
+        sound: HTMLAudioElement[]
     };
 
     isLoaded = false;
 
-    constructor(public engine: NzymEngine) {}
+    constructor(public engine: NzymEngine) {
+        this.list = {
+            image: [],
+            sound: []
+        };
+    }
 
     getLoadAmount() {
         let amount = 0;

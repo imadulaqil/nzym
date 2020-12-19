@@ -1,6 +1,6 @@
 class NzymScene {
 
-    events = {};
+    events: NzymEventsHandler = {};
     isStarted = false;
 
     constructor(public engine: NzymEngine) {}

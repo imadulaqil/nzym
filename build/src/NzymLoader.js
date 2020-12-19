@@ -2,11 +2,11 @@ var NzymLoader = /** @class */ (function () {
     function NzymLoader(engine) {
         this.engine = engine;
         this.events = {};
+        this.isLoaded = false;
         this.list = {
             image: [],
             sound: []
         };
-        this.isLoaded = false;
     }
     NzymLoader.prototype.getLoadAmount = function () {
         var amount = 0;

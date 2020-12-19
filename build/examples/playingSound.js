@@ -9,6 +9,8 @@ Example.playingSound = (function () {
     // SE=sound effect (usually play once)
     var playSE = function () { return Sound.play('se'); };
     var stopSE = function () { return Sound.stop('se'); };
+    var pauseSE = function () { return Sound.pause('se'); };
+    var resumeSE = function () { return Sound.resume('se'); };
     var playAtOnceSE = function () { return Sound.playAtOnce('se'); };
     // BGM=background music (usually loop until stop)
     var loopBGM = function () { return Sound.loop('bgm'); };
@@ -28,6 +30,10 @@ Example.playingSound = (function () {
         if (Input.keyDown(KeyCode.W))
             stopSE();
         if (Input.keyDown(KeyCode.E))
+            pauseSE();
+        if (Input.keyDown(KeyCode.R))
+            resumeSE();
+        if (Input.keyDown(KeyCode.T))
             playAtOnceSE();
         if (Input.keyDown(KeyCode.A))
             loopBGM();
@@ -41,15 +47,30 @@ Example.playingSound = (function () {
     GameScenes.renderUI = function () {
         Draw.setFont(Font.l);
         Draw.setColor(C.black);
-        Draw.setHVAlign(Align.c, Align.m);
+        Draw.setHVAlign(Align.l, Align.m);
         var text = 'Press <Q> to play SE';
         text += '\nPress <W> to stop SE';
-        text += '\nPress <E> to play SE one at a time';
+        text += '\nPress <E> to pause SE';
+        text += '\nPress <R> to resume SE';
+        text += '\nPress <T> to play SE one at a time';
         text += '\nPress <A> to start loop BGM';
-        text += '\nPress <S> to stop BGM';
+        text += '\nPress <S> to stop loop BGM';
         text += '\nPress <D> to pause BGM';
         text += '\nPress <F> to resume BGM';
-        Draw.text(Stage.mid.w, Stage.mid.h, text);
+        Draw.text(Stage.w * 0.2, Stage.mid.h, text);
+        var x = 10;
+        var y = 10;
+        var h = 4;
+        Draw.setFont(Font.m);
+        Draw.setHVAlign(Align.l, Align.t);
+        for (var name_1 in Sound.audios) {
+            Draw.text(x, y, name_1 + ": (duration=" + Sound.getDuration(name_1) + "s)");
+            y += Draw.currentFont.size + 10;
+            var w = Draw.getLastTextWidth();
+            Draw.rect(x, y, Sound.getPlaybackTime(name_1) * w, h);
+            Draw.rect(x, y, w, h, true);
+            y += h + 10;
+        }
     };
     GameScenes.onLoad.renderUI = function () {
         Draw.setFont(Font.m);

@@ -1205,11 +1205,11 @@ var NzymLoader = /** @class */ (function () {
     function NzymLoader(engine) {
         this.engine = engine;
         this.events = {};
+        this.isLoaded = false;
         this.list = {
             image: [],
             sound: []
         };
-        this.isLoaded = false;
     }
     NzymLoader.prototype.getLoadAmount = function () {
         var amount = 0;
@@ -1775,6 +1775,15 @@ var NzymSound = /** @class */ (function () {
     };
     NzymSound.prototype.getVolume = function (name) {
         return this.audios[name].volume;
+    };
+    NzymSound.prototype.getDuration = function (name) {
+        return this.audios[name].duration;
+    };
+    NzymSound.prototype.getCurrentTime = function (name) {
+        return this.audios[name].currentTime;
+    };
+    NzymSound.prototype.getPlaybackTime = function (name) {
+        return this.audios[name].currentTime / this.audios[name].duration;
     };
     NzymSound.prototype.stopAll = function () {
         for (var name_1 in this.audios) {

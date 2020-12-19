@@ -1,8 +1,13 @@
 /**
  * Events handler.
  */
+
+type ObjectWithNzymEventsHandler = {
+    events: NzymEventsHandler
+};
+
 Nzym.Events = {
-    on(object: any, eventName: string, callbackFn: Function) {
+    on(object: ObjectWithNzymEventsHandler, eventName: string, callbackFn: Function) {
         if (object.events) {
             object.events[eventName] = object.events[eventName] || [];
             object.events[eventName].push(callbackFn);
@@ -11,7 +16,7 @@ Nzym.Events = {
             Nzym.Log.error(`Property 'events' does not exists on given 'object'.`);
         }
     },
-    off(object: any, eventName: string, callbackFn: Function) {
+    off(object: ObjectWithNzymEventsHandler, eventName: string, callbackFn: Function) {
         if (object.events) {
             const callbacks = object.events[eventName];
             const newCallbacks = [];
@@ -31,7 +36,7 @@ Nzym.Events = {
             Nzym.Log.error(`Property 'events' does not exists on given 'object'.`);
         }
     },
-    trigger(object: any, eventNames: string | string[], events: any) {
+    trigger(object: ObjectWithNzymEventsHandler, eventNames: string | string[], events: any) {
         if (object.events) {
             if (!(eventNames instanceof Array)) {
                 eventNames = [eventNames];

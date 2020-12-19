@@ -71,6 +71,18 @@ class NzymSound {
         return this.audios[name].volume;
     }
 
+    getDuration(name: string): number {
+        return this.audios[name].duration;
+    }
+
+    getCurrentTime(name: string): number {
+        return this.audios[name].currentTime;
+    }
+
+    getPlaybackTime(name: string): number {
+        return this.audios[name].currentTime / this.audios[name].duration;
+    }
+
     stopAll() {
         for (const name in this.audios) {
             this.stop(name);
