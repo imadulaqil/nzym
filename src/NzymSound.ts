@@ -16,47 +16,81 @@ class NzymSound {
         return this.audios[name];
     }
 
+    /**
+     * Play audio from beginning
+     * @param name 
+     */
     play(name: string) {
         this.audios[name].currentTime = 0;
         this.audios[name].play();
     }
 
+    /**
+     * Start loop if not playing
+     * @param name 
+     */
     loop(name: string) {
         if (!this.isPlaying(name)) {
             this.startLoop(name);
         }
     }
 
+    /**
+     * Pause audio and reset playback time
+     * @param name 
+     */
     stop(name: string) {
-        if (this.isPlaying(name)) {
-            this.stopLoop(name);
-        }
+        this.stopLoop(name);
     }
 
+    /**
+     * Pause audio
+     * @param name 
+     */
     pause(name: string) {
         this.audios[name].pause();
     }
 
+    /**
+     * Play audio from current playback time
+     * If playback time is finished, this will play from beginning
+     * @param name 
+     */
     resume(name: string) {
         this.audios[name].play();
     }
 
+    /**
+     * Set audio loop to `true` then play from beginning
+     * @param name 
+     */
     startLoop(name: string) {
         this.audios[name].loop = true;
-        this.audios[name].currentTime = 0;
-        this.audios[name].play();
+        this.play(name);
     }
 
+    /**
+     * Pause audio and reset playback time
+     * @param name 
+     */
     stopLoop(name: string) {
         this.audios[name].pause();
         this.audios[name].loop = false;
         this.audios[name].currentTime = 0;
     }
 
+    /**
+     * Returns true if audio is not paused
+     * @param name 
+     */
     isPlaying(name: string) {
         return !this.audios[name].paused;
     }
 
+    /**
+     * Play audio one at a time
+     * @param name 
+     */
     playAtOnce(name: string) {
         if (!this.isPlaying(name)) {
             this.play(name);
