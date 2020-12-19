@@ -6,15 +6,16 @@ type NzymCommon = {
     ID: number,
     RAD_TO_DEG: number,
     DEG_TO_RAD: number,
-    getID: Function,
-    pick: Function,
-    choose: Function,
-    picko: Function,
-    toString: Function,
-    range: (min: number, max: number) => number,
-    radtodeg: (radians: number) => number,
-    degtorad: (degrees: number) => number,
-    hypot: (a: number, b: number) => number
+    getID(): number,
+    pick(array: any[]): any,
+    choose(...args: any[]): any,
+    picko(object: any): any,
+    toString(object: any): string,
+    range(min: number, max: number): number,
+    radtodeg(radians: number): number,
+    degtorad(degrees: number): number,
+    hypot(a: number, b: number): number,
+    clamp(value: number, min: number, max: number): number
 };
 
 type NzymEvents = {

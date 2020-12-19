@@ -22,6 +22,7 @@ var NzymEngine = /** @class */ (function () {
         this.Time = new NzymTime(this);
         this.Input = new NzymInput(this, options);
         this.Scene = new NzymScene(this);
+        this.Sound = new NzymSound(this);
         this.Stage = new NzymStage(this, options);
         this.Loader = new NzymLoader(this);
         this.Runner = new NzymRunner(this);
@@ -114,6 +115,7 @@ var NzymEngine = /** @class */ (function () {
         window['Time'] = this.Time;
         window['Input'] = this.Input;
         window['Scene'] = this.Scene;
+        window['Sound'] = this.Sound;
         window['Stage'] = this.Stage;
         window['Loader'] = this.Loader;
         window['C'] = Nzym.DrawConstants.C;
@@ -132,6 +134,7 @@ var NzymEngine = /** @class */ (function () {
             Time: this.Time,
             Input: this.Input,
             Scene: this.Scene,
+            Sound: this.Sound,
             Stage: this.Stage,
             Loader: this.Loader,
             // you can also get values below from Nzym.getAliases()

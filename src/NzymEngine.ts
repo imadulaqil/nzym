@@ -11,6 +11,7 @@ class NzymEngine {
     Time: NzymTime;
     Input: NzymInput;
     Scene: NzymScene;
+    Sound: NzymSound;
     Stage: NzymStage;
     Loader: NzymLoader;
     Runner: NzymRunner;
@@ -35,6 +36,7 @@ class NzymEngine {
         this.Time = new NzymTime(this);
         this.Input = new NzymInput(this, options);
         this.Scene = new NzymScene(this);
+        this.Sound = new NzymSound(this);
         this.Stage = new NzymStage(this, options);
         this.Loader = new NzymLoader(this);
         this.Runner = new NzymRunner(this);
@@ -136,6 +138,7 @@ class NzymEngine {
         window['Time']   = this.Time;
         window['Input']  = this.Input;
         window['Scene']  = this.Scene;
+        window['Sound']  = this.Sound;
         window['Stage']  = this.Stage;
         window['Loader'] = this.Loader;
 
@@ -156,6 +159,7 @@ class NzymEngine {
             Time: this.Time,
             Input: this.Input,
             Scene: this.Scene,
+            Sound: this.Sound,
             Stage: this.Stage,
             Loader: this.Loader,
             // you can also get values below from Nzym.getAliases()

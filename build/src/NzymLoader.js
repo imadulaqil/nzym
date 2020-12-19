@@ -3,7 +3,8 @@ var NzymLoader = /** @class */ (function () {
         this.engine = engine;
         this.events = {};
         this.list = {
-            image: []
+            image: [],
+            sound: []
         };
         this.isLoaded = false;
     }
@@ -54,7 +55,9 @@ var NzymLoader = /** @class */ (function () {
     };
     NzymLoader.prototype.onErrorEvent = function (data) {
         data['isError'] = true;
-        this.engine.Log.error("Failed to load source: \"" + data.src + "\" Make sure it's exists or, if you are working with local server, in some browser, you can't use \"C:Users/user/...\" It has to be relative to where your document exists, try add \"file:///C:Users/user/...\"");
+        if (data instanceof HTMLImageElement) {
+            this.engine.Log.error("Failed to load source: \"" + data.src + "\" Make sure it's exists or, if you are working with local server, in some browser, you can't use \"C:Users/user/...\" It has to be relative to where your document exists, try add \"file:///C:Users/user/...\"");
+        }
     };
     NzymLoader.prototype.loadImage = function (name, src) {
         var _this = this;
@@ -68,6 +71,36 @@ var NzymLoader = /** @class */ (function () {
         img.src = src;
         this.list.image.push(img);
         this.engine.Draw.addImage(name, img);
+    };
+    NzymLoader.prototype.loadSound = function (name) {
+        var _this = this;
+        var srcs = [];
+        for (var _i = 1; _i < arguments.length; _i++) {
+            srcs[_i - 1] = arguments[_i];
+        }
+        var sources = [];
+        for (var _a = 0, srcs_1 = srcs; _a < srcs_1.length; _a++) {
+            var src = srcs_1[_a];
+            var ext = src.split('.').pop();
+            if (NzymSound.supportedExt.indexOf(ext) >= 0) {
+                var type = ext;
+                if (ext === 'mp3') {
+                    type = 'mpeg';
+                }
+                sources.push("<source src=\"" + src + "\" type=\"audio/" + type + "\">");
+            }
+            else {
+                this.engine.Log.warn("Sound file extension not supported: ." + ext);
+            }
+        }
+        if (sources.length > 0) {
+            var audio_1 = new Audio();
+            audio_1.addEventListener('canplaythrough', function () { return _this.onLoadEvent(audio_1); });
+            audio_1.addEventListener('error', function () { return _this.onErrorEvent(audio_1); });
+            audio_1.innerHTML = sources.join('');
+            this.list.sound.push(audio_1);
+            this.engine.Sound.addAudio(name, audio_1);
+        }
     };
     return NzymLoader;
 }());

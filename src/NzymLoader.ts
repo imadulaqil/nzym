@@ -3,7 +3,8 @@ class NzymLoader {
     events = {}
 
     list = {
-        image: []
+        image: [],
+        sound: []
     };
 
     isLoaded = false;
@@ -52,16 +53,18 @@ class NzymLoader {
         Nzym.Events.trigger(this, 'loaded');
     }
 
-    onLoadEvent(data: HTMLImageElement) {
+    onLoadEvent(data: HTMLImageElement | HTMLAudioElement) {
         data['isLoaded'] = true;
         if (this.getLoadedCount() >= this.getLoadAmount()) {
             this.completeLoad();
         }
     }
 
-    onErrorEvent(data: HTMLImageElement) {
+    onErrorEvent(data: HTMLImageElement | HTMLAudioElement) {
         data['isError'] = true;
-        this.engine.Log.error(`Failed to load source: "${data.src}" Make sure it's exists or, if you are working with local server, in some browser, you can't use "C:Users/user/..." It has to be relative to where your document exists, try add "file:///C:Users/user/..."`);
+        if (data instanceof HTMLImageElement) {
+            this.engine.Log.error(`Failed to load source: "${data.src}" Make sure it's exists or, if you are working with local server, in some browser, you can't use "C:Users/user/..." It has to be relative to where your document exists, try add "file:///C:Users/user/..."`);
+        }
     }
 
     loadImage(name: any, src?: any) {
@@ -75,5 +78,30 @@ class NzymLoader {
         img.src = src;
         this.list.image.push(img);
         this.engine.Draw.addImage(name, img);
+    }
+
+    loadSound(name: string, ...srcs: string[]) {
+        const sources = [];
+        for (const src of srcs) {
+            const ext = src.split('.').pop();
+            if (NzymSound.supportedExt.indexOf(ext) >= 0) {
+                let type = ext;
+                if (ext === 'mp3') {
+                    type = 'mpeg';
+                }
+                sources.push(`<source src="${src}" type="audio/${type}">`);
+            }
+            else {
+                this.engine.Log.warn(`Sound file extension not supported: .${ext}`);
+            }
+        }
+        if (sources.length > 0) {
+            const audio = new Audio();
+            audio.addEventListener('canplaythrough', () => this.onLoadEvent(audio));
+            audio.addEventListener('error', () => this.onErrorEvent(audio));
+            audio.innerHTML = sources.join('');
+            this.list.sound.push(audio);
+            this.engine.Sound.addAudio(name, audio);
+        }
     }
 }

@@ -52,6 +52,9 @@ Nzym.Common = {
     },
     hypot: function (a, b) {
         return Math.sqrt(a * a + b * b);
+    },
+    clamp: function (value, min, max) {
+        return Math.min(Math.max(value, Math.min(min, max)), Math.max(min, max));
     }
 };
 /**
@@ -730,6 +733,7 @@ var NzymEngine = /** @class */ (function () {
         this.Time = new NzymTime(this);
         this.Input = new NzymInput(this, options);
         this.Scene = new NzymScene(this);
+        this.Sound = new NzymSound(this);
         this.Stage = new NzymStage(this, options);
         this.Loader = new NzymLoader(this);
         this.Runner = new NzymRunner(this);
@@ -822,6 +826,7 @@ var NzymEngine = /** @class */ (function () {
         window['Time'] = this.Time;
         window['Input'] = this.Input;
         window['Scene'] = this.Scene;
+        window['Sound'] = this.Sound;
         window['Stage'] = this.Stage;
         window['Loader'] = this.Loader;
         window['C'] = Nzym.DrawConstants.C;
@@ -840,6 +845,7 @@ var NzymEngine = /** @class */ (function () {
             Time: this.Time,
             Input: this.Input,
             Scene: this.Scene,
+            Sound: this.Sound,
             Stage: this.Stage,
             Loader: this.Loader,
             // you can also get values below from Nzym.getAliases()
@@ -1200,7 +1206,8 @@ var NzymLoader = /** @class */ (function () {
         this.engine = engine;
         this.events = {};
         this.list = {
-            image: []
+            image: [],
+            sound: []
         };
         this.isLoaded = false;
     }
@@ -1251,7 +1258,9 @@ var NzymLoader = /** @class */ (function () {
     };
     NzymLoader.prototype.onErrorEvent = function (data) {
         data['isError'] = true;
-        this.engine.Log.error("Failed to load source: \"" + data.src + "\" Make sure it's exists or, if you are working with local server, in some browser, you can't use \"C:Users/user/...\" It has to be relative to where your document exists, try add \"file:///C:Users/user/...\"");
+        if (data instanceof HTMLImageElement) {
+            this.engine.Log.error("Failed to load source: \"" + data.src + "\" Make sure it's exists or, if you are working with local server, in some browser, you can't use \"C:Users/user/...\" It has to be relative to where your document exists, try add \"file:///C:Users/user/...\"");
+        }
     };
     NzymLoader.prototype.loadImage = function (name, src) {
         var _this = this;
@@ -1265,6 +1274,36 @@ var NzymLoader = /** @class */ (function () {
         img.src = src;
         this.list.image.push(img);
         this.engine.Draw.addImage(name, img);
+    };
+    NzymLoader.prototype.loadSound = function (name) {
+        var _this = this;
+        var srcs = [];
+        for (var _i = 1; _i < arguments.length; _i++) {
+            srcs[_i - 1] = arguments[_i];
+        }
+        var sources = [];
+        for (var _a = 0, srcs_1 = srcs; _a < srcs_1.length; _a++) {
+            var src = srcs_1[_a];
+            var ext = src.split('.').pop();
+            if (NzymSound.supportedExt.indexOf(ext) >= 0) {
+                var type = ext;
+                if (ext === 'mp3') {
+                    type = 'mpeg';
+                }
+                sources.push("<source src=\"" + src + "\" type=\"audio/" + type + "\">");
+            }
+            else {
+                this.engine.Log.warn("Sound file extension not supported: ." + ext);
+            }
+        }
+        if (sources.length > 0) {
+            var audio_1 = new Audio();
+            audio_1.addEventListener('canplaythrough', function () { return _this.onLoadEvent(audio_1); });
+            audio_1.addEventListener('error', function () { return _this.onErrorEvent(audio_1); });
+            audio_1.innerHTML = sources.join('');
+            this.list.sound.push(audio_1);
+            this.engine.Sound.addAudio(name, audio_1);
+        }
     };
     return NzymLoader;
 }());
@@ -1681,6 +1720,69 @@ var NzymScene = /** @class */ (function () {
         }
     };
     return NzymScene;
+}());
+var NzymSound = /** @class */ (function () {
+    function NzymSound(engine) {
+        this.engine = engine;
+        this.audios = {};
+    }
+    NzymSound.prototype.addAudio = function (name, audio) {
+        this.audios[name] = audio;
+    };
+    NzymSound.prototype.getAudio = function (name) {
+        return this.audios[name];
+    };
+    NzymSound.prototype.play = function (name) {
+        this.audios[name].currentTime = 0;
+        this.audios[name].play();
+    };
+    NzymSound.prototype.loop = function (name) {
+        if (!this.isPlaying(name)) {
+            this.startLoop(name);
+        }
+    };
+    NzymSound.prototype.stop = function (name) {
+        if (this.isPlaying(name)) {
+            this.stopLoop(name);
+        }
+    };
+    NzymSound.prototype.pause = function (name) {
+        this.audios[name].pause();
+    };
+    NzymSound.prototype.resume = function (name) {
+        this.audios[name].play();
+    };
+    NzymSound.prototype.startLoop = function (name) {
+        this.audios[name].loop = true;
+        this.audios[name].currentTime = 0;
+        this.audios[name].play();
+    };
+    NzymSound.prototype.stopLoop = function (name) {
+        this.audios[name].pause();
+        this.audios[name].loop = false;
+        this.audios[name].currentTime = 0;
+    };
+    NzymSound.prototype.isPlaying = function (name) {
+        return !this.audios[name].paused;
+    };
+    NzymSound.prototype.playAtOnce = function (name) {
+        if (!this.isPlaying(name)) {
+            this.play(name);
+        }
+    };
+    NzymSound.prototype.setVolume = function (name, value) {
+        this.audios[name].volume = Nzym.Common.clamp(value, 0, 1);
+    };
+    NzymSound.prototype.getVolume = function (name) {
+        return this.audios[name].volume;
+    };
+    NzymSound.prototype.stopAll = function () {
+        for (var name_1 in this.audios) {
+            this.stop(name_1);
+        }
+    };
+    NzymSound.supportedExt = ['ogg', 'mp3', 'wav'];
+    return NzymSound;
 }());
 /**
  * HTML canvas wrapper.

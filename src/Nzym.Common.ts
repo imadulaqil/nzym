@@ -43,5 +43,8 @@ Nzym.Common = {
     },
     hypot(a: number, b: number) {
         return Math.sqrt(a * a + b * b);
+    },
+    clamp(value: number, min: number, max: number) {
+        return Math.min(Math.max(value, Math.min(min, max)), Math.max(min, max));
     }
 };
