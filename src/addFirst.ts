@@ -19,7 +19,8 @@ type NzymCommon = {
     radtodeg(radians: number): number,
     degtorad(degrees: number): number,
     hypot(a: number, b: number): number,
-    clamp(value: number, min: number, max: number): number
+    clamp(value: number, min: number, max: number): number,
+    getFilenameFromPath(src: string): string
 };
 
 type NzymEvents = {

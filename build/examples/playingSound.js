@@ -7,22 +7,22 @@ Example.playingSound = (function () {
     });
     var _b = Engine.getAliases(), OBJ = _b.OBJ, Draw = _b.Draw, Font = _b.Font, Time = _b.Time, Input = _b.Input, Scene = _b.Scene, Sound = _b.Sound, Stage = _b.Stage, Loader = _b.Loader;
     // SE=sound effect (usually play once)
-    var playSE = function () { return Sound.play('se'); };
-    var stopSE = function () { return Sound.stop('se'); };
-    var pauseSE = function () { return Sound.pause('se'); };
-    var resumeSE = function () { return Sound.resume('se'); };
-    var playAtOnceSE = function () { return Sound.playAtOnce('se'); };
+    var playSE = function () { return Sound.play('splash'); };
+    var stopSE = function () { return Sound.stop('splash'); };
+    var pauseSE = function () { return Sound.pause('splash'); };
+    var resumeSE = function () { return Sound.resume('splash'); };
+    var playAtOnceSE = function () { return Sound.playAtOnce('splash'); };
     // BGM=background music (usually loop until stop)
-    var loopBGM = function () { return Sound.loop('bgm'); };
-    var stopBGM = function () { return Sound.stop('bgm'); };
-    var pauseBGM = function () { return Sound.pause('bgm'); };
-    var resumeBGM = function () { return Sound.resume('bgm'); };
+    var loopBGM = function () { return Sound.loop('sunnyday'); };
+    var stopBGM = function () { return Sound.stop('sunnyday'); };
+    var pauseBGM = function () { return Sound.pause('sunnyday'); };
+    var resumeBGM = function () { return Sound.resume('sunnyday'); };
     var GameScenes = {
         onLoad: {}
     };
     GameScenes.boot = function () {
-        Loader.loadSound('se', '../assets/sounds/splash.mp3');
-        Loader.loadSound('bgm', '../assets/sounds/sunnyday.mp3');
+        Loader.loadSound('../assets/sounds/splash.mp3');
+        Loader.loadSound('../assets/sounds/sunnyday.mp3');
     };
     GameScenes.update = function () {
         if (Input.keyDown(KeyCode.Q))
@@ -73,7 +73,7 @@ Example.playingSound = (function () {
         }
     };
     GameScenes.onLoad.renderUI = function () {
-        Draw.setFont(Font.m);
+        Draw.setFont(Font.l);
         Draw.setColor(C.black);
         Draw.setHVAlign(Align.c, Align.m);
         Draw.text(Stage.mid.w, Stage.mid.h, "Loading sounds " + ~~(Loader.getLoadProgress() * 100) + "%");

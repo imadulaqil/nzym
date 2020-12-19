@@ -72,10 +72,10 @@ class NzymLoader {
         }
     }
 
-    loadImage(name: any, src?: any) {
+    loadImage(name: string, src?: string) {
         if (src === undefined) {
             src = name;
-            name = src.split('/').pop().split('.')[0];
+            name = Nzym.Common.getFilenameFromPath(src).split('.')[0];
         }
         const img = new Image();
         img.addEventListener('load', () => this.onLoadEvent(img));
@@ -86,6 +86,10 @@ class NzymLoader {
     }
 
     loadSound(name: string, ...srcs: string[]) {
+        if (srcs.length === 0) {
+            srcs = [name];
+            name = Nzym.Common.getFilenameFromPath(name).split('.')[0];
+        }
         const sources = [];
         for (const src of srcs) {
             const ext = src.split('.').pop();

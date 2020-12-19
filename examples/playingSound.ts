@@ -32,24 +32,24 @@ Example.playingSound = (() => {
     } = Engine.getAliases();
 
     // SE=sound effect (usually play once)
-    const playSE = () => Sound.play('se');
-    const stopSE = () => Sound.stop('se');
-    const pauseSE = () => Sound.pause('se');
-    const resumeSE = () => Sound.resume('se');
-    const playAtOnceSE = () => Sound.playAtOnce('se');
+    const playSE = () => Sound.play('splash');
+    const stopSE = () => Sound.stop('splash');
+    const pauseSE = () => Sound.pause('splash');
+    const resumeSE = () => Sound.resume('splash');
+    const playAtOnceSE = () => Sound.playAtOnce('splash');
     // BGM=background music (usually loop until stop)
-    const loopBGM = () => Sound.loop('bgm');
-    const stopBGM = () => Sound.stop('bgm');
-    const pauseBGM = () => Sound.pause('bgm');
-    const resumeBGM = () => Sound.resume('bgm');
+    const loopBGM = () => Sound.loop('sunnyday');
+    const stopBGM = () => Sound.stop('sunnyday');
+    const pauseBGM = () => Sound.pause('sunnyday');
+    const resumeBGM = () => Sound.resume('sunnyday');
 
     const GameScenes: NzymGameScene = {
         onLoad: {}
     };
 
     GameScenes.boot = () => {
-        Loader.loadSound('se', '../assets/sounds/splash.mp3');
-        Loader.loadSound('bgm', '../assets/sounds/sunnyday.mp3');
+        Loader.loadSound('../assets/sounds/splash.mp3');
+        Loader.loadSound('../assets/sounds/sunnyday.mp3');
     };
 
     GameScenes.update = () => {
@@ -94,7 +94,7 @@ Example.playingSound = (() => {
     };
 
     GameScenes.onLoad.renderUI = () => {
-        Draw.setFont(Font.m);
+        Draw.setFont(Font.l);
         Draw.setColor(C.black);
         Draw.setHVAlign(Align.c, Align.m);
         Draw.text(Stage.mid.w, Stage.mid.h, `Loading sounds ${~~(Loader.getLoadProgress() * 100)}%`);

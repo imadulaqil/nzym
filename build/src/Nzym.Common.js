@@ -51,5 +51,8 @@ Nzym.Common = {
     },
     clamp: function (value, min, max) {
         return Math.min(Math.max(value, Math.min(min, max)), Math.max(min, max));
+    },
+    getFilenameFromPath: function (path) {
+        return path.split('\\').pop().split('/').pop();
     }
 };

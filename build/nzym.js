@@ -55,6 +55,9 @@ Nzym.Common = {
     },
     clamp: function (value, min, max) {
         return Math.min(Math.max(value, Math.min(min, max)), Math.max(min, max));
+    },
+    getFilenameFromPath: function (path) {
+        return path.split('\\').pop().split('/').pop();
     }
 };
 /**
@@ -1266,7 +1269,7 @@ var NzymLoader = /** @class */ (function () {
         var _this = this;
         if (src === undefined) {
             src = name;
-            name = src.split('/').pop().split('.')[0];
+            name = Nzym.Common.getFilenameFromPath(src).split('.')[0];
         }
         var img = new Image();
         img.addEventListener('load', function () { return _this.onLoadEvent(img); });
@@ -1280,6 +1283,10 @@ var NzymLoader = /** @class */ (function () {
         var srcs = [];
         for (var _i = 1; _i < arguments.length; _i++) {
             srcs[_i - 1] = arguments[_i];
+        }
+        if (srcs.length === 0) {
+            srcs = [name];
+            name = Nzym.Common.getFilenameFromPath(name).split('.')[0];
         }
         var sources = [];
         for (var _a = 0, srcs_1 = srcs; _a < srcs_1.length; _a++) {
