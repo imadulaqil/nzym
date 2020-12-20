@@ -99,7 +99,10 @@ var NzymLoader = /** @class */ (function () {
         }
         if (sources.length > 0) {
             var audio_1 = new Audio();
-            audio_1.addEventListener('canplaythrough', function () { return _this.onLoadEvent(audio_1); });
+            audio_1.oncanplaythrough = function () {
+                _this.onLoadEvent(audio_1);
+                audio_1.oncanplaythrough = null;
+            };
             audio_1.addEventListener('error', function () { return _this.onErrorEvent(audio_1); });
             audio_1.innerHTML = sources.join('');
             this.list.sound.push(audio_1);

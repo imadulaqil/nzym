@@ -127,10 +127,16 @@ Example.adventureRPG = (() => {
                 case ItemType.coin:
                     coins += this.value;
                     spawnFloatingText(this.x, this.y, `Coins +${this.value}`, angle, C.gold);
+                    Sound.play('coin');
                     break;
                 case ItemType.potion:
                     health += this.value;
+                    if (health > maxHealth) {
+                        maxHealth += 0.1 * (health - maxHealth);
+                        health = maxHealth;
+                    }
                     spawnFloatingText(this.x, this.y, `Health +${this.value}`, angle, C.red);
+                    Sound.play('item2');
                     break;
             }
         }
@@ -212,6 +218,10 @@ Example.adventureRPG = (() => {
             TAG.item,
             TAG.floatingText
         );
+
+        Loader.loadSound('coin', '../assets/sounds/coin.mp3');
+        Loader.loadSound('item1', '../assets/sounds/item1.mp3');
+        Loader.loadSound('item2', '../assets/sounds/item2.mp3');
     };
 
     GameScenes.start = () => {
@@ -232,7 +242,7 @@ Example.adventureRPG = (() => {
         Draw.setColor(C.black);
         Draw.setHVAlign(Align.l, Align.t);
         const hp = Common.clamp(health, 0, maxHealth);
-        Draw.text(10, 10, `Coins: ${coins}\nHealth: ${Math.floor(hp)}/${maxHealth}`);
+        Draw.text(10, 10, `Coins: ${coins}\nHealth: ${Math.floor(hp)}/${Math.floor(maxHealth)}`);
         const y = Draw.lastText.y + Draw.getLastTextHeight() + 2;
         const w = 150;
         Draw.setColor(C.black);

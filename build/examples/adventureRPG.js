@@ -106,10 +106,16 @@ Example.adventureRPG = (function () {
                 case ItemType.coin:
                     coins += this.value;
                     spawnFloatingText(this.x, this.y, "Coins +" + this.value, angle, C.gold);
+                    Sound.play('coin');
                     break;
                 case ItemType.potion:
                     health += this.value;
+                    if (health > maxHealth) {
+                        maxHealth += 0.1 * (health - maxHealth);
+                        health = maxHealth;
+                    }
                     spawnFloatingText(this.x, this.y, "Health +" + this.value, angle, C.red);
+                    Sound.play('item2');
                     break;
             }
         };
@@ -174,6 +180,9 @@ Example.adventureRPG = (function () {
         maxHealth = 100;
         health = maxHealth;
         OBJ.addTag(TAG.player, TAG.item, TAG.floatingText);
+        Loader.loadSound('coin', '../assets/sounds/coin.mp3');
+        Loader.loadSound('item1', '../assets/sounds/item1.mp3');
+        Loader.loadSound('item2', '../assets/sounds/item2.mp3');
     };
     GameScenes.start = function () {
         OBJ.push(TAG.player, new Player(Stage.mid.w, Stage.mid.h));
@@ -191,7 +200,7 @@ Example.adventureRPG = (function () {
         Draw.setColor(C.black);
         Draw.setHVAlign(Align.l, Align.t);
         var hp = Common.clamp(health, 0, maxHealth);
-        Draw.text(10, 10, "Coins: " + coins + "\nHealth: " + Math.floor(hp) + "/" + maxHealth);
+        Draw.text(10, 10, "Coins: " + coins + "\nHealth: " + Math.floor(hp) + "/" + Math.floor(maxHealth));
         var y = Draw.lastText.y + Draw.getLastTextHeight() + 2;
         var w = 150;
         Draw.setColor(C.black);

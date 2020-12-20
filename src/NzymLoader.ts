@@ -106,7 +106,10 @@ class NzymLoader {
         }
         if (sources.length > 0) {
             const audio = new Audio();
-            audio.addEventListener('canplaythrough', () => this.onLoadEvent(audio));
+            audio.oncanplaythrough = () => {
+                this.onLoadEvent(audio);
+                audio.oncanplaythrough = null;
+            };
             audio.addEventListener('error', () => this.onErrorEvent(audio));
             audio.innerHTML = sources.join('');
             this.list.sound.push(audio);

@@ -30,6 +30,10 @@ class NzymScene {
         if (options.onLoadUpdate) Nzym.Events.on(this, 'loadupdate', options.onLoadUpdate);
         if (options.onLoadRender) Nzym.Events.on(this, 'loadrender', options.onLoadRender);
         if (options.onLoadRenderUI) Nzym.Events.on(this, 'loadrenderUI', options.onLoadRenderUI);
+
+        Nzym.Events.on(this.engine.Loader, 'loaded', () => {
+            this.start();
+        });
     }
 
     boot() {

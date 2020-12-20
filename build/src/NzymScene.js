@@ -5,6 +5,7 @@ var NzymScene = /** @class */ (function () {
         this.isStarted = false;
     }
     NzymScene.prototype.setup = function (options) {
+        var _this = this;
         if (options === void 0) { options = {}; }
         if (options.scenes) {
             if (options.scenes.boot)
@@ -50,6 +51,9 @@ var NzymScene = /** @class */ (function () {
             Nzym.Events.on(this, 'loadrender', options.onLoadRender);
         if (options.onLoadRenderUI)
             Nzym.Events.on(this, 'loadrenderUI', options.onLoadRenderUI);
+        Nzym.Events.on(this.engine.Loader, 'loaded', function () {
+            _this.start();
+        });
     };
     NzymScene.prototype.boot = function () {
         if (!this.isStarted) {
