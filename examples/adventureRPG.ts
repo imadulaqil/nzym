@@ -31,6 +31,17 @@ Example.adventureRPG = (() => {
         Loader
     } = Engine.getAliases();
 
+    enum ItemType {
+        coin = 'coin',
+        potion = 'potion'
+    };
+    
+    enum TAG {
+        player = 'player',
+        item = 'item',
+        floatingText ='floatingText'
+    };
+
     let coins: number,
         health: number,
         maxHealth: number;
@@ -111,9 +122,16 @@ Example.adventureRPG = (() => {
         }
 
         onCollected() {
+            const angle = Math.PI * Common.range(-0.05, 0.05);
             switch (this.type) {
-                case ItemType.coin: coins += this.value; break;
-                case ItemType.potion: health += this.value; break;
+                case ItemType.coin:
+                    coins += this.value;
+                    spawnFloatingText(this.x, this.y, `Coins +${this.value}`, angle, C.gold);
+                    break;
+                case ItemType.potion:
+                    health += this.value;
+                    spawnFloatingText(this.x, this.y, `Health +${this.value}`, angle, C.red);
+                    break;
             }
         }
 
@@ -128,19 +146,57 @@ Example.adventureRPG = (() => {
             Draw.image(this.canvasImage, this.x, this.y);
         }
     }
-    
-    enum ItemType {
-        coin = 'coin',
-        potion = 'potion'
-    };
-    
-    enum TAG {
-        player = 'player',
-        item = 'item'
-    };
+
+    class FloatingText {
+
+        static floatSpeed = 1;
+
+        id: number = Common.getID();
+        depth: number = -2;
+
+        private vx: number;
+        private vy: number;
+        private alpha: number = 1;
+
+        constructor(
+            public x: number,
+            public y: number,
+            public text: string,
+            public angle: number = 0,
+            public color: string = C.black
+        ) {
+            const up = angle - Math.PI / 2;
+            this.vx = Math.cos(up) * FloatingText.floatSpeed;
+            this.vy = Math.sin(up) * FloatingText.floatSpeed;
+        }
+
+        update() {
+            this.x += this.vx;
+            this.y += this.vy;
+        }
+        
+        render() {
+            Draw.setColor(this.color);
+            Draw.setAlpha(this.alpha);
+            Draw.onTransform(this.x, this.y, 1, 1, this.angle, () => {
+                Draw.setFont(Font.mb);
+                Draw.setHVAlign(Align.c, Align.m);
+                Draw.text(0, 0, this.text);
+            }, true);
+            Draw.setAlpha(1);
+            this.alpha -= 0.02;
+            if (this.alpha < 0) {
+                OBJ.remove(TAG.floatingText, (n) => n.id === this.id);
+            }
+        }
+    }
 
     const spawnItem = (type: ItemType) => {
         return OBJ.push(TAG.item, new Item(type, Stage.randomX(), Stage.randomY(), Math.floor(Common.range(10, 20))));
+    };
+
+    const spawnFloatingText = (x: number, y: number, text: string, angle?: number, color?: string) => {
+        return OBJ.push(TAG.floatingText, new FloatingText(x, y, text, angle, color));
     };
     
     const GameScenes: NzymGameScene = {
@@ -153,7 +209,8 @@ Example.adventureRPG = (() => {
         health = maxHealth;
         OBJ.addTag(
             TAG.player,
-            TAG.item
+            TAG.item,
+            TAG.floatingText
         );
     };
 
@@ -163,8 +220,8 @@ Example.adventureRPG = (() => {
 
     GameScenes.update = () => {
         health -= 0.1;
-        if (Time.frameCount % 120 === 0) {
-            if (OBJ.count(TAG.item) < 10) {
+        if (Time.frameCount % 20 === 0) {
+            if (OBJ.count(TAG.item) < 25) {
                 spawnItem(Common.picko(ItemType));
             }
         }
@@ -174,13 +231,14 @@ Example.adventureRPG = (() => {
         Draw.setFont(Font.m);
         Draw.setColor(C.black);
         Draw.setHVAlign(Align.l, Align.t);
-        Draw.text(10, 10, `Coins: ${coins}\nHealth: ${Math.max(0, Math.floor(health))}/${maxHealth}`);
+        const hp = Common.clamp(health, 0, maxHealth);
+        Draw.text(10, 10, `Coins: ${coins}\nHealth: ${Math.floor(hp)}/${maxHealth}`);
         const y = Draw.lastText.y + Draw.getLastTextHeight() + 2;
         const w = 150;
         Draw.setColor(C.black);
         Draw.rect(10, y, w, 10);
         Draw.setColor(C.red);
-        Draw.rect(11, y + 1, (w - 2) * (Math.max(0, health) / maxHealth), 8);
+        Draw.rect(11, y + 1, (w - 2) * (hp / maxHealth), 8);
     };
 
     Scene.setup({

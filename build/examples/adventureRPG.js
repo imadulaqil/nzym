@@ -6,6 +6,19 @@ Example.adventureRPG = (function () {
         parent: document.getElementById('gameContainer')
     });
     var _b = Engine.getAliases(), OBJ = _b.OBJ, Draw = _b.Draw, Font = _b.Font, Time = _b.Time, Input = _b.Input, Scene = _b.Scene, Sound = _b.Sound, Stage = _b.Stage, Loader = _b.Loader;
+    var ItemType;
+    (function (ItemType) {
+        ItemType["coin"] = "coin";
+        ItemType["potion"] = "potion";
+    })(ItemType || (ItemType = {}));
+    ;
+    var TAG;
+    (function (TAG) {
+        TAG["player"] = "player";
+        TAG["item"] = "item";
+        TAG["floatingText"] = "floatingText";
+    })(TAG || (TAG = {}));
+    ;
     var coins, health, maxHealth;
     var Player = /** @class */ (function () {
         function Player(x, y, speed) {
@@ -88,12 +101,15 @@ Example.adventureRPG = (function () {
             Draw.circle(w / 2, h / 2, 10);
         };
         Item.prototype.onCollected = function () {
+            var angle = Math.PI * Common.range(-0.05, 0.05);
             switch (this.type) {
                 case ItemType.coin:
                     coins += this.value;
+                    spawnFloatingText(this.x, this.y, "Coins +" + this.value, angle, C.gold);
                     break;
                 case ItemType.potion:
                     health += this.value;
+                    spawnFloatingText(this.x, this.y, "Health +" + this.value, angle, C.red);
                     break;
             }
         };
@@ -106,20 +122,49 @@ Example.adventureRPG = (function () {
         };
         return Item;
     }());
-    var ItemType;
-    (function (ItemType) {
-        ItemType["coin"] = "coin";
-        ItemType["potion"] = "potion";
-    })(ItemType || (ItemType = {}));
-    ;
-    var TAG;
-    (function (TAG) {
-        TAG["player"] = "player";
-        TAG["item"] = "item";
-    })(TAG || (TAG = {}));
-    ;
+    var FloatingText = /** @class */ (function () {
+        function FloatingText(x, y, text, angle, color) {
+            if (angle === void 0) { angle = 0; }
+            if (color === void 0) { color = C.black; }
+            this.x = x;
+            this.y = y;
+            this.text = text;
+            this.angle = angle;
+            this.color = color;
+            this.id = Common.getID();
+            this.depth = -2;
+            this.alpha = 1;
+            var up = angle - Math.PI / 2;
+            this.vx = Math.cos(up) * FloatingText.floatSpeed;
+            this.vy = Math.sin(up) * FloatingText.floatSpeed;
+        }
+        FloatingText.prototype.update = function () {
+            this.x += this.vx;
+            this.y += this.vy;
+        };
+        FloatingText.prototype.render = function () {
+            var _this = this;
+            Draw.setColor(this.color);
+            Draw.setAlpha(this.alpha);
+            Draw.onTransform(this.x, this.y, 1, 1, this.angle, function () {
+                Draw.setFont(Font.mb);
+                Draw.setHVAlign(Align.c, Align.m);
+                Draw.text(0, 0, _this.text);
+            }, true);
+            Draw.setAlpha(1);
+            this.alpha -= 0.02;
+            if (this.alpha < 0) {
+                OBJ.remove(TAG.floatingText, function (n) { return n.id === _this.id; });
+            }
+        };
+        FloatingText.floatSpeed = 1;
+        return FloatingText;
+    }());
     var spawnItem = function (type) {
         return OBJ.push(TAG.item, new Item(type, Stage.randomX(), Stage.randomY(), Math.floor(Common.range(10, 20))));
+    };
+    var spawnFloatingText = function (x, y, text, angle, color) {
+        return OBJ.push(TAG.floatingText, new FloatingText(x, y, text, angle, color));
     };
     var GameScenes = {
         onLoad: {}
@@ -128,15 +173,15 @@ Example.adventureRPG = (function () {
         coins = 0;
         maxHealth = 100;
         health = maxHealth;
-        OBJ.addTag(TAG.player, TAG.item);
+        OBJ.addTag(TAG.player, TAG.item, TAG.floatingText);
     };
     GameScenes.start = function () {
         OBJ.push(TAG.player, new Player(Stage.mid.w, Stage.mid.h));
     };
     GameScenes.update = function () {
         health -= 0.1;
-        if (Time.frameCount % 120 === 0) {
-            if (OBJ.count(TAG.item) < 10) {
+        if (Time.frameCount % 20 === 0) {
+            if (OBJ.count(TAG.item) < 25) {
                 spawnItem(Common.picko(ItemType));
             }
         }
@@ -145,13 +190,14 @@ Example.adventureRPG = (function () {
         Draw.setFont(Font.m);
         Draw.setColor(C.black);
         Draw.setHVAlign(Align.l, Align.t);
-        Draw.text(10, 10, "Coins: " + coins + "\nHealth: " + Math.max(0, Math.floor(health)) + "/" + maxHealth);
+        var hp = Common.clamp(health, 0, maxHealth);
+        Draw.text(10, 10, "Coins: " + coins + "\nHealth: " + Math.floor(hp) + "/" + maxHealth);
         var y = Draw.lastText.y + Draw.getLastTextHeight() + 2;
         var w = 150;
         Draw.setColor(C.black);
         Draw.rect(10, y, w, 10);
         Draw.setColor(C.red);
-        Draw.rect(11, y + 1, (w - 2) * (Math.max(0, health) / maxHealth), 8);
+        Draw.rect(11, y + 1, (w - 2) * (hp / maxHealth), 8);
     };
     Scene.setup({
         scenes: GameScenes
