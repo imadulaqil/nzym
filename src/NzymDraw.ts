@@ -46,7 +46,7 @@ class NzymDraw {
         this.onCtx(canvas.getContext('2d'), drawFn);
     }
 
-    createCanvas(w: number, h: number, drawFn?: Function) {
+    createCanvas(w: number, h: number, drawFn?: (canvas?: HTMLCanvasElement, w?: number, h?: number) => void) {
         const canvas = document.createElement('canvas');
         canvas.width = w;
         canvas.height = h;

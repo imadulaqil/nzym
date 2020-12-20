@@ -102,7 +102,7 @@ class NzymOBJ {
      * @param conditionFn {Function} takes instance to check
      * @returns list of removed instances
      */
-    remove(tag: string, conditionFn: Function) {
+    remove(tag: string, conditionFn: (instance: any, index?: number) => boolean) {
         const removedList = [];
         const list = this.getList(tag);
         for (let i = list.length - 1; i >= 0; i--) {
