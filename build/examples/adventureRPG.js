@@ -19,7 +19,7 @@ Example.adventureRPG = (function () {
         TAG["floatingText"] = "floatingText";
     })(TAG || (TAG = {}));
     ;
-    var coins, health, maxHealth;
+    var coins, health, maxHealth, magnetRange;
     var Player = /** @class */ (function () {
         function Player(x, y, speed) {
             if (x === void 0) { x = 0; }
@@ -46,11 +46,16 @@ Example.adventureRPG = (function () {
             }
             var items = OBJ.take(TAG.item);
             var _loop_1 = function (item) {
-                if (item.containsPoint(this_1)) {
+                var cp = item.containsPoint(this_1);
+                if (cp.isContained) {
                     item.onCollected();
                     OBJ.remove(TAG.item, function (n) {
                         return n.id === item.id;
                     });
+                }
+                if (cp.distance < magnetRange) {
+                    item.x += 0.2 * (this_1.x - item.x);
+                    item.y += 0.2 * (this_1.y - item.y);
                 }
             };
             var this_1 = this;
@@ -121,7 +126,10 @@ Example.adventureRPG = (function () {
         };
         Item.prototype.containsPoint = function (point) {
             var dx = point.x - this.x, dy = point.y - this.y, distance = Common.hypot(dx, dy);
-            return distance < 32;
+            return {
+                distance: distance,
+                isContained: distance < 32
+            };
         };
         Item.prototype.render = function () {
             Draw.image(this.canvasImage, this.x, this.y);
@@ -179,6 +187,7 @@ Example.adventureRPG = (function () {
         coins = 0;
         maxHealth = 100;
         health = maxHealth;
+        magnetRange = 100;
         OBJ.addTag(TAG.player, TAG.item, TAG.floatingText);
         Loader.loadSound('coin', '../assets/sounds/coin.mp3');
         Loader.loadSound('item1', '../assets/sounds/item1.mp3');

@@ -44,7 +44,8 @@ Example.adventureRPG = (() => {
 
     let coins: number,
         health: number,
-        maxHealth: number;
+        maxHealth: number,
+        magnetRange: number;
 
     class Player {
 
@@ -72,11 +73,16 @@ Example.adventureRPG = (() => {
             }
             const items: Item[] = OBJ.take(TAG.item);
             for (const item of items) {
-                if (item.containsPoint(this)) {
+                const cp = item.containsPoint(this);
+                if (cp.isContained) {
                     item.onCollected();
                     OBJ.remove(TAG.item, (n: Item) => {
                         return n.id === item.id;
                     });
+                }
+                if (cp.distance < magnetRange) {
+                    item.x += 0.2 * (this.x - item.x);
+                    item.y += 0.2 * (this.y - item.y);
                 }
             }
         }
@@ -145,7 +151,10 @@ Example.adventureRPG = (() => {
             let dx = point.x - this.x,
                 dy = point.y - this.y,
                 distance = Common.hypot(dx, dy);
-            return distance < 32;
+            return {
+                distance: distance,
+                isContained: distance < 32
+            };
         }
 
         render() {
@@ -213,6 +222,7 @@ Example.adventureRPG = (() => {
         coins = 0;
         maxHealth = 100;
         health = maxHealth;
+        magnetRange = 100;
         OBJ.addTag(
             TAG.player,
             TAG.item,
