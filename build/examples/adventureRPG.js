@@ -30,19 +30,40 @@ Example.adventureRPG = (function () {
             this.speed = speed;
             this.id = Common.getID();
             this.depth = -1;
+            this.imageIndex = 0;
+            this.imageNumber = 4;
+            this.imageXScale = 2;
+            this.imageYScale = 2;
+            this.imageAngle = 0;
+            this.imageOriginX = 0.5;
+            this.imageOriginY = 1;
+            this.face = 1;
+            this.xPrev = this.x;
+            this.yPrev = this.y;
+            this.moveTime = 0;
         }
         Player.prototype.update = function () {
+            this.xPrev = this.x;
+            this.yPrev = this.y;
             if (Input.keyHold(KeyCode.Left)) {
                 this.x -= this.speed;
+                this.face = -1;
             }
             if (Input.keyHold(KeyCode.Right)) {
                 this.x += this.speed;
+                this.face = 1;
             }
             if (Input.keyHold(KeyCode.Up)) {
                 this.y -= this.speed;
             }
             if (Input.keyHold(KeyCode.Down)) {
                 this.y += this.speed;
+            }
+            if (this.x !== this.xPrev || this.y !== this.yPrev) {
+                this.moveTime += Time.clampedDeltaTime;
+            }
+            else {
+                this.moveTime = 0;
             }
             var items = OBJ.take(TAG.item);
             var _loop_1 = function (item) {
@@ -65,8 +86,13 @@ Example.adventureRPG = (function () {
             }
         };
         Player.prototype.render = function () {
-            Draw.setColor(C.blueViolet);
-            Draw.rectCenter(this.x, this.y, 32, 32);
+            this.imageIndex += Time.clampedDeltaTime * (this.moveTime > 0 ? 0.2 : 0.1);
+            var t = this.moveTime > 0 ? Math.sin(this.moveTime * 0.5) * this.face : 0;
+            this.imageAngle = t * Math.PI / 20;
+            Draw.noSmooth();
+            Draw.strip('player-idle', this.imageNumber, Math.floor(this.imageIndex), this.x, this.y - Math.abs(5 * t), this.imageXScale * this.face, this.imageYScale, this.imageAngle, this.imageOriginX, this.imageOriginY, true);
+            Draw.smooth();
+            // Draw.circle(this.x, this.y, 10);
         };
         return Player;
     }());
@@ -189,6 +215,7 @@ Example.adventureRPG = (function () {
         health = maxHealth;
         magnetRange = 100;
         OBJ.addTag(TAG.player, TAG.item, TAG.floatingText);
+        Loader.loadImage('player-idle', '../assets/images/ghost-idle_strip4.png');
         Loader.loadSound('coin', '../assets/sounds/coin.mp3');
         Loader.loadSound('item1', '../assets/sounds/item1.mp3');
         Loader.loadSound('item2', '../assets/sounds/item2.mp3');

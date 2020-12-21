@@ -244,6 +244,24 @@ var NzymDraw = /** @class */ (function () {
             _this.ctx.drawImage(img, originX, originY);
         }, isRadians);
     };
+    NzymDraw.prototype.strip = function (name, stripsCount, index, x, y, xscale, yscale, angle, originX, originY, isRadians) {
+        var _this = this;
+        if (xscale === void 0) { xscale = 1; }
+        if (yscale === void 0) { yscale = 1; }
+        if (angle === void 0) { angle = 0; }
+        if (originX === void 0) { originX = 0.5; }
+        if (originY === void 0) { originY = 0.5; }
+        var img = (typeof name === 'string') ? this.images[name] : name;
+        var s = {
+            w: Number(img.width) / stripsCount,
+            h: Number(img.height)
+        };
+        originX *= -s.w;
+        originY *= -s.h;
+        this.onTransform(x, y, xscale, yscale, angle, function () {
+            _this.ctx.drawImage(img, (index % stripsCount) * s.w, 0, s.w, s.h, originX, originY, s.w, s.h);
+        }, isRadians);
+    };
     NzymDraw.prototype.smooth = function () {
         this.ctx.imageSmoothingEnabled = true;
     };

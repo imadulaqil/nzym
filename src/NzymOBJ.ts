@@ -4,7 +4,7 @@
 class NzymOBJ {
 
     list = [];
-    tags = [];
+    tags: string[] = [];
 
     autoClear = true;
     autoUpdate = true;

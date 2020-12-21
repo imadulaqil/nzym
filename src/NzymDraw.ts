@@ -12,7 +12,7 @@ class NzymDraw {
     vertices = [];
     primitive = { name: 'Fill', quantity: 0, closePath: true, isStroke: false };
 
-    images = {};
+    images: { [name: string]: CanvasImageSource } = {};
 
     lastText: {
         x: number,
@@ -279,6 +279,19 @@ class NzymDraw {
         originY *= -img.height;
         this.onTransform(x, y, xscale, yscale, angle, () => {
             this.ctx.drawImage(img, originX, originY);
+        }, isRadians);
+    }
+
+    strip(name: string | CanvasImageSource, stripsCount: number, index: number, x: number, y: number, xscale=1, yscale=1, angle=0, originX=0.5, originY=0.5, isRadians?: boolean) {
+        const img: CanvasImageSource = (typeof name === 'string')? this.images[name] : name;
+        const s = {
+            w: Number(img.width) / stripsCount,
+            h: Number(img.height)
+        };
+        originX *= -s.w;
+        originY *= -s.h;
+        this.onTransform(x, y, xscale, yscale, angle, () => {
+            this.ctx.drawImage(img, (index % stripsCount) * s.w, 0, s.w, s.h, originX, originY, s.w, s.h);
         }, isRadians);
     }
 
