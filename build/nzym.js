@@ -603,6 +603,9 @@ var NzymDraw = /** @class */ (function () {
     NzymDraw.prototype.rectCenter = function (x, y, w, h, isStroke) {
         this.rect(x - w / 2, y - h / 2, w, h, isStroke);
     };
+    NzymDraw.prototype.rectObject = function (rect, isStroke) {
+        this.rect(rect.x, rect.y, rect.w, rect.h, isStroke);
+    };
     NzymDraw.prototype.circle = function (x, y, r, isStroke) {
         this.ctx.beginPath();
         this.ctx.arc(x, y, r, 0, 2 * Math.PI);

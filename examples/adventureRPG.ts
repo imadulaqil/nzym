@@ -16,6 +16,8 @@ Example.adventureRPG = (() => {
 
     const Engine = new NzymEngine({
         name: 'Adventure RPG',
+        w: 800,
+        h: 576,
         parent: document.getElementById('gameContainer')
     });
 
@@ -39,13 +41,40 @@ Example.adventureRPG = (() => {
     enum TAG {
         player = 'player',
         item = 'item',
-        floatingText ='floatingText'
+        floatingText = 'floatingText',
+        block = 'block'
     };
 
     let coins: number,
         health: number,
         maxHealth: number,
         magnetRange: number;
+
+    class Hitbox {
+        constructor(
+            public x: number,
+            public y: number,
+            public w: number,
+            public h: number,
+            public isCenter: boolean = false
+        ) {
+            this.updatePosition(this.x, this.y);
+        }
+
+        updatePosition(x: number, y: number) {
+            this.x = x;
+            this.y = y;
+            if (this.isCenter) {
+                this.x -= this.w / 2;
+                this.y -= this.h / 2;
+            }
+        }
+
+        draw() {
+            Draw.setColor(C.magenta);
+            Draw.rectObject(this, true);
+        }
+    }
 
     class Player {
 
@@ -64,6 +93,8 @@ Example.adventureRPG = (() => {
         yPrev: number;
         moveTime: number;
 
+        hitbox: Hitbox;
+
         constructor(
             public x: number = 0,
             public y: number = 0,
@@ -80,31 +111,55 @@ Example.adventureRPG = (() => {
             this.xPrev = this.x;
             this.yPrev = this.y;
             this.moveTime = 0;
+            this.hitbox = new Hitbox(this.x, this.y, 20, 12, true);
         }
 
-        update() {
+        movement() {
             this.xPrev = this.x;
             this.yPrev = this.y;
+
+            const move = {
+                x: 0,
+                y: 0
+            };
+
             if (Input.keyHold(KeyCode.Left)) {
-                this.x -= this.speed;
+                move.x -= 1;
                 this.face = -1;
             }
             if (Input.keyHold(KeyCode.Right)) {
-                this.x += this.speed;
+                move.x += 1;
                 this.face = 1;
             }
             if (Input.keyHold(KeyCode.Up)) {
-                this.y -= this.speed;
+                move.y -= 1;
             }
             if (Input.keyHold(KeyCode.Down)) {
-                this.y += this.speed;
+                move.y += 1;
             }
+
+            const moveMag = Common.hypot(move.x, move.y);
+
+            if (moveMag > 0) {
+                move.x /= moveMag;
+                move.y /= moveMag;
+                move.x *= this.speed;
+                move.y *= this.speed;
+            }
+
+            this.x += move.x;
+            this.y += move.y;
+
             if (this.x !== this.xPrev || this.y !== this.yPrev) {
                 this.moveTime += Time.clampedDeltaTime;
             }
             else {
                 this.moveTime = 0;
             }
+        }
+
+        update() {
+            this.movement();
             const items: Item[] = OBJ.take(TAG.item);
             for (const item of items) {
                 const cp = item.containsPoint(this);
@@ -117,6 +172,18 @@ Example.adventureRPG = (() => {
                 if (cp.distance < magnetRange) {
                     item.x += 0.2 * (this.x - item.x);
                     item.y += 0.2 * (this.y - item.y);
+                }
+            }
+            this.hitbox.updatePosition(this.x, this.y - 8);
+            this.constraint();
+        }
+
+        constraint() {
+            const blocks: Block[] = OBJ.take(TAG.block);
+            for (const block of blocks) {
+                if (block.intersectsRect(this.hitbox)) {
+                    this.x = this.xPrev;
+                    this.y = this.yPrev;
                 }
             }
         }
@@ -141,6 +208,7 @@ Example.adventureRPG = (() => {
             );
             Draw.smooth();
             // Draw.circle(this.x, this.y, 10);
+            this.hitbox.draw();
         }
     }
 
@@ -257,6 +325,51 @@ Example.adventureRPG = (() => {
         }
     }
 
+    class Block {
+
+        id: number = Common.getID();
+        depth: number = 1;
+
+        constructor(
+            public x: number,
+            public y: number,
+            public w: number,
+            public h: number
+        ) {}
+
+        getTop() {
+            return this.y;
+        }
+
+        getRight() {
+            return this.x + this.w;
+        }
+
+        getBottom() {
+            return this.y + this.h;
+        }
+
+        getLeft() {
+            return this.x;
+        }
+
+        containsPoint(point: { x: number, y: number }) {
+            return point.x >= this.getLeft() && point.x < this.getRight()
+                && point.y >= this.getTop() && point.y < this.getBottom();
+        }
+
+        intersectsRect(rect: { x: number, y: number, w: number, h: number}) {
+            return this.getLeft() < rect.x + rect.w && this.getRight() >= rect.x
+                && this.getTop() < rect.y + rect.h && this.getBottom() >= rect.y;
+        }
+
+        render() {
+            Draw.setColor(C.burlyWood, C.black);
+            Draw.rect(this.x, this.y, this.w, this.h);
+            Draw.stroke();
+        }
+    }
+
     const spawnItem = (type: ItemType) => {
         return OBJ.push(TAG.item, new Item(type, Stage.randomX(), Stage.randomY(), Math.floor(Common.range(10, 20))));
     };
@@ -277,7 +390,8 @@ Example.adventureRPG = (() => {
         OBJ.addTag(
             TAG.player,
             TAG.item,
-            TAG.floatingText
+            TAG.floatingText,
+            TAG.block
         );
 
         Loader.loadImage('player-idle', '../assets/images/ghost-idle_strip4.png');
@@ -288,21 +402,62 @@ Example.adventureRPG = (() => {
     };
 
     GameScenes.start = () => {
+        const blockMap = {
+            x: 0,
+            y: 0,
+            w: 32,
+            h: 32,
+            rows: 18,
+            columns: 25,
+            data: [
+                '#########################',
+                '#.......................#',
+                '#.......................#',
+                '#.......................#',
+                '#.......................#',
+                '#..................#....#',
+                '#..................#....#',
+                '#......#....##.....##...#',
+                '#......#................#',
+                '#......###..............#',
+                '#.......................#',
+                '#..............###......#',
+                '#................#......#',
+                '#................####...#',
+                '#.......................#',
+                '#.......................#',
+                '#.......................#',
+                '#########################'
+            ]
+        };
+
+        for (let j = 0; j < Math.min(blockMap.rows, blockMap.data.length); j++) {
+            for (let i = 0; i < Math.min(blockMap.columns, blockMap.data[j].length); i++) {
+                if (blockMap.data[j][i] === '#') {
+                    OBJ.push(TAG.block, new Block(blockMap.x + i * blockMap.w, blockMap.y + j * blockMap.h, blockMap.w, blockMap.h));
+                }
+            }
+        }
+
         OBJ.push(TAG.player, new Player(Stage.mid.w, Stage.mid.h));
     };
 
     GameScenes.update = () => {
-        health -= 0.1;
-        if (Time.frameCount % 20 === 0) {
-            if (OBJ.count(TAG.item) < 25) {
-                spawnItem(Common.picko(ItemType));
-            }
-        }
+        // health -= 0.1;
+        // if (Time.frameCount % 20 === 0) {
+        //     if (OBJ.count(TAG.item) < 25) {
+        //         spawnItem(Common.picko(ItemType));
+        //     }
+        // }
     };
 
     GameScenes.renderUI = () => {
-        Draw.setFont(Font.m);
         Draw.setColor(C.black);
+        Draw.setAlpha(0.5);
+        Draw.rect(0, 0, 180, 80);
+        Draw.setAlpha(1);
+        Draw.setFont(Font.mb);
+        Draw.setColor(C.white);
         Draw.setHVAlign(Align.l, Align.t);
         const hp = Common.clamp(health, 0, maxHealth);
         Draw.text(10, 10, `Coins: ${coins}\nHealth: ${Math.floor(hp)}/${Math.floor(maxHealth)}`);

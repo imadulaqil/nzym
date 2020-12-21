@@ -184,6 +184,10 @@ class NzymDraw {
         this.rect(x - w / 2, y - h / 2, w, h, isStroke);
     }
 
+    rectObject(rect: { x: number, y: number, w: number, h: number }, isStroke?: boolean) {
+        this.rect(rect.x, rect.y, rect.w, rect.h, isStroke);
+    }
+
     circle(x: number, y: number, r: number, isStroke?: boolean) {
         this.ctx.beginPath();
         this.ctx.arc(x, y, r, 0, 2 * Math.PI);

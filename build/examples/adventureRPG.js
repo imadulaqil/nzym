@@ -3,6 +3,8 @@ Example.adventureRPG = (function () {
     var _a = Nzym.getAliases(), C = _a.C, Align = _a.Align, Common = _a.Common, Events = _a.Events, KeyCode = _a.KeyCode, LineCap = _a.LineCap, LineJoin = _a.LineJoin, LineDash = _a.LineDash, Primitive = _a.Primitive;
     var Engine = new NzymEngine({
         name: 'Adventure RPG',
+        w: 800,
+        h: 576,
         parent: document.getElementById('gameContainer')
     });
     var _b = Engine.getAliases(), OBJ = _b.OBJ, Draw = _b.Draw, Font = _b.Font, Time = _b.Time, Input = _b.Input, Scene = _b.Scene, Sound = _b.Sound, Stage = _b.Stage, Loader = _b.Loader;
@@ -17,9 +19,34 @@ Example.adventureRPG = (function () {
         TAG["player"] = "player";
         TAG["item"] = "item";
         TAG["floatingText"] = "floatingText";
+        TAG["block"] = "block";
     })(TAG || (TAG = {}));
     ;
     var coins, health, maxHealth, magnetRange;
+    var Hitbox = /** @class */ (function () {
+        function Hitbox(x, y, w, h, isCenter) {
+            if (isCenter === void 0) { isCenter = false; }
+            this.x = x;
+            this.y = y;
+            this.w = w;
+            this.h = h;
+            this.isCenter = isCenter;
+            this.updatePosition(this.x, this.y);
+        }
+        Hitbox.prototype.updatePosition = function (x, y) {
+            this.x = x;
+            this.y = y;
+            if (this.isCenter) {
+                this.x -= this.w / 2;
+                this.y -= this.h / 2;
+            }
+        };
+        Hitbox.prototype.draw = function () {
+            Draw.setColor(C.magenta);
+            Draw.rectObject(this, true);
+        };
+        return Hitbox;
+    }());
     var Player = /** @class */ (function () {
         function Player(x, y, speed) {
             if (x === void 0) { x = 0; }
@@ -41,30 +68,47 @@ Example.adventureRPG = (function () {
             this.xPrev = this.x;
             this.yPrev = this.y;
             this.moveTime = 0;
+            this.hitbox = new Hitbox(this.x, this.y, 20, 12, true);
         }
-        Player.prototype.update = function () {
+        Player.prototype.movement = function () {
             this.xPrev = this.x;
             this.yPrev = this.y;
+            var move = {
+                x: 0,
+                y: 0
+            };
             if (Input.keyHold(KeyCode.Left)) {
-                this.x -= this.speed;
+                move.x -= 1;
                 this.face = -1;
             }
             if (Input.keyHold(KeyCode.Right)) {
-                this.x += this.speed;
+                move.x += 1;
                 this.face = 1;
             }
             if (Input.keyHold(KeyCode.Up)) {
-                this.y -= this.speed;
+                move.y -= 1;
             }
             if (Input.keyHold(KeyCode.Down)) {
-                this.y += this.speed;
+                move.y += 1;
             }
+            var moveMag = Common.hypot(move.x, move.y);
+            if (moveMag > 0) {
+                move.x /= moveMag;
+                move.y /= moveMag;
+                move.x *= this.speed;
+                move.y *= this.speed;
+            }
+            this.x += move.x;
+            this.y += move.y;
             if (this.x !== this.xPrev || this.y !== this.yPrev) {
                 this.moveTime += Time.clampedDeltaTime;
             }
             else {
                 this.moveTime = 0;
             }
+        };
+        Player.prototype.update = function () {
+            this.movement();
             var items = OBJ.take(TAG.item);
             var _loop_1 = function (item) {
                 var cp = item.containsPoint(this_1);
@@ -84,6 +128,18 @@ Example.adventureRPG = (function () {
                 var item = items_1[_i];
                 _loop_1(item);
             }
+            this.hitbox.updatePosition(this.x, this.y - 8);
+            this.constraint();
+        };
+        Player.prototype.constraint = function () {
+            var blocks = OBJ.take(TAG.block);
+            for (var _i = 0, blocks_1 = blocks; _i < blocks_1.length; _i++) {
+                var block = blocks_1[_i];
+                if (block.intersectsRect(this.hitbox)) {
+                    this.x = this.xPrev;
+                    this.y = this.yPrev;
+                }
+            }
         };
         Player.prototype.render = function () {
             this.imageIndex += Time.clampedDeltaTime * (this.moveTime > 0 ? 0.2 : 0.1);
@@ -93,6 +149,7 @@ Example.adventureRPG = (function () {
             Draw.strip('player-idle', this.imageNumber, Math.floor(this.imageIndex), this.x, this.y - Math.abs(5 * t), this.imageXScale * this.face, this.imageYScale, this.imageAngle, this.imageOriginX, this.imageOriginY, true);
             Draw.smooth();
             // Draw.circle(this.x, this.y, 10);
+            this.hitbox.draw();
         };
         return Player;
     }());
@@ -200,6 +257,42 @@ Example.adventureRPG = (function () {
         FloatingText.floatSpeed = 1;
         return FloatingText;
     }());
+    var Block = /** @class */ (function () {
+        function Block(x, y, w, h) {
+            this.x = x;
+            this.y = y;
+            this.w = w;
+            this.h = h;
+            this.id = Common.getID();
+            this.depth = 1;
+        }
+        Block.prototype.getTop = function () {
+            return this.y;
+        };
+        Block.prototype.getRight = function () {
+            return this.x + this.w;
+        };
+        Block.prototype.getBottom = function () {
+            return this.y + this.h;
+        };
+        Block.prototype.getLeft = function () {
+            return this.x;
+        };
+        Block.prototype.containsPoint = function (point) {
+            return point.x >= this.getLeft() && point.x < this.getRight()
+                && point.y >= this.getTop() && point.y < this.getBottom();
+        };
+        Block.prototype.intersectsRect = function (rect) {
+            return this.getLeft() < rect.x + rect.w && this.getRight() >= rect.x
+                && this.getTop() < rect.y + rect.h && this.getBottom() >= rect.y;
+        };
+        Block.prototype.render = function () {
+            Draw.setColor(C.burlyWood, C.black);
+            Draw.rect(this.x, this.y, this.w, this.h);
+            Draw.stroke();
+        };
+        return Block;
+    }());
     var spawnItem = function (type) {
         return OBJ.push(TAG.item, new Item(type, Stage.randomX(), Stage.randomY(), Math.floor(Common.range(10, 20))));
     };
@@ -214,26 +307,65 @@ Example.adventureRPG = (function () {
         maxHealth = 100;
         health = maxHealth;
         magnetRange = 100;
-        OBJ.addTag(TAG.player, TAG.item, TAG.floatingText);
+        OBJ.addTag(TAG.player, TAG.item, TAG.floatingText, TAG.block);
         Loader.loadImage('player-idle', '../assets/images/ghost-idle_strip4.png');
         Loader.loadSound('coin', '../assets/sounds/coin.mp3');
         Loader.loadSound('item1', '../assets/sounds/item1.mp3');
         Loader.loadSound('item2', '../assets/sounds/item2.mp3');
     };
     GameScenes.start = function () {
+        var blockMap = {
+            x: 0,
+            y: 0,
+            w: 32,
+            h: 32,
+            rows: 18,
+            columns: 25,
+            data: [
+                '#########################',
+                '#.......................#',
+                '#.......................#',
+                '#.......................#',
+                '#.......................#',
+                '#..................#....#',
+                '#..................#....#',
+                '#......#....##.....##...#',
+                '#......#................#',
+                '#......###..............#',
+                '#.......................#',
+                '#..............###......#',
+                '#................#......#',
+                '#................####...#',
+                '#.......................#',
+                '#.......................#',
+                '#.......................#',
+                '#########################'
+            ]
+        };
+        for (var j = 0; j < Math.min(blockMap.rows, blockMap.data.length); j++) {
+            for (var i = 0; i < Math.min(blockMap.columns, blockMap.data[j].length); i++) {
+                if (blockMap.data[j][i] === '#') {
+                    OBJ.push(TAG.block, new Block(blockMap.x + i * blockMap.w, blockMap.y + j * blockMap.h, blockMap.w, blockMap.h));
+                }
+            }
+        }
         OBJ.push(TAG.player, new Player(Stage.mid.w, Stage.mid.h));
     };
     GameScenes.update = function () {
-        health -= 0.1;
-        if (Time.frameCount % 20 === 0) {
-            if (OBJ.count(TAG.item) < 25) {
-                spawnItem(Common.picko(ItemType));
-            }
-        }
+        // health -= 0.1;
+        // if (Time.frameCount % 20 === 0) {
+        //     if (OBJ.count(TAG.item) < 25) {
+        //         spawnItem(Common.picko(ItemType));
+        //     }
+        // }
     };
     GameScenes.renderUI = function () {
-        Draw.setFont(Font.m);
         Draw.setColor(C.black);
+        Draw.setAlpha(0.5);
+        Draw.rect(0, 0, 180, 80);
+        Draw.setAlpha(1);
+        Draw.setFont(Font.mb);
+        Draw.setColor(C.white);
         Draw.setHVAlign(Align.l, Align.t);
         var hp = Common.clamp(health, 0, maxHealth);
         Draw.text(10, 10, "Coins: " + coins + "\nHealth: " + Math.floor(hp) + "/" + Math.floor(maxHealth));
