@@ -42,7 +42,8 @@ Example.adventureRPG = (() => {
         player = 'player',
         item = 'item',
         floatingText = 'floatingText',
-        block = 'block'
+        block = 'block',
+        footsteps = 'footsteps'
     };
 
     let coins: number,
@@ -59,6 +60,22 @@ Example.adventureRPG = (() => {
             public isCenter: boolean = false
         ) {
             this.updatePosition(this.x, this.y);
+        }
+
+        getTop() {
+            return this.y;
+        }
+
+        getRight() {
+            return this.x + this.w;
+        }
+
+        getBottom() {
+            return this.y + this.h;
+        }
+
+        getLeft() {
+            return this.x;
         }
 
         updatePosition(x: number, y: number) {
@@ -102,8 +119,8 @@ Example.adventureRPG = (() => {
         ) {
             this.imageIndex = 0;
             this.imageNumber = 4;
-            this.imageXScale = 2;
-            this.imageYScale = 2;
+            this.imageXScale = 1.5;
+            this.imageYScale = 1.5;
             this.imageAngle = 0;
             this.imageOriginX = 0.5;
             this.imageOriginY = 1;
@@ -151,11 +168,20 @@ Example.adventureRPG = (() => {
             this.y += move.y;
 
             if (this.x !== this.xPrev || this.y !== this.yPrev) {
+                if (Time.frameCount % 5 === 0) {
+                    const offset = Time.frameCount % 10 === 0? -8 : 8;
+                    this.spawnFootsteps(this.xPrev + offset + Common.range(-5, 5), this.yPrev + Common.range(-5, 5));
+                    // this.spawnFootsteps(this.xPrev + 8 + Common.range(-5, 5), this.yPrev + Common.range(-5, 5));
+                }
                 this.moveTime += Time.clampedDeltaTime;
             }
             else {
                 this.moveTime = 0;
             }
+        }
+
+        spawnFootsteps(x: number, y: number) {
+            OBJ.push(TAG.footsteps, new Footsteps(x, y, 8));
         }
 
         update() {
@@ -174,16 +200,43 @@ Example.adventureRPG = (() => {
                     item.y += 0.2 * (this.y - item.y);
                 }
             }
-            this.hitbox.updatePosition(this.x, this.y - 8);
+            this.updateHitbox();
             this.constraint();
+        }
+
+        updateHitbox() {
+            this.hitbox.updatePosition(this.x, this.y - 8);
         }
 
         constraint() {
             const blocks: Block[] = OBJ.take(TAG.block);
             for (const block of blocks) {
                 if (block.intersectsRect(this.hitbox)) {
-                    this.x = this.xPrev;
-                    this.y = this.yPrev;
+                    if (this.hitbox.getLeft() < block.getLeft()) {
+                        if (this.x > this.xPrev) {
+                            this.x = this.xPrev;
+                        }
+                    }
+                    this.updateHitbox();
+                    if (this.hitbox.getRight() > block.getRight()) {
+                        if (this.x < this.xPrev) {
+                            this.x = this.xPrev;
+                        }
+                    }
+                    this.updateHitbox();
+                    if (this.hitbox.getTop() < block.getTop()) {
+                        if (this.y > this.yPrev) {
+                            this.y = this.yPrev;
+                        }
+                    }
+                    this.updateHitbox();
+                    if (this.hitbox.getBottom() > block.getBottom()) {
+                        if (this.y < this.yPrev) {
+                            this.y = this.yPrev;
+                        }
+                    }
+                    // this.x = this.xPrev;
+                    // this.y = this.yPrev;
                 }
             }
         }
@@ -208,7 +261,33 @@ Example.adventureRPG = (() => {
             );
             Draw.smooth();
             // Draw.circle(this.x, this.y, 10);
-            this.hitbox.draw();
+            // this.hitbox.draw();
+        }
+    }
+
+    class Footsteps {
+
+        id: number = Common.getID();
+        depth: number = 2;
+
+        private alpha: number = 0.5;
+
+        constructor(
+            public x: number,
+            public y: number,
+            public size: number,
+            public color: string = C.black
+        ) {}
+        
+        render() {
+            Draw.setColor(this.color);
+            Draw.setAlpha(this.alpha);
+            Draw.circle(this.x, this.y, this.size / 2);
+            Draw.setAlpha(1);
+            this.alpha -= 0.02;
+            if (this.alpha < 0) {
+                OBJ.remove(TAG.footsteps, (n) => n.id === this.id);
+            }
         }
     }
 
@@ -391,7 +470,8 @@ Example.adventureRPG = (() => {
             TAG.player,
             TAG.item,
             TAG.floatingText,
-            TAG.block
+            TAG.block,
+            TAG.footsteps
         );
 
         Loader.loadImage('player-idle', '../assets/images/ghost-idle_strip4.png');

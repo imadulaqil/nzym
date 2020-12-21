@@ -20,6 +20,7 @@ Example.adventureRPG = (function () {
         TAG["item"] = "item";
         TAG["floatingText"] = "floatingText";
         TAG["block"] = "block";
+        TAG["footsteps"] = "footsteps";
     })(TAG || (TAG = {}));
     ;
     var coins, health, maxHealth, magnetRange;
@@ -33,6 +34,18 @@ Example.adventureRPG = (function () {
             this.isCenter = isCenter;
             this.updatePosition(this.x, this.y);
         }
+        Hitbox.prototype.getTop = function () {
+            return this.y;
+        };
+        Hitbox.prototype.getRight = function () {
+            return this.x + this.w;
+        };
+        Hitbox.prototype.getBottom = function () {
+            return this.y + this.h;
+        };
+        Hitbox.prototype.getLeft = function () {
+            return this.x;
+        };
         Hitbox.prototype.updatePosition = function (x, y) {
             this.x = x;
             this.y = y;
@@ -59,8 +72,8 @@ Example.adventureRPG = (function () {
             this.depth = -1;
             this.imageIndex = 0;
             this.imageNumber = 4;
-            this.imageXScale = 2;
-            this.imageYScale = 2;
+            this.imageXScale = 1.5;
+            this.imageYScale = 1.5;
             this.imageAngle = 0;
             this.imageOriginX = 0.5;
             this.imageOriginY = 1;
@@ -101,11 +114,19 @@ Example.adventureRPG = (function () {
             this.x += move.x;
             this.y += move.y;
             if (this.x !== this.xPrev || this.y !== this.yPrev) {
+                if (Time.frameCount % 5 === 0) {
+                    var offset = Time.frameCount % 10 === 0 ? -8 : 8;
+                    this.spawnFootsteps(this.xPrev + offset + Common.range(-5, 5), this.yPrev + Common.range(-5, 5));
+                    // this.spawnFootsteps(this.xPrev + 8 + Common.range(-5, 5), this.yPrev + Common.range(-5, 5));
+                }
                 this.moveTime += Time.clampedDeltaTime;
             }
             else {
                 this.moveTime = 0;
             }
+        };
+        Player.prototype.spawnFootsteps = function (x, y) {
+            OBJ.push(TAG.footsteps, new Footsteps(x, y, 8));
         };
         Player.prototype.update = function () {
             this.movement();
@@ -128,16 +149,42 @@ Example.adventureRPG = (function () {
                 var item = items_1[_i];
                 _loop_1(item);
             }
-            this.hitbox.updatePosition(this.x, this.y - 8);
+            this.updateHitbox();
             this.constraint();
+        };
+        Player.prototype.updateHitbox = function () {
+            this.hitbox.updatePosition(this.x, this.y - 8);
         };
         Player.prototype.constraint = function () {
             var blocks = OBJ.take(TAG.block);
             for (var _i = 0, blocks_1 = blocks; _i < blocks_1.length; _i++) {
                 var block = blocks_1[_i];
                 if (block.intersectsRect(this.hitbox)) {
-                    this.x = this.xPrev;
-                    this.y = this.yPrev;
+                    if (this.hitbox.getLeft() < block.getLeft()) {
+                        if (this.x > this.xPrev) {
+                            this.x = this.xPrev;
+                        }
+                    }
+                    this.updateHitbox();
+                    if (this.hitbox.getRight() > block.getRight()) {
+                        if (this.x < this.xPrev) {
+                            this.x = this.xPrev;
+                        }
+                    }
+                    this.updateHitbox();
+                    if (this.hitbox.getTop() < block.getTop()) {
+                        if (this.y > this.yPrev) {
+                            this.y = this.yPrev;
+                        }
+                    }
+                    this.updateHitbox();
+                    if (this.hitbox.getBottom() > block.getBottom()) {
+                        if (this.y < this.yPrev) {
+                            this.y = this.yPrev;
+                        }
+                    }
+                    // this.x = this.xPrev;
+                    // this.y = this.yPrev;
                 }
             }
         };
@@ -149,9 +196,33 @@ Example.adventureRPG = (function () {
             Draw.strip('player-idle', this.imageNumber, Math.floor(this.imageIndex), this.x, this.y - Math.abs(5 * t), this.imageXScale * this.face, this.imageYScale, this.imageAngle, this.imageOriginX, this.imageOriginY, true);
             Draw.smooth();
             // Draw.circle(this.x, this.y, 10);
-            this.hitbox.draw();
+            // this.hitbox.draw();
         };
         return Player;
+    }());
+    var Footsteps = /** @class */ (function () {
+        function Footsteps(x, y, size, color) {
+            if (color === void 0) { color = C.black; }
+            this.x = x;
+            this.y = y;
+            this.size = size;
+            this.color = color;
+            this.id = Common.getID();
+            this.depth = 2;
+            this.alpha = 0.5;
+        }
+        Footsteps.prototype.render = function () {
+            var _this = this;
+            Draw.setColor(this.color);
+            Draw.setAlpha(this.alpha);
+            Draw.circle(this.x, this.y, this.size / 2);
+            Draw.setAlpha(1);
+            this.alpha -= 0.02;
+            if (this.alpha < 0) {
+                OBJ.remove(TAG.footsteps, function (n) { return n.id === _this.id; });
+            }
+        };
+        return Footsteps;
     }());
     var Item = /** @class */ (function () {
         function Item(type, x, y, value) {
@@ -307,7 +378,7 @@ Example.adventureRPG = (function () {
         maxHealth = 100;
         health = maxHealth;
         magnetRange = 100;
-        OBJ.addTag(TAG.player, TAG.item, TAG.floatingText, TAG.block);
+        OBJ.addTag(TAG.player, TAG.item, TAG.floatingText, TAG.block, TAG.footsteps);
         Loader.loadImage('player-idle', '../assets/images/ghost-idle_strip4.png');
         Loader.loadSound('coin', '../assets/sounds/coin.mp3');
         Loader.loadSound('item1', '../assets/sounds/item1.mp3');
