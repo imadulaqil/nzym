@@ -137,6 +137,9 @@ Example.adventureRPG = (() => {
         imageOriginX: number;
         imageOriginY: number;
 
+        xs: number = 1;
+        ys: number = 1;
+
         face: 1 | -1;
         xPrev: number;
         yPrev: number;
@@ -154,8 +157,8 @@ Example.adventureRPG = (() => {
         ) {
             this.imageIndex = 0;
             this.imageNumber = 4;
-            this.imageXScale = 1.5;
-            this.imageYScale = 1.5;
+            this.imageXScale = 1.2;
+            this.imageYScale = 1.2;
             this.imageAngle = 0;
             this.imageOriginX = 0.5;
             this.imageOriginY = 1;
@@ -238,9 +241,8 @@ Example.adventureRPG = (() => {
                 }
             }
             this.updateHitbox();
-            this.constraint();
-
             this.bulletCheck();
+            this.constraint();
 
             this.depth = -this.y;
         }
@@ -248,14 +250,22 @@ Example.adventureRPG = (() => {
         bulletCheck() {
             const bullets: Bullet[] = OBJ.take(TAG.bullet);
             for (const bullet of bullets) {
-                if (Common.rectContainsPoint(this.bulletHitbox, bullet)) {
-                    health -= bullet.damage;
-                    if (health < 0) {
-                        health = 0;
-                        this.isDead = true;
-                        break;
+                if (bullet.tag === BulletTag.enemy) {
+                    if (Common.rectContainsPoint(this.bulletHitbox, bullet)) {
+                        this.x += bullet.vx * 1;
+                        this.y += bullet.vy * 1;
+                        this.xs = 0.8;
+                        this.ys = 1.2;
+                        this.face = this.x < bullet.x? 1 : -1;
+                        health -= bullet.damage;
+                        if (health < 0) {
+                            health = 0;
+                            this.isDead = true;
+                            break;
+                        }
+                        spawnFloatingText(bullet.x, bullet.y, `-${bullet.damage}`, Math.PI * Common.range(-0.05, 0.05), C.red);
+                        OBJ.removeById(TAG.bullet, bullet.id);
                     }
-                    OBJ.removeById(TAG.bullet, bullet.id);
                 }
             }
         }
@@ -299,6 +309,8 @@ Example.adventureRPG = (() => {
         }
 
         render() {
+            this.xs += 0.2 * (1 - this.xs);
+            this.ys += 0.2 * (1 - this.ys);
             if (this.isDead) {
                 Draw.noSmooth();
                 Draw.strip(
@@ -307,8 +319,8 @@ Example.adventureRPG = (() => {
                     0,
                     this.x,
                     this.y,
-                    this.imageXScale * this.face,
-                    this.imageYScale,
+                    this.imageXScale * this.face * this.xs,
+                    this.imageYScale * this.ys,
                     Math.PI / 2 * -this.face,
                     this.imageOriginX,
                     this.imageOriginY,
@@ -327,8 +339,8 @@ Example.adventureRPG = (() => {
                 Math.floor(this.imageIndex),
                 this.x,
                 this.y - Math.abs(5 * t),
-                this.imageXScale * this.face,
-                this.imageYScale,
+                this.imageXScale * this.face * this.xs,
+                this.imageYScale * this.ys,
                 this.imageAngle,
                 this.imageOriginX,
                 this.imageOriginY,
@@ -445,7 +457,7 @@ Example.adventureRPG = (() => {
         static floatSpeed = 1;
 
         id: number = Common.getID();
-        depth: number = -2;
+        depth: number = -9999;
 
         private vx: number;
         private vy: number;
@@ -563,6 +575,11 @@ Example.adventureRPG = (() => {
         attackRange = Common.range(100, 200);
         attackInterval = 20;
 
+        shootPoint: NzymPoint = {
+            x: 0,
+            y: 0
+        };
+
         playerInRange = false;
 
         constructor(
@@ -572,6 +589,8 @@ Example.adventureRPG = (() => {
         ) {
             switch (this.type) {
                 case EnemyType.slimey:
+                    this.shootPoint.x = this.x;
+                    this.shootPoint.y = this.y - 32;
                     Events.on(this, 'idleupdate', () => {
                         const p: Player = OBJ.take(TAG.player)[0];
                         if (p) {
@@ -602,15 +621,14 @@ Example.adventureRPG = (() => {
                                 this.playerInRange = true;
                                 if (this.attackTime < 0) {
                                     const bulletSpeed = Common.range(1.9, 2.1)
-                                    OBJ.push(
-                                        TAG.bullet,
+                                    OBJ.push(TAG.bullet,
                                         new Bullet(
                                             BulletTag.enemy,
-                                            this.x,
-                                            this.y,
+                                            this.shootPoint.x,
+                                            this.shootPoint.y,
                                             Common.angleBetween(
-                                                this.x,
-                                                this.y,
+                                                this.shootPoint.x,
+                                                this.shootPoint.y,
                                                 p.bulletHitbox.getCenter() + Common.range(-3, 3),
                                                 p.bulletHitbox.getMiddle() + Common.range(-3, 3)
                                             ),
@@ -626,23 +644,24 @@ Example.adventureRPG = (() => {
                         }
                     });
                     Events.on(this, 'render', () => {
-                        Draw.setColor(C.lawnGreen, C.red);
-                        Draw.circle(this.x, this.y, 16);
-                        // Draw.setColor(C.red);
-                        Draw.circle(this.x, this.y, 16 * Math.max(0, this.attackTime / 20), true);
-                        // Draw.setLineWidth(2);
-                        // Draw.stroke();
-                        // Draw.setLineWidth(1);
-                        // if (this.playerInRange) {
-                            Draw.setAlpha(this.playerInRange? 0.5 : 0.2);
-                            Draw.setColor(C.wheat);
-                            Draw.circle(this.x, this.y, this.attackRange);
-                            Draw.setAlpha(1);
-                        // }
-                        // Draw.text(this.x, this.y, this.state);
+                        // Draw.setAlpha(this.playerInRange? 0.5 : 0.2);
+                        // Draw.setColor(C.wheat);
+                        // Draw.circle(this.x, this.y, this.attackRange);
+                        // Draw.setAlpha(1);
+                        
+                        const p = this.getPlayer();
+                        Draw.image('snowman', this.x, this.y, 0.5 * (this.x < p.x? 1 : -1), 0.5, 0, 0.5, 0.9);
+
+                        Draw.setStroke(C.red);
+                        Draw.circle(this.shootPoint.x, this.shootPoint.y, 16 * Math.max(0, this.attackTime / 20), true);
                     });
                     break;
             }
+        }
+
+        getPlayer() {
+            const p: Player = OBJ.take(TAG.player)[0];
+            return p || { x: 0, y: 0 };
         }
 
         followTarget() {
@@ -704,6 +723,7 @@ Example.adventureRPG = (() => {
     class Bullet {
 
         id = Common.getID();
+        depth = 0;
 
         vx = 0;
         vy = 0;
@@ -714,7 +734,7 @@ Example.adventureRPG = (() => {
             public y: number,
             public angle: number,
             public speed: number,
-            public damage: number = 5,
+            public damage: number = Common.choose(3, 4, 5),
             public radius: number = 3
         ) {
             this.vx = Math.cos(angle) * this.speed;
@@ -727,6 +747,7 @@ Example.adventureRPG = (() => {
             if (!Stage.insideStage(this.x, this.y)) {
                 OBJ.removeById(TAG.bullet, this.id);
             }
+            this.depth = -this.y - 32;
         }
 
         render() {
@@ -765,6 +786,7 @@ Example.adventureRPG = (() => {
         );
 
         Loader.loadImage('player-idle', '../assets/images/ghost-idle_strip4.png');
+        Loader.loadImage('snowman', '../assets/images/kenney/snowmanFancy_SE.png');
 
         treeImages = [];
         for (const d of ['NE', 'NW', 'SE', 'SW']) {
@@ -827,7 +849,22 @@ Example.adventureRPG = (() => {
         // }
         if (Time.frameCount % 20 === 0) {
             if (OBJ.count(TAG.enemy) < 3) {
-                OBJ.push(TAG.enemy, new Enemy(Common.picko(EnemyType), Stage.randomX(), Stage.randomY()));
+                const spawnPos = {
+                    x: Stage.randomX(),
+                    y: Stage.randomY()
+                };
+                // check if empty
+                let isBlocked = false;
+                const blocks: Block[] = OBJ.take(TAG.block);
+                for (const b of blocks) {
+                    if (b.containsPoint(spawnPos)) {
+                        isBlocked = true;
+                        break;
+                    }
+                }
+                if (!isBlocked) {
+                    OBJ.push(TAG.enemy, new Enemy(Common.picko(EnemyType), spawnPos.x, spawnPos.y));
+                }
             }
         }
     };

@@ -102,11 +102,13 @@ Example.adventureRPG = (function () {
             this.y = y;
             this.speed = speed;
             this.id = Common.getID();
+            this.xs = 1;
+            this.ys = 1;
             this.isDead = false;
             this.imageIndex = 0;
             this.imageNumber = 4;
-            this.imageXScale = 1.5;
-            this.imageYScale = 1.5;
+            this.imageXScale = 1.2;
+            this.imageYScale = 1.2;
             this.imageAngle = 0;
             this.imageOriginX = 0.5;
             this.imageOriginY = 1;
@@ -186,22 +188,30 @@ Example.adventureRPG = (function () {
                 _loop_1(item);
             }
             this.updateHitbox();
-            this.constraint();
             this.bulletCheck();
+            this.constraint();
             this.depth = -this.y;
         };
         Player.prototype.bulletCheck = function () {
             var bullets = OBJ.take(TAG.bullet);
             for (var _i = 0, bullets_1 = bullets; _i < bullets_1.length; _i++) {
                 var bullet = bullets_1[_i];
-                if (Common.rectContainsPoint(this.bulletHitbox, bullet)) {
-                    health -= bullet.damage;
-                    if (health < 0) {
-                        health = 0;
-                        this.isDead = true;
-                        break;
+                if (bullet.tag === BulletTag.enemy) {
+                    if (Common.rectContainsPoint(this.bulletHitbox, bullet)) {
+                        this.x += bullet.vx * 1;
+                        this.y += bullet.vy * 1;
+                        this.xs = 0.8;
+                        this.ys = 1.2;
+                        this.face = this.x < bullet.x ? 1 : -1;
+                        health -= bullet.damage;
+                        if (health < 0) {
+                            health = 0;
+                            this.isDead = true;
+                            break;
+                        }
+                        spawnFloatingText(bullet.x, bullet.y, "-" + bullet.damage, Math.PI * Common.range(-0.05, 0.05), C.red);
+                        OBJ.removeById(TAG.bullet, bullet.id);
                     }
-                    OBJ.removeById(TAG.bullet, bullet.id);
                 }
             }
         };
@@ -243,9 +253,11 @@ Example.adventureRPG = (function () {
             }
         };
         Player.prototype.render = function () {
+            this.xs += 0.2 * (1 - this.xs);
+            this.ys += 0.2 * (1 - this.ys);
             if (this.isDead) {
                 Draw.noSmooth();
-                Draw.strip('player-idle', this.imageNumber, 0, this.x, this.y, this.imageXScale * this.face, this.imageYScale, Math.PI / 2 * -this.face, this.imageOriginX, this.imageOriginY, true);
+                Draw.strip('player-idle', this.imageNumber, 0, this.x, this.y, this.imageXScale * this.face * this.xs, this.imageYScale * this.ys, Math.PI / 2 * -this.face, this.imageOriginX, this.imageOriginY, true);
                 Draw.smooth();
                 return;
             }
@@ -253,7 +265,7 @@ Example.adventureRPG = (function () {
             var t = this.moveTime > 0 ? Math.sin(this.moveTime * 0.5) * this.face : 0;
             this.imageAngle = t * Math.PI / 20;
             Draw.noSmooth();
-            Draw.strip('player-idle', this.imageNumber, Math.floor(this.imageIndex), this.x, this.y - Math.abs(5 * t), this.imageXScale * this.face, this.imageYScale, this.imageAngle, this.imageOriginX, this.imageOriginY, true);
+            Draw.strip('player-idle', this.imageNumber, Math.floor(this.imageIndex), this.x, this.y - Math.abs(5 * t), this.imageXScale * this.face * this.xs, this.imageYScale * this.ys, this.imageAngle, this.imageOriginX, this.imageOriginY, true);
             Draw.smooth();
             // Draw.circle(this.x, this.y, 10);
             // this.hitbox.draw();
@@ -365,7 +377,7 @@ Example.adventureRPG = (function () {
             this.angle = angle;
             this.color = color;
             this.id = Common.getID();
-            this.depth = -2;
+            this.depth = -9999;
             this.alpha = 1;
             var up = angle - Math.PI / 2;
             this.vx = Math.cos(up) * FloatingText.floatSpeed;
@@ -455,9 +467,15 @@ Example.adventureRPG = (function () {
             this.attackTime = 0;
             this.attackRange = Common.range(100, 200);
             this.attackInterval = 20;
+            this.shootPoint = {
+                x: 0,
+                y: 0
+            };
             this.playerInRange = false;
             switch (this.type) {
                 case EnemyType.slimey:
+                    this.shootPoint.x = this.x;
+                    this.shootPoint.y = this.y - 32;
                     Events.on(this, 'idleupdate', function () {
                         var p = OBJ.take(TAG.player)[0];
                         if (p) {
@@ -488,7 +506,7 @@ Example.adventureRPG = (function () {
                                 _this.playerInRange = true;
                                 if (_this.attackTime < 0) {
                                     var bulletSpeed = Common.range(1.9, 2.1);
-                                    OBJ.push(TAG.bullet, new Bullet(BulletTag.enemy, _this.x, _this.y, Common.angleBetween(_this.x, _this.y, p.bulletHitbox.getCenter() + Common.range(-3, 3), p.bulletHitbox.getMiddle() + Common.range(-3, 3)), bulletSpeed));
+                                    OBJ.push(TAG.bullet, new Bullet(BulletTag.enemy, _this.shootPoint.x, _this.shootPoint.y, Common.angleBetween(_this.shootPoint.x, _this.shootPoint.y, p.bulletHitbox.getCenter() + Common.range(-3, 3), p.bulletHitbox.getMiddle() + Common.range(-3, 3)), bulletSpeed));
                                     _this.attackTime = _this.attackInterval;
                                 }
                                 else {
@@ -498,24 +516,22 @@ Example.adventureRPG = (function () {
                         }
                     });
                     Events.on(this, 'render', function () {
-                        Draw.setColor(C.lawnGreen, C.red);
-                        Draw.circle(_this.x, _this.y, 16);
-                        // Draw.setColor(C.red);
-                        Draw.circle(_this.x, _this.y, 16 * Math.max(0, _this.attackTime / 20), true);
-                        // Draw.setLineWidth(2);
-                        // Draw.stroke();
-                        // Draw.setLineWidth(1);
-                        // if (this.playerInRange) {
-                        Draw.setAlpha(_this.playerInRange ? 0.5 : 0.2);
-                        Draw.setColor(C.wheat);
-                        Draw.circle(_this.x, _this.y, _this.attackRange);
-                        Draw.setAlpha(1);
-                        // }
-                        // Draw.text(this.x, this.y, this.state);
+                        // Draw.setAlpha(this.playerInRange? 0.5 : 0.2);
+                        // Draw.setColor(C.wheat);
+                        // Draw.circle(this.x, this.y, this.attackRange);
+                        // Draw.setAlpha(1);
+                        var p = _this.getPlayer();
+                        Draw.image('snowman', _this.x, _this.y, 0.5 * (_this.x < p.x ? 1 : -1), 0.5, 0, 0.5, 0.9);
+                        Draw.setStroke(C.red);
+                        Draw.circle(_this.shootPoint.x, _this.shootPoint.y, 16 * Math.max(0, _this.attackTime / 20), true);
                     });
                     break;
             }
         }
+        Enemy.prototype.getPlayer = function () {
+            var p = OBJ.take(TAG.player)[0];
+            return p || { x: 0, y: 0 };
+        };
         Enemy.prototype.followTarget = function () {
             var dx = this.target.x - this.x, dy = this.target.y - this.y, length = Common.hypot(dx, dy);
             dx /= length;
@@ -591,7 +607,7 @@ Example.adventureRPG = (function () {
     }());
     var Bullet = /** @class */ (function () {
         function Bullet(tag, x, y, angle, speed, damage, radius) {
-            if (damage === void 0) { damage = 5; }
+            if (damage === void 0) { damage = Common.choose(3, 4, 5); }
             if (radius === void 0) { radius = 3; }
             this.tag = tag;
             this.x = x;
@@ -601,6 +617,7 @@ Example.adventureRPG = (function () {
             this.damage = damage;
             this.radius = radius;
             this.id = Common.getID();
+            this.depth = 0;
             this.vx = 0;
             this.vy = 0;
             this.vx = Math.cos(angle) * this.speed;
@@ -612,6 +629,7 @@ Example.adventureRPG = (function () {
             if (!Stage.insideStage(this.x, this.y)) {
                 OBJ.removeById(TAG.bullet, this.id);
             }
+            this.depth = -this.y - 32;
         };
         Bullet.prototype.render = function () {
             Draw.setColor(C.red);
@@ -637,6 +655,7 @@ Example.adventureRPG = (function () {
         magnetRange = 100;
         OBJ.addTag(TAG.player, TAG.item, TAG.floatingText, TAG.block, TAG.footsteps, TAG.enemy, TAG.bullet);
         Loader.loadImage('player-idle', '../assets/images/ghost-idle_strip4.png');
+        Loader.loadImage('snowman', '../assets/images/kenney/snowmanFancy_SE.png');
         treeImages = [];
         for (var _i = 0, _a = ['NE', 'NW', 'SE', 'SW']; _i < _a.length; _i++) {
             var d = _a[_i];
@@ -694,7 +713,23 @@ Example.adventureRPG = (function () {
         // }
         if (Time.frameCount % 20 === 0) {
             if (OBJ.count(TAG.enemy) < 3) {
-                OBJ.push(TAG.enemy, new Enemy(Common.picko(EnemyType), Stage.randomX(), Stage.randomY()));
+                var spawnPos = {
+                    x: Stage.randomX(),
+                    y: Stage.randomY()
+                };
+                // check if empty
+                var isBlocked = false;
+                var blocks = OBJ.take(TAG.block);
+                for (var _i = 0, blocks_2 = blocks; _i < blocks_2.length; _i++) {
+                    var b = blocks_2[_i];
+                    if (b.containsPoint(spawnPos)) {
+                        isBlocked = true;
+                        break;
+                    }
+                }
+                if (!isBlocked) {
+                    OBJ.push(TAG.enemy, new Enemy(Common.picko(EnemyType), spawnPos.x, spawnPos.y));
+                }
             }
         }
     };
