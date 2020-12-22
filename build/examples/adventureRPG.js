@@ -312,7 +312,8 @@ Example.adventureRPG = (function () {
             this.y = y;
             this.value = value;
             this.id = Common.getID();
-            this.depth = 0;
+            this.depth = -9998;
+            this.scale = Common.range(0.8, 1);
             this.canvasImage = Draw.createCanvas(32, 32, function (canvas, w, h) {
                 switch (_this.type) {
                     case ItemType.coin:
@@ -335,6 +336,10 @@ Example.adventureRPG = (function () {
             Draw.circle(w / 2, h / 2, 15);
             Draw.setColor(C.white);
             Draw.circle(w / 2, h / 2, 10);
+            Draw.setColor(C.red);
+            Draw.setLineWidth(4);
+            Draw.plus(w / 2, h / 2, 6);
+            Draw.setLineWidth(1);
         };
         Item.prototype.onCollected = function () {
             var angle = Math.PI * Common.range(-0.05, 0.05);
@@ -363,7 +368,7 @@ Example.adventureRPG = (function () {
             };
         };
         Item.prototype.render = function () {
-            Draw.image(this.canvasImage, this.x, this.y);
+            Draw.image(this.canvasImage, this.x, this.y, this.scale * Math.sin((Time.frameCount + this.id) * 0.1), this.scale);
         };
         return Item;
     }());
@@ -455,7 +460,6 @@ Example.adventureRPG = (function () {
             this.y = y;
             this.events = {};
             this.id = Common.getID();
-            this.depth = 2;
             this.state = EnemyState.idle;
             this.target = {
                 x: 0,
@@ -464,14 +468,19 @@ Example.adventureRPG = (function () {
             this.speed = 0.5;
             this.vx = 0;
             this.vy = 0;
+            this.xs = 1;
+            this.ys = 1;
             this.attackTime = 0;
             this.attackRange = Common.range(100, 200);
-            this.attackInterval = 20;
+            this.attackInterval = Common.range(10, 20);
             this.shootPoint = {
                 x: 0,
                 y: 0
             };
             this.playerInRange = false;
+            this.xs = 1.8;
+            this.ys = 0.2;
+            this.depth = -this.y;
             switch (this.type) {
                 case EnemyType.slimey:
                     this.shootPoint.x = this.x;
@@ -516,12 +525,14 @@ Example.adventureRPG = (function () {
                         }
                     });
                     Events.on(this, 'render', function () {
+                        _this.xs += 0.2 * (1 - _this.xs);
+                        _this.ys += 0.2 * (1 - _this.ys);
                         // Draw.setAlpha(this.playerInRange? 0.5 : 0.2);
                         // Draw.setColor(C.wheat);
                         // Draw.circle(this.x, this.y, this.attackRange);
                         // Draw.setAlpha(1);
                         var p = _this.getPlayer();
-                        Draw.image('snowman', _this.x, _this.y, 0.5 * (_this.x < p.x ? 1 : -1), 0.5, 0, 0.5, 0.9);
+                        Draw.image('snowman', _this.x, _this.y, 0.5 * (_this.x < p.x ? 1 : -1) * _this.xs, 0.5 * _this.ys, 0, 0.5, 0.9);
                         Draw.setStroke(C.red);
                         Draw.circle(_this.shootPoint.x, _this.shootPoint.y, 16 * Math.max(0, _this.attackTime / 20), true);
                     });
@@ -622,6 +633,7 @@ Example.adventureRPG = (function () {
             this.vy = 0;
             this.vx = Math.cos(angle) * this.speed;
             this.vy = Math.sin(angle) * this.speed;
+            this.radius = this.damage * 0.8;
         }
         Bullet.prototype.update = function () {
             this.x += this.vx;
@@ -629,6 +641,15 @@ Example.adventureRPG = (function () {
             if (!Stage.insideStage(this.x, this.y)) {
                 OBJ.removeById(TAG.bullet, this.id);
             }
+            // else {
+            //     const blocks: Block[] = OBJ.take(TAG.block);
+            //     for (const b of blocks) {
+            //         if (b.containsPoint(this)) {
+            //             OBJ.removeById(TAG.bullet, this.id);
+            //             break;
+            //         }
+            //     }
+            // }
             this.depth = -this.y - 32;
         };
         Bullet.prototype.render = function () {
@@ -706,13 +727,13 @@ Example.adventureRPG = (function () {
     };
     GameScenes.update = function () {
         // health -= 0.1;
-        // if (Time.frameCount % 20 === 0) {
-        //     if (OBJ.count(TAG.item) < 25) {
-        //         spawnItem(Common.picko(ItemType));
-        //     }
-        // }
         if (Time.frameCount % 20 === 0) {
-            if (OBJ.count(TAG.enemy) < 3) {
+            if (OBJ.count(TAG.item) < 25) {
+                spawnItem(Common.picko(ItemType));
+            }
+        }
+        if (Time.frameCount % 10 === 0) {
+            if (OBJ.count(TAG.enemy) < 10) {
                 var spawnPos = {
                     x: Stage.randomX(),
                     y: Stage.randomY()

@@ -386,8 +386,10 @@ Example.adventureRPG = (() => {
     class Item {
 
         id: number = Common.getID();
-        depth: number = 0;
+        depth: number = -9998;
         canvasImage: HTMLCanvasElement;
+
+        scale = Common.range(0.8, 1);
 
         constructor(
             public type: ItemType,
@@ -415,6 +417,10 @@ Example.adventureRPG = (() => {
             Draw.circle(w / 2, h / 2, 15);
             Draw.setColor(C.white);
             Draw.circle(w / 2, h / 2, 10);
+            Draw.setColor(C.red);
+            Draw.setLineWidth(4);
+            Draw.plus(w / 2, h / 2, 6);
+            Draw.setLineWidth(1);
         }
 
         onCollected() {
@@ -448,7 +454,7 @@ Example.adventureRPG = (() => {
         }
 
         render() {
-            Draw.image(this.canvasImage, this.x, this.y);
+            Draw.image(this.canvasImage, this.x, this.y, this.scale * Math.sin((Time.frameCount + this.id) * 0.1), this.scale);
         }
     }
 
@@ -558,7 +564,7 @@ Example.adventureRPG = (() => {
         events = {};
 
         id: number = Common.getID();
-        depth = 2;
+        depth: number;
         state: EnemyState = EnemyState.idle;
         
         target = {
@@ -571,9 +577,12 @@ Example.adventureRPG = (() => {
         vx = 0;
         vy = 0;
 
+        xs = 1;
+        ys = 1;
+
         attackTime = 0;
         attackRange = Common.range(100, 200);
-        attackInterval = 20;
+        attackInterval = Common.range(10, 20);
 
         shootPoint: NzymPoint = {
             x: 0,
@@ -587,6 +596,9 @@ Example.adventureRPG = (() => {
             public x: number,
             public y: number
         ) {
+            this.xs = 1.8;
+            this.ys = 0.2;
+            this.depth = -this.y;
             switch (this.type) {
                 case EnemyType.slimey:
                     this.shootPoint.x = this.x;
@@ -644,13 +656,17 @@ Example.adventureRPG = (() => {
                         }
                     });
                     Events.on(this, 'render', () => {
+
+                        this.xs += 0.2 * (1 - this.xs);
+                        this.ys += 0.2 * (1 - this.ys);
+
                         // Draw.setAlpha(this.playerInRange? 0.5 : 0.2);
                         // Draw.setColor(C.wheat);
                         // Draw.circle(this.x, this.y, this.attackRange);
                         // Draw.setAlpha(1);
                         
                         const p = this.getPlayer();
-                        Draw.image('snowman', this.x, this.y, 0.5 * (this.x < p.x? 1 : -1), 0.5, 0, 0.5, 0.9);
+                        Draw.image('snowman', this.x, this.y, 0.5 * (this.x < p.x? 1 : -1) * this.xs, 0.5 * this.ys, 0, 0.5, 0.9);
 
                         Draw.setStroke(C.red);
                         Draw.circle(this.shootPoint.x, this.shootPoint.y, 16 * Math.max(0, this.attackTime / 20), true);
@@ -739,6 +755,7 @@ Example.adventureRPG = (() => {
         ) {
             this.vx = Math.cos(angle) * this.speed;
             this.vy = Math.sin(angle) * this.speed;
+            this.radius = this.damage * 0.8;
         }
 
         update() {
@@ -747,6 +764,15 @@ Example.adventureRPG = (() => {
             if (!Stage.insideStage(this.x, this.y)) {
                 OBJ.removeById(TAG.bullet, this.id);
             }
+            // else {
+            //     const blocks: Block[] = OBJ.take(TAG.block);
+            //     for (const b of blocks) {
+            //         if (b.containsPoint(this)) {
+            //             OBJ.removeById(TAG.bullet, this.id);
+            //             break;
+            //         }
+            //     }
+            // }
             this.depth = -this.y - 32;
         }
 
@@ -842,13 +868,13 @@ Example.adventureRPG = (() => {
 
     GameScenes.update = () => {
         // health -= 0.1;
-        // if (Time.frameCount % 20 === 0) {
-        //     if (OBJ.count(TAG.item) < 25) {
-        //         spawnItem(Common.picko(ItemType));
-        //     }
-        // }
         if (Time.frameCount % 20 === 0) {
-            if (OBJ.count(TAG.enemy) < 3) {
+            if (OBJ.count(TAG.item) < 25) {
+                spawnItem(Common.picko(ItemType));
+            }
+        }
+        if (Time.frameCount % 10 === 0) {
+            if (OBJ.count(TAG.enemy) < 10) {
                 const spawnPos = {
                     x: Stage.randomX(),
                     y: Stage.randomY()

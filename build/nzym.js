@@ -642,6 +642,14 @@ var NzymDraw = /** @class */ (function () {
         this.ctx.lineTo(p2.x, p2.y);
         this.ctx.stroke();
     };
+    NzymDraw.prototype.plus = function (x, y, radius) {
+        this.ctx.beginPath();
+        this.ctx.moveTo(x - radius, y);
+        this.ctx.lineTo(x + radius, y);
+        this.ctx.moveTo(x, y - radius);
+        this.ctx.lineTo(x, y + radius);
+        this.stroke();
+    };
     NzymDraw.prototype.primitiveBegin = function () {
         this.vertices.length = 0;
     };

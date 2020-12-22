@@ -207,11 +207,20 @@ class NzymDraw {
         this.ctx.stroke();
     }
 
-    linePoint(p1: NzymPointFormat, p2: NzymPointFormat) {
+    linePoint(p1: NzymPoint, p2: NzymPoint) {
         this.ctx.beginPath();
         this.ctx.moveTo(p1.x, p1.y);
         this.ctx.lineTo(p2.x, p2.y);
         this.ctx.stroke();
+    }
+
+    plus(x: number, y: number, radius: number) {
+        this.ctx.beginPath();
+        this.ctx.moveTo(x - radius, y);
+        this.ctx.lineTo(x + radius, y);
+        this.ctx.moveTo(x, y - radius);
+        this.ctx.lineTo(x, y + radius);
+        this.stroke();
     }
 
     primitiveBegin() {
