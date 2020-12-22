@@ -23,6 +23,7 @@ Example.adventureRPG = (() => {
     });
 
     const {
+        Log,
         OBJ,
         Draw,
         Font,
@@ -38,13 +39,32 @@ Example.adventureRPG = (() => {
         coin = 'coin',
         potion = 'potion'
     };
+
+    enum EnemyType {
+        slimey = 'slimey'
+    };
+
+    enum EnemyState {
+        idle = 'idle',
+        chase = 'chase',
+        patrol = 'patrol',
+        attack = 'attack',
+        die = 'die'
+    };
+
+    enum BulletTag {
+        player = 'player',
+        enemy = 'enemy'
+    };
     
     enum TAG {
         player = 'player',
         item = 'item',
         floatingText = 'floatingText',
         block = 'block',
-        footsteps = 'footsteps'
+        footsteps = 'footsteps',
+        enemy = 'enemy',
+        bullet = 'bullet'
     };
 
     let coins: number,
@@ -469,6 +489,173 @@ Example.adventureRPG = (() => {
         }
     }
 
+    class Enemy {
+
+        events = {};
+
+        id: number = Common.getID();
+        state: EnemyState = EnemyState.idle;
+        
+        target = {
+            x: 0,
+            y: 0
+        };
+
+        speed = 0.5;
+
+        vx = 0;
+        vy = 0;
+
+        attackTime = 0;
+        attackRange = Common.range(100, 200);
+
+        playerInRange = false;
+
+        constructor(
+            public type: EnemyType,
+            public x: number,
+            public y: number
+        ) {
+            switch (this.type) {
+                case EnemyType.slimey:
+                    Events.on(this, 'idleupdate', () => {
+                        const p: Player = OBJ.take(TAG.player)[0];
+                        if (p) {
+                            const distanceBetween = Common.hypot(p.x - this.x, p.y - this.y);
+                            if (distanceBetween < this.attackRange) {
+                                this.playerInRange = true;
+                                this.changeState(EnemyState.attack);
+                            }
+                        }
+                    });
+                    Events.on(this, 'attackupdate', () => {
+                        this.playerInRange = false;
+                        const p: Player = OBJ.take(TAG.player)[0];
+                        if (p) {
+                            const distanceBetween = Common.hypot(p.x - this.x, p.y - this.y);
+                            if (distanceBetween > this.attackRange) {
+                                this.changeState(EnemyState.idle);
+                            }
+                            else {
+                                this.playerInRange = true;
+                                if (this.attackTime < 0) {
+                                    OBJ.push(TAG.bullet, new Bullet(BulletTag.enemy, this.x, this.y, Common.angleBetween(this.x, this.y, p.x, p.y), 2));
+                                    this.attackTime = 20;
+                                }
+                                else {
+                                    this.attackTime -= Time.clampedDeltaTime;
+                                }
+                            }
+                        }
+                    });
+                    Events.on(this, 'render', () => {
+                        Draw.setColor(C.lawnGreen, C.black);
+                        Draw.circle(this.x, this.y, 16);
+                        Draw.setLineWidth(2);
+                        Draw.stroke();
+                        Draw.setLineWidth(1);
+                        // if (this.playerInRange) {
+                            Draw.setAlpha(0.5);
+                            Draw.setColor(C.wheat);
+                            Draw.circle(this.x, this.y, this.attackRange, !this.playerInRange);
+                            Draw.setAlpha(1);
+                        // }
+                        // Draw.text(this.x, this.y, this.state);
+                    });
+                    break;
+            }
+        }
+
+        followTarget() {
+            let dx = this.target.x - this.x,
+                dy = this.target.y - this.y,
+                length = Common.hypot(dx, dy);
+
+            dx /= length;
+            dy /= length;
+
+            this.vx = dx * this.speed;
+            this.vy = dy * this.speed;
+            this.x += this.vx;
+            this.y += this.vy;
+            return length;
+        }
+
+        changeState(newState: EnemyState) {
+            // trigger event `transition from old state to new state`
+            const errorObject = {
+                errorCount: 0,
+                errorMessage: ''
+            };
+            Events.trigger(this, `transition${this.state}${newState}`, errorObject);
+            if (errorObject.errorCount > 0) {
+                Log.error(`Failed to trigger enemy (id=${this.id}) transition event`, errorObject.errorMessage);
+            }
+            else {
+                Events.trigger(this, `${this.state}end`);
+                Events.trigger(this, `${newState}start`);
+                this.state = newState;
+            }
+        }
+
+        update() {
+            switch (this.state) {
+                case EnemyState.idle: Events.trigger(this, 'idleupdate'); break;
+                case EnemyState.chase: Events.trigger(this, 'chaseupdate'); break;
+                case EnemyState.patrol: Events.trigger(this, 'patrolupdate'); break;
+                case EnemyState.attack: Events.trigger(this, 'attackupdate'); break;
+                case EnemyState.die: Events.trigger(this, 'dieupdate'); break;
+                default: this.changeState(EnemyState.idle); break;
+            }
+        }
+
+        render() {
+            Events.trigger(this, 'render');
+            switch (this.state) {
+                case EnemyState.idle: Events.trigger(this, 'idlerender'); break;
+                case EnemyState.chase: Events.trigger(this, 'chaserender'); break;
+                case EnemyState.patrol: Events.trigger(this, 'patrolrender'); break;
+                case EnemyState.attack: Events.trigger(this, 'attackrender'); break;
+                case EnemyState.die: Events.trigger(this, 'dierender'); break;
+                default: this.changeState(EnemyState.idle); break;
+            }
+        }
+    }
+
+    class Bullet {
+
+        id = Common.getID();
+
+        vx = 0;
+        vy = 0;
+
+        constructor(
+            public tag: BulletTag,
+            public x: number,
+            public y: number,
+            public angle: number,
+            public speed: number
+        ) {
+            this.vx = Math.cos(angle) * this.speed;
+            this.vy = Math.sin(angle) * this.speed;
+        }
+
+        update() {
+            this.x += this.vx;
+            this.y += this.vy;
+            if (!Stage.insideStage(this.x, this.y)) {
+                OBJ.removeById(TAG.bullet, this.id);
+            }
+        }
+
+        render() {
+            Draw.setColor(C.red);
+            Draw.circle(this.x, this.y, 4);
+            Draw.setColor(C.orange);
+            Draw.circle(this.x, this.y, 3);
+        }
+    }
+
     const spawnItem = (type: ItemType) => {
         return OBJ.push(TAG.item, new Item(type, Stage.randomX(), Stage.randomY(), Math.floor(Common.range(10, 20))));
     };
@@ -491,7 +678,9 @@ Example.adventureRPG = (() => {
             TAG.item,
             TAG.floatingText,
             TAG.block,
-            TAG.footsteps
+            TAG.footsteps,
+            TAG.enemy,
+            TAG.bullet
         );
 
         Loader.loadImage('player-idle', '../assets/images/ghost-idle_strip4.png');
@@ -555,6 +744,11 @@ Example.adventureRPG = (() => {
         //         spawnItem(Common.picko(ItemType));
         //     }
         // }
+        if (Time.frameCount % 20 === 0) {
+            if (OBJ.count(TAG.enemy) < 3) {
+                OBJ.push(TAG.enemy, new Enemy(Common.picko(EnemyType), Stage.randomX(), Stage.randomY()));
+            }
+        }
     };
 
     GameScenes.renderUI = () => {

@@ -20,13 +20,14 @@ type NzymCommon = {
     degtorad(degrees: number): number,
     hypot(a: number, b: number): number,
     clamp(value: number, min: number, max: number): number,
-    getFilenameFromPath(src: string): string
+    getFilenameFromPath(src: string): string,
+    angleBetween(x1: number, y1: number, x2: number, y2: number): number
 };
 
 type NzymEvents = {
-    on: Function,
-    off: Function,
-    trigger: Function
+    on(object: { events: NzymEventsHandler }, eventName: string, callbackFn: Function): void,
+    off(object: { events: NzymEventsHandler }, eventName: string, callbackFn: Function): void,
+    trigger(object: { events: NzymEventsHandler }, eventNames: string | string[], events?: any): void
 };
 
 type NzymColor = {

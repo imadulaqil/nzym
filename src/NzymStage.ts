@@ -119,4 +119,8 @@ class NzymStage {
         this.canvas.style.backgroundColor = value;
     }
 
+    insideStage(x: number,  y: number) {
+        return x >= 0 && x < this.w && y >= 0 && y < this.h;
+    }
+
 }

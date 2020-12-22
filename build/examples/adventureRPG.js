@@ -8,12 +8,32 @@ Example.adventureRPG = (function () {
         bgColor: C.burlyWood,
         parent: document.getElementById('gameContainer')
     });
-    var _b = Engine.getAliases(), OBJ = _b.OBJ, Draw = _b.Draw, Font = _b.Font, Time = _b.Time, Input = _b.Input, Scene = _b.Scene, Sound = _b.Sound, Stage = _b.Stage, Loader = _b.Loader;
+    var _b = Engine.getAliases(), Log = _b.Log, OBJ = _b.OBJ, Draw = _b.Draw, Font = _b.Font, Time = _b.Time, Input = _b.Input, Scene = _b.Scene, Sound = _b.Sound, Stage = _b.Stage, Loader = _b.Loader;
     var ItemType;
     (function (ItemType) {
         ItemType["coin"] = "coin";
         ItemType["potion"] = "potion";
     })(ItemType || (ItemType = {}));
+    ;
+    var EnemyType;
+    (function (EnemyType) {
+        EnemyType["slimey"] = "slimey";
+    })(EnemyType || (EnemyType = {}));
+    ;
+    var EnemyState;
+    (function (EnemyState) {
+        EnemyState["idle"] = "idle";
+        EnemyState["chase"] = "chase";
+        EnemyState["patrol"] = "patrol";
+        EnemyState["attack"] = "attack";
+        EnemyState["die"] = "die";
+    })(EnemyState || (EnemyState = {}));
+    ;
+    var BulletTag;
+    (function (BulletTag) {
+        BulletTag["player"] = "player";
+        BulletTag["enemy"] = "enemy";
+    })(BulletTag || (BulletTag = {}));
     ;
     var TAG;
     (function (TAG) {
@@ -22,6 +42,8 @@ Example.adventureRPG = (function () {
         TAG["floatingText"] = "floatingText";
         TAG["block"] = "block";
         TAG["footsteps"] = "footsteps";
+        TAG["enemy"] = "enemy";
+        TAG["bullet"] = "bullet";
     })(TAG || (TAG = {}));
     ;
     var coins, health, maxHealth, magnetRange, treeImages;
@@ -375,6 +397,175 @@ Example.adventureRPG = (function () {
         };
         return Block;
     }());
+    var Enemy = /** @class */ (function () {
+        function Enemy(type, x, y) {
+            var _this = this;
+            this.type = type;
+            this.x = x;
+            this.y = y;
+            this.events = {};
+            this.id = Common.getID();
+            this.state = EnemyState.idle;
+            this.target = {
+                x: 0,
+                y: 0
+            };
+            this.speed = 0.5;
+            this.vx = 0;
+            this.vy = 0;
+            this.attackTime = 0;
+            this.attackRange = Common.range(100, 200);
+            this.playerInRange = false;
+            switch (this.type) {
+                case EnemyType.slimey:
+                    Events.on(this, 'idleupdate', function () {
+                        var p = OBJ.take(TAG.player)[0];
+                        if (p) {
+                            var distanceBetween = Common.hypot(p.x - _this.x, p.y - _this.y);
+                            if (distanceBetween < _this.attackRange) {
+                                _this.playerInRange = true;
+                                _this.changeState(EnemyState.attack);
+                            }
+                        }
+                    });
+                    Events.on(this, 'attackupdate', function () {
+                        _this.playerInRange = false;
+                        var p = OBJ.take(TAG.player)[0];
+                        if (p) {
+                            var distanceBetween = Common.hypot(p.x - _this.x, p.y - _this.y);
+                            if (distanceBetween > _this.attackRange) {
+                                _this.changeState(EnemyState.idle);
+                            }
+                            else {
+                                _this.playerInRange = true;
+                                if (_this.attackTime < 0) {
+                                    OBJ.push(TAG.bullet, new Bullet(BulletTag.enemy, _this.x, _this.y, Common.angleBetween(_this.x, _this.y, p.x, p.y), 2));
+                                    _this.attackTime = 20;
+                                }
+                                else {
+                                    _this.attackTime -= Time.clampedDeltaTime;
+                                }
+                            }
+                        }
+                    });
+                    Events.on(this, 'render', function () {
+                        Draw.setColor(C.lawnGreen, C.black);
+                        Draw.circle(_this.x, _this.y, 16);
+                        Draw.setLineWidth(2);
+                        Draw.stroke();
+                        Draw.setLineWidth(1);
+                        // if (this.playerInRange) {
+                        Draw.setAlpha(0.5);
+                        Draw.setColor(C.wheat);
+                        Draw.circle(_this.x, _this.y, _this.attackRange, !_this.playerInRange);
+                        Draw.setAlpha(1);
+                        // }
+                        // Draw.text(this.x, this.y, this.state);
+                    });
+                    break;
+            }
+        }
+        Enemy.prototype.followTarget = function () {
+            var dx = this.target.x - this.x, dy = this.target.y - this.y, length = Common.hypot(dx, dy);
+            dx /= length;
+            dy /= length;
+            this.vx = dx * this.speed;
+            this.vy = dy * this.speed;
+            this.x += this.vx;
+            this.y += this.vy;
+            return length;
+        };
+        Enemy.prototype.changeState = function (newState) {
+            // trigger event `transition from old state to new state`
+            var errorObject = {
+                errorCount: 0,
+                errorMessage: ''
+            };
+            Events.trigger(this, "transition" + this.state + newState, errorObject);
+            if (errorObject.errorCount > 0) {
+                Log.error("Failed to trigger enemy (id=" + this.id + ") transition event", errorObject.errorMessage);
+            }
+            else {
+                Events.trigger(this, this.state + "end");
+                Events.trigger(this, newState + "start");
+                this.state = newState;
+            }
+        };
+        Enemy.prototype.update = function () {
+            switch (this.state) {
+                case EnemyState.idle:
+                    Events.trigger(this, 'idleupdate');
+                    break;
+                case EnemyState.chase:
+                    Events.trigger(this, 'chaseupdate');
+                    break;
+                case EnemyState.patrol:
+                    Events.trigger(this, 'patrolupdate');
+                    break;
+                case EnemyState.attack:
+                    Events.trigger(this, 'attackupdate');
+                    break;
+                case EnemyState.die:
+                    Events.trigger(this, 'dieupdate');
+                    break;
+                default:
+                    this.changeState(EnemyState.idle);
+                    break;
+            }
+        };
+        Enemy.prototype.render = function () {
+            Events.trigger(this, 'render');
+            switch (this.state) {
+                case EnemyState.idle:
+                    Events.trigger(this, 'idlerender');
+                    break;
+                case EnemyState.chase:
+                    Events.trigger(this, 'chaserender');
+                    break;
+                case EnemyState.patrol:
+                    Events.trigger(this, 'patrolrender');
+                    break;
+                case EnemyState.attack:
+                    Events.trigger(this, 'attackrender');
+                    break;
+                case EnemyState.die:
+                    Events.trigger(this, 'dierender');
+                    break;
+                default:
+                    this.changeState(EnemyState.idle);
+                    break;
+            }
+        };
+        return Enemy;
+    }());
+    var Bullet = /** @class */ (function () {
+        function Bullet(tag, x, y, angle, speed) {
+            this.tag = tag;
+            this.x = x;
+            this.y = y;
+            this.angle = angle;
+            this.speed = speed;
+            this.id = Common.getID();
+            this.vx = 0;
+            this.vy = 0;
+            this.vx = Math.cos(angle) * this.speed;
+            this.vy = Math.sin(angle) * this.speed;
+        }
+        Bullet.prototype.update = function () {
+            this.x += this.vx;
+            this.y += this.vy;
+            if (!Stage.insideStage(this.x, this.y)) {
+                OBJ.removeById(TAG.bullet, this.id);
+            }
+        };
+        Bullet.prototype.render = function () {
+            Draw.setColor(C.red);
+            Draw.circle(this.x, this.y, 4);
+            Draw.setColor(C.orange);
+            Draw.circle(this.x, this.y, 3);
+        };
+        return Bullet;
+    }());
     var spawnItem = function (type) {
         return OBJ.push(TAG.item, new Item(type, Stage.randomX(), Stage.randomY(), Math.floor(Common.range(10, 20))));
     };
@@ -389,7 +580,7 @@ Example.adventureRPG = (function () {
         maxHealth = 100;
         health = maxHealth;
         magnetRange = 100;
-        OBJ.addTag(TAG.player, TAG.item, TAG.floatingText, TAG.block, TAG.footsteps);
+        OBJ.addTag(TAG.player, TAG.item, TAG.floatingText, TAG.block, TAG.footsteps, TAG.enemy, TAG.bullet);
         Loader.loadImage('player-idle', '../assets/images/ghost-idle_strip4.png');
         treeImages = [];
         for (var _i = 0, _a = ['NE', 'NW', 'SE', 'SW']; _i < _a.length; _i++) {
@@ -446,6 +637,11 @@ Example.adventureRPG = (function () {
         //         spawnItem(Common.picko(ItemType));
         //     }
         // }
+        if (Time.frameCount % 20 === 0) {
+            if (OBJ.count(TAG.enemy) < 3) {
+                OBJ.push(TAG.enemy, new Enemy(Common.picko(EnemyType), Stage.randomX(), Stage.randomY()));
+            }
+        }
     };
     GameScenes.renderUI = function () {
         Draw.setColor(C.black);

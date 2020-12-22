@@ -113,6 +113,10 @@ class NzymOBJ {
         return removedList;
     }
 
+    removeById(tag: string, id: number) {
+        return this.remove(tag, (n) => n.id === id);
+    }
+
     clear(tag: string) {
         const list = this.getList(tag);
         if (list) {

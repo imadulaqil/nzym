@@ -110,5 +110,8 @@ var NzymStage = /** @class */ (function () {
         enumerable: false,
         configurable: true
     });
+    NzymStage.prototype.insideStage = function (x, y) {
+        return x >= 0 && x < this.w && y >= 0 && y < this.h;
+    };
     return NzymStage;
 }());

@@ -132,6 +132,7 @@ class NzymEngine {
         window['KeyCode'] = Nzym.KeyCode;
 
         window['Engine'] = this;
+        window['Log']    = this.Log;
         window['OBJ']    = this.OBJ;
         window['Draw']   = this.Draw;
         window['Font']   = this.Draw.Font;
@@ -153,6 +154,7 @@ class NzymEngine {
     getAliases() {
         return {
             Engine: this,
+            Log: this.Log,
             OBJ: this.OBJ,
             Draw: this.Draw,
             Font: this.Draw.Font,

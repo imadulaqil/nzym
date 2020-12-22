@@ -122,6 +122,9 @@ var NzymOBJ = /** @class */ (function () {
         }
         return removedList;
     };
+    NzymOBJ.prototype.removeById = function (tag, id) {
+        return this.remove(tag, function (n) { return n.id === id; });
+    };
     NzymOBJ.prototype.clear = function (tag) {
         var list = this.getList(tag);
         if (list) {

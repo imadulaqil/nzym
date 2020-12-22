@@ -43,7 +43,7 @@ Nzym.Events = {
                 if (callbacks instanceof Array) {
                     for (var _a = 0, callbacks_2 = callbacks; _a < callbacks_2.length; _a++) {
                         var callback = callbacks_2[_a];
-                        callback.call(object, events);
+                        callback.call(object, events || { name: eventName, source: object });
                     }
                 }
             }

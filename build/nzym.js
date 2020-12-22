@@ -58,6 +58,9 @@ Nzym.Common = {
     },
     getFilenameFromPath: function (path) {
         return path.split('\\').pop().split('/').pop();
+    },
+    angleBetween: function (x1, y1, x2, y2) {
+        return Math.atan2(y2 - y1, x2 - x1);
     }
 };
 /**
@@ -315,7 +318,7 @@ Nzym.Events = {
                 if (callbacks instanceof Array) {
                     for (var _a = 0, callbacks_2 = callbacks; _a < callbacks_2.length; _a++) {
                         var callback = callbacks_2[_a];
-                        callback.call(object, events);
+                        callback.call(object, events || { name: eventName, source: object });
                     }
                 }
             }
@@ -844,6 +847,7 @@ var NzymEngine = /** @class */ (function () {
         window['Events'] = Nzym.Events;
         window['KeyCode'] = Nzym.KeyCode;
         window['Engine'] = this;
+        window['Log'] = this.Log;
         window['OBJ'] = this.OBJ;
         window['Draw'] = this.Draw;
         window['Font'] = this.Draw.Font;
@@ -863,6 +867,7 @@ var NzymEngine = /** @class */ (function () {
     NzymEngine.prototype.getAliases = function () {
         return {
             Engine: this,
+            Log: this.Log,
             OBJ: this.OBJ,
             Draw: this.Draw,
             Font: this.Draw.Font,
@@ -1516,6 +1521,9 @@ var NzymOBJ = /** @class */ (function () {
         }
         return removedList;
     };
+    NzymOBJ.prototype.removeById = function (tag, id) {
+        return this.remove(tag, function (n) { return n.id === id; });
+    };
     NzymOBJ.prototype.clear = function (tag) {
         var list = this.getList(tag);
         if (list) {
@@ -1977,6 +1985,9 @@ var NzymStage = /** @class */ (function () {
         enumerable: false,
         configurable: true
     });
+    NzymStage.prototype.insideStage = function (x, y) {
+        return x >= 0 && x < this.w && y >= 0 && y < this.h;
+    };
     return NzymStage;
 }());
 var NzymTime = /** @class */ (function () {
