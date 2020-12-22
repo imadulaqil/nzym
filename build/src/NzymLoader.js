@@ -71,6 +71,7 @@ var NzymLoader = /** @class */ (function () {
         img.src = src;
         this.list.image.push(img);
         this.engine.Draw.addImage(name, img);
+        return img;
     };
     NzymLoader.prototype.loadSound = function (name) {
         var _this = this;
@@ -107,7 +108,9 @@ var NzymLoader = /** @class */ (function () {
             audio_1.innerHTML = sources.join('');
             this.list.sound.push(audio_1);
             this.engine.Sound.addAudio(name, audio_1);
+            return audio_1;
         }
+        return null;
     };
     return NzymLoader;
 }());

@@ -5,6 +5,7 @@ Example.adventureRPG = (function () {
         name: 'Adventure RPG',
         w: 800,
         h: 576,
+        bgColor: C.burlyWood,
         parent: document.getElementById('gameContainer')
     });
     var _b = Engine.getAliases(), OBJ = _b.OBJ, Draw = _b.Draw, Font = _b.Font, Time = _b.Time, Input = _b.Input, Scene = _b.Scene, Sound = _b.Sound, Stage = _b.Stage, Loader = _b.Loader;
@@ -23,7 +24,7 @@ Example.adventureRPG = (function () {
         TAG["footsteps"] = "footsteps";
     })(TAG || (TAG = {}));
     ;
-    var coins, health, maxHealth, magnetRange;
+    var coins, health, maxHealth, magnetRange, treeImages;
     var Hitbox = /** @class */ (function () {
         function Hitbox(x, y, w, h, isCenter) {
             if (isCenter === void 0) { isCenter = false; }
@@ -69,7 +70,6 @@ Example.adventureRPG = (function () {
             this.y = y;
             this.speed = speed;
             this.id = Common.getID();
-            this.depth = -1;
             this.imageIndex = 0;
             this.imageNumber = 4;
             this.imageXScale = 1.5;
@@ -116,7 +116,7 @@ Example.adventureRPG = (function () {
             if (this.x !== this.xPrev || this.y !== this.yPrev) {
                 if (Time.frameCount % 5 === 0) {
                     var offset = Time.frameCount % 10 === 0 ? -8 : 8;
-                    this.spawnFootsteps(this.xPrev + offset + Common.range(-5, 5), this.yPrev + Common.range(-5, 5));
+                    this.spawnFootsteps(this.xPrev + offset + Common.range(-2, 2), this.yPrev + Common.range(-2, 2));
                     // this.spawnFootsteps(this.xPrev + 8 + Common.range(-5, 5), this.yPrev + Common.range(-5, 5));
                 }
                 this.moveTime += Time.clampedDeltaTime;
@@ -126,7 +126,7 @@ Example.adventureRPG = (function () {
             }
         };
         Player.prototype.spawnFootsteps = function (x, y) {
-            OBJ.push(TAG.footsteps, new Footsteps(x, y, 8));
+            OBJ.push(TAG.footsteps, new Footsteps(x, y, Common.range(7, 8)));
         };
         Player.prototype.update = function () {
             this.movement();
@@ -151,6 +151,7 @@ Example.adventureRPG = (function () {
             }
             this.updateHitbox();
             this.constraint();
+            this.depth = -this.y;
         };
         Player.prototype.updateHitbox = function () {
             this.hitbox.updatePosition(this.x, this.y - 8);
@@ -218,6 +219,10 @@ Example.adventureRPG = (function () {
             Draw.circle(this.x, this.y, this.size / 2);
             Draw.setAlpha(1);
             this.alpha -= 0.02;
+            this.size -= 0.05;
+            if (this.size < 1) {
+                this.size = 1;
+            }
             if (this.alpha < 0) {
                 OBJ.remove(TAG.footsteps, function (n) { return n.id === _this.id; });
             }
@@ -335,7 +340,11 @@ Example.adventureRPG = (function () {
             this.w = w;
             this.h = h;
             this.id = Common.getID();
-            this.depth = 1;
+            this.image = Common.pick(treeImages);
+            this.imageXScale = Common.range(0.7, 1);
+            this.imageYScale = Common.range(0.7, this.imageXScale);
+            this.imageAngle = 0;
+            this.depth = -(this.y + this.h - 2 + Common.range(0, 2));
         }
         Block.prototype.getTop = function () {
             return this.y;
@@ -358,9 +367,11 @@ Example.adventureRPG = (function () {
                 && this.getTop() < rect.y + rect.h && this.getBottom() >= rect.y;
         };
         Block.prototype.render = function () {
-            Draw.setColor(C.burlyWood, C.black);
-            Draw.rect(this.x, this.y, this.w, this.h);
-            Draw.stroke();
+            // Draw.setColor(C.burlyWood, C.black);
+            // Draw.rect(this.x, this.y, this.w, this.h);
+            // Draw.stroke();
+            this.imageAngle = Math.sin((Time.frameCount + this.id * this.id) * 0.01) * 2;
+            Draw.image(this.image, this.x + this.w / 2, this.y + this.h / 2, this.imageXScale, this.imageYScale, this.imageAngle, 0.5, 0.9);
         };
         return Block;
     }());
@@ -380,6 +391,11 @@ Example.adventureRPG = (function () {
         magnetRange = 100;
         OBJ.addTag(TAG.player, TAG.item, TAG.floatingText, TAG.block, TAG.footsteps);
         Loader.loadImage('player-idle', '../assets/images/ghost-idle_strip4.png');
+        treeImages = [];
+        for (var _i = 0, _a = ['NE', 'NW', 'SE', 'SW']; _i < _a.length; _i++) {
+            var d = _a[_i];
+            treeImages.push(Loader.loadImage("../assets/images/kenney/treePine_" + d + ".png"));
+        }
         Loader.loadSound('coin', '../assets/sounds/coin.mp3');
         Loader.loadSound('item1', '../assets/sounds/item1.mp3');
         Loader.loadSound('item2', '../assets/sounds/item2.mp3');
@@ -390,12 +406,12 @@ Example.adventureRPG = (function () {
             y: 0,
             w: 32,
             h: 32,
-            rows: 18,
+            rows: 19,
             columns: 25,
             data: [
                 '#########################',
-                '#.......................#',
-                '#.......................#',
+                '####...##########...#####',
+                '#............#..#.......#',
                 '#.......................#',
                 '#.......................#',
                 '#..................#....#',
@@ -407,6 +423,7 @@ Example.adventureRPG = (function () {
                 '#..............###......#',
                 '#................#......#',
                 '#................####...#',
+                '#.......................#',
                 '#.......................#',
                 '#.......................#',
                 '#.......................#',
@@ -446,6 +463,11 @@ Example.adventureRPG = (function () {
         Draw.rect(10, y, w, 10);
         Draw.setColor(C.red);
         Draw.rect(11, y + 1, (w - 2) * (hp / maxHealth), 8);
+        // Credits
+        Draw.setFont(Font.smb);
+        Draw.setColor(C.black);
+        Draw.setHVAlign(Align.l, Align.b);
+        Draw.text(Draw.currentFont.size / 2, Stage.h - Draw.currentFont.size / 2, 'Art by kenney.nl');
     };
     Scene.setup({
         scenes: GameScenes

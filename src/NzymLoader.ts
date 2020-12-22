@@ -83,6 +83,7 @@ class NzymLoader {
         img.src = src;
         this.list.image.push(img);
         this.engine.Draw.addImage(name, img);
+        return img;
     }
 
     loadSound(name: string, ...srcs: string[]) {
@@ -114,6 +115,8 @@ class NzymLoader {
             audio.innerHTML = sources.join('');
             this.list.sound.push(audio);
             this.engine.Sound.addAudio(name, audio);
+            return audio;
         }
+        return null;
     }
 }
