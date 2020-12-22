@@ -61,6 +61,17 @@ Nzym.Common = {
     },
     angleBetween: function (x1, y1, x2, y2) {
         return Math.atan2(y2 - y1, x2 - x1);
+    },
+    distanceBetween: function (x1, y1, x2, y2) {
+        return this.hypot(x2 - x1, y2 - y1);
+    },
+    rectIntersects: function (rectA, rectB) {
+        return rectA.x <= rectB.x + rectB.w && rectA.x + rectA.w >= rectB.x
+            && rectA.y <= rectB.y + rectB.h && rectA.y + rectA.h >= rectB.y;
+    },
+    rectContainsPoint: function (rect, point) {
+        return point.x >= rect.x && point.x < rect.x + rect.w
+            && point.y >= rect.y && point.y < rect.y + rect.h;
     }
 };
 /**

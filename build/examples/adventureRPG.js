@@ -48,12 +48,16 @@ Example.adventureRPG = (function () {
     ;
     var coins, health, maxHealth, magnetRange, treeImages;
     var Hitbox = /** @class */ (function () {
-        function Hitbox(x, y, w, h, isCenter) {
+        function Hitbox(x, y, w, h, xOffset, yOffset, isCenter) {
+            if (xOffset === void 0) { xOffset = 0; }
+            if (yOffset === void 0) { yOffset = 0; }
             if (isCenter === void 0) { isCenter = false; }
             this.x = x;
             this.y = y;
             this.w = w;
             this.h = h;
+            this.xOffset = xOffset;
+            this.yOffset = yOffset;
             this.isCenter = isCenter;
             this.updatePosition(this.x, this.y);
         }
@@ -69,9 +73,15 @@ Example.adventureRPG = (function () {
         Hitbox.prototype.getLeft = function () {
             return this.x;
         };
+        Hitbox.prototype.getCenter = function () {
+            return this.x + this.w / 2;
+        };
+        Hitbox.prototype.getMiddle = function () {
+            return this.y + this.h / 2;
+        };
         Hitbox.prototype.updatePosition = function (x, y) {
-            this.x = x;
-            this.y = y;
+            this.x = x + this.xOffset;
+            this.y = y + this.yOffset;
             if (this.isCenter) {
                 this.x -= this.w / 2;
                 this.y -= this.h / 2;
@@ -92,6 +102,7 @@ Example.adventureRPG = (function () {
             this.y = y;
             this.speed = speed;
             this.id = Common.getID();
+            this.isDead = false;
             this.imageIndex = 0;
             this.imageNumber = 4;
             this.imageXScale = 1.5;
@@ -103,7 +114,8 @@ Example.adventureRPG = (function () {
             this.xPrev = this.x;
             this.yPrev = this.y;
             this.moveTime = 0;
-            this.hitbox = new Hitbox(this.x, this.y, 20, 12, true);
+            this.hitbox = new Hitbox(this.x, this.y, 20, 12, 0, -8, true);
+            this.bulletHitbox = new Hitbox(this.x, this.y, 24, 40, 0, -24, true);
         }
         Player.prototype.movement = function () {
             this.xPrev = this.x;
@@ -151,6 +163,8 @@ Example.adventureRPG = (function () {
             OBJ.push(TAG.footsteps, new Footsteps(x, y, Common.range(7, 8)));
         };
         Player.prototype.update = function () {
+            if (this.isDead)
+                return;
             this.movement();
             var items = OBJ.take(TAG.item);
             var _loop_1 = function (item) {
@@ -173,10 +187,27 @@ Example.adventureRPG = (function () {
             }
             this.updateHitbox();
             this.constraint();
+            this.bulletCheck();
             this.depth = -this.y;
         };
+        Player.prototype.bulletCheck = function () {
+            var bullets = OBJ.take(TAG.bullet);
+            for (var _i = 0, bullets_1 = bullets; _i < bullets_1.length; _i++) {
+                var bullet = bullets_1[_i];
+                if (Common.rectContainsPoint(this.bulletHitbox, bullet)) {
+                    health -= bullet.damage;
+                    if (health < 0) {
+                        health = 0;
+                        this.isDead = true;
+                        break;
+                    }
+                    OBJ.removeById(TAG.bullet, bullet.id);
+                }
+            }
+        };
         Player.prototype.updateHitbox = function () {
-            this.hitbox.updatePosition(this.x, this.y - 8);
+            this.hitbox.updatePosition(this.x, this.y);
+            this.bulletHitbox.updatePosition(this.x, this.y);
         };
         Player.prototype.constraint = function () {
             var blocks = OBJ.take(TAG.block);
@@ -212,6 +243,12 @@ Example.adventureRPG = (function () {
             }
         };
         Player.prototype.render = function () {
+            if (this.isDead) {
+                Draw.noSmooth();
+                Draw.strip('player-idle', this.imageNumber, 0, this.x, this.y, this.imageXScale * this.face, this.imageYScale, Math.PI / 2 * -this.face, this.imageOriginX, this.imageOriginY, true);
+                Draw.smooth();
+                return;
+            }
             this.imageIndex += Time.clampedDeltaTime * (this.moveTime > 0 ? 0.2 : 0.1);
             var t = this.moveTime > 0 ? Math.sin(this.moveTime * 0.5) * this.face : 0;
             this.imageAngle = t * Math.PI / 20;
@@ -220,6 +257,7 @@ Example.adventureRPG = (function () {
             Draw.smooth();
             // Draw.circle(this.x, this.y, 10);
             // this.hitbox.draw();
+            // this.bulletHitbox.draw();
         };
         return Player;
     }());
@@ -405,6 +443,7 @@ Example.adventureRPG = (function () {
             this.y = y;
             this.events = {};
             this.id = Common.getID();
+            this.depth = 2;
             this.state = EnemyState.idle;
             this.target = {
                 x: 0,
@@ -415,12 +454,16 @@ Example.adventureRPG = (function () {
             this.vy = 0;
             this.attackTime = 0;
             this.attackRange = Common.range(100, 200);
+            this.attackInterval = 20;
             this.playerInRange = false;
             switch (this.type) {
                 case EnemyType.slimey:
                     Events.on(this, 'idleupdate', function () {
                         var p = OBJ.take(TAG.player)[0];
                         if (p) {
+                            if (p.isDead) {
+                                return;
+                            }
                             var distanceBetween = Common.hypot(p.x - _this.x, p.y - _this.y);
                             if (distanceBetween < _this.attackRange) {
                                 _this.playerInRange = true;
@@ -432,15 +475,21 @@ Example.adventureRPG = (function () {
                         _this.playerInRange = false;
                         var p = OBJ.take(TAG.player)[0];
                         if (p) {
+                            if (p.isDead) {
+                                _this.changeState(EnemyState.idle);
+                                return;
+                            }
                             var distanceBetween = Common.hypot(p.x - _this.x, p.y - _this.y);
                             if (distanceBetween > _this.attackRange) {
+                                _this.attackTime = 0;
                                 _this.changeState(EnemyState.idle);
                             }
                             else {
                                 _this.playerInRange = true;
                                 if (_this.attackTime < 0) {
-                                    OBJ.push(TAG.bullet, new Bullet(BulletTag.enemy, _this.x, _this.y, Common.angleBetween(_this.x, _this.y, p.x, p.y), 2));
-                                    _this.attackTime = 20;
+                                    var bulletSpeed = Common.range(1.9, 2.1);
+                                    OBJ.push(TAG.bullet, new Bullet(BulletTag.enemy, _this.x, _this.y, Common.angleBetween(_this.x, _this.y, p.bulletHitbox.getCenter() + Common.range(-3, 3), p.bulletHitbox.getMiddle() + Common.range(-3, 3)), bulletSpeed));
+                                    _this.attackTime = _this.attackInterval;
                                 }
                                 else {
                                     _this.attackTime -= Time.clampedDeltaTime;
@@ -449,15 +498,17 @@ Example.adventureRPG = (function () {
                         }
                     });
                     Events.on(this, 'render', function () {
-                        Draw.setColor(C.lawnGreen, C.black);
+                        Draw.setColor(C.lawnGreen, C.red);
                         Draw.circle(_this.x, _this.y, 16);
-                        Draw.setLineWidth(2);
-                        Draw.stroke();
-                        Draw.setLineWidth(1);
+                        // Draw.setColor(C.red);
+                        Draw.circle(_this.x, _this.y, 16 * Math.max(0, _this.attackTime / 20), true);
+                        // Draw.setLineWidth(2);
+                        // Draw.stroke();
+                        // Draw.setLineWidth(1);
                         // if (this.playerInRange) {
-                        Draw.setAlpha(0.5);
+                        Draw.setAlpha(_this.playerInRange ? 0.5 : 0.2);
                         Draw.setColor(C.wheat);
-                        Draw.circle(_this.x, _this.y, _this.attackRange, !_this.playerInRange);
+                        Draw.circle(_this.x, _this.y, _this.attackRange);
                         Draw.setAlpha(1);
                         // }
                         // Draw.text(this.x, this.y, this.state);
@@ -539,12 +590,16 @@ Example.adventureRPG = (function () {
         return Enemy;
     }());
     var Bullet = /** @class */ (function () {
-        function Bullet(tag, x, y, angle, speed) {
+        function Bullet(tag, x, y, angle, speed, damage, radius) {
+            if (damage === void 0) { damage = 5; }
+            if (radius === void 0) { radius = 3; }
             this.tag = tag;
             this.x = x;
             this.y = y;
             this.angle = angle;
             this.speed = speed;
+            this.damage = damage;
+            this.radius = radius;
             this.id = Common.getID();
             this.vx = 0;
             this.vy = 0;
@@ -560,9 +615,9 @@ Example.adventureRPG = (function () {
         };
         Bullet.prototype.render = function () {
             Draw.setColor(C.red);
-            Draw.circle(this.x, this.y, 4);
+            Draw.circle(this.x, this.y, this.radius);
             Draw.setColor(C.orange);
-            Draw.circle(this.x, this.y, 3);
+            Draw.circle(this.x, this.y, this.radius * 0.75);
         };
         return Bullet;
     }());
@@ -659,6 +714,12 @@ Example.adventureRPG = (function () {
         Draw.rect(10, y, w, 10);
         Draw.setColor(C.red);
         Draw.rect(11, y + 1, (w - 2) * (hp / maxHealth), 8);
+        // Debug
+        Draw.setFont(Font.sm);
+        Draw.setColor(C.black);
+        Draw.setHVAlign(Align.l, Align.m);
+        var debugText = "Bullet count: " + OBJ.count(TAG.bullet);
+        Draw.text(10, Stage.mid.h, debugText);
         // Credits
         Draw.setFont(Font.smb);
         Draw.setColor(C.black);

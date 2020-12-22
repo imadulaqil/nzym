@@ -79,6 +79,8 @@ Example.adventureRPG = (() => {
             public y: number,
             public w: number,
             public h: number,
+            public xOffset: number = 0,
+            public yOffset: number = 0,
             public isCenter: boolean = false
         ) {
             this.updatePosition(this.x, this.y);
@@ -100,9 +102,17 @@ Example.adventureRPG = (() => {
             return this.x;
         }
 
+        getCenter() {
+            return this.x + this.w / 2;
+        }
+
+        getMiddle() {
+            return this.y + this.h / 2;
+        }
+
         updatePosition(x: number, y: number) {
-            this.x = x;
-            this.y = y;
+            this.x = x + this.xOffset;
+            this.y = y + this.yOffset;
             if (this.isCenter) {
                 this.x -= this.w / 2;
                 this.y -= this.h / 2;
@@ -132,7 +142,10 @@ Example.adventureRPG = (() => {
         yPrev: number;
         moveTime: number;
 
+        isDead: boolean = false;
+
         hitbox: Hitbox;
+        bulletHitbox: Hitbox;
 
         constructor(
             public x: number = 0,
@@ -150,7 +163,8 @@ Example.adventureRPG = (() => {
             this.xPrev = this.x;
             this.yPrev = this.y;
             this.moveTime = 0;
-            this.hitbox = new Hitbox(this.x, this.y, 20, 12, true);
+            this.hitbox = new Hitbox(this.x, this.y, 20, 12, 0, -8, true);
+            this.bulletHitbox = new Hitbox(this.x, this.y, 24, 40, 0, -24, true);
         }
 
         movement() {
@@ -207,6 +221,7 @@ Example.adventureRPG = (() => {
         }
 
         update() {
+            if (this.isDead) return;
             this.movement();
             const items: Item[] = OBJ.take(TAG.item);
             for (const item of items) {
@@ -225,11 +240,29 @@ Example.adventureRPG = (() => {
             this.updateHitbox();
             this.constraint();
 
+            this.bulletCheck();
+
             this.depth = -this.y;
         }
 
+        bulletCheck() {
+            const bullets: Bullet[] = OBJ.take(TAG.bullet);
+            for (const bullet of bullets) {
+                if (Common.rectContainsPoint(this.bulletHitbox, bullet)) {
+                    health -= bullet.damage;
+                    if (health < 0) {
+                        health = 0;
+                        this.isDead = true;
+                        break;
+                    }
+                    OBJ.removeById(TAG.bullet, bullet.id);
+                }
+            }
+        }
+
         updateHitbox() {
-            this.hitbox.updatePosition(this.x, this.y - 8);
+            this.hitbox.updatePosition(this.x, this.y);
+            this.bulletHitbox.updatePosition(this.x, this.y);
         }
 
         constraint() {
@@ -266,6 +299,24 @@ Example.adventureRPG = (() => {
         }
 
         render() {
+            if (this.isDead) {
+                Draw.noSmooth();
+                Draw.strip(
+                    'player-idle',
+                    this.imageNumber,
+                    0,
+                    this.x,
+                    this.y,
+                    this.imageXScale * this.face,
+                    this.imageYScale,
+                    Math.PI / 2 * -this.face,
+                    this.imageOriginX,
+                    this.imageOriginY,
+                    true
+                );
+                Draw.smooth();
+                return;
+            }
             this.imageIndex += Time.clampedDeltaTime * (this.moveTime > 0? 0.2 : 0.1);
             const t = this.moveTime > 0? Math.sin(this.moveTime * 0.5) * this.face : 0;
             this.imageAngle = t * Math.PI / 20;
@@ -286,6 +337,7 @@ Example.adventureRPG = (() => {
             Draw.smooth();
             // Draw.circle(this.x, this.y, 10);
             // this.hitbox.draw();
+            // this.bulletHitbox.draw();
         }
     }
 
@@ -494,6 +546,7 @@ Example.adventureRPG = (() => {
         events = {};
 
         id: number = Common.getID();
+        depth = 2;
         state: EnemyState = EnemyState.idle;
         
         target = {
@@ -508,6 +561,7 @@ Example.adventureRPG = (() => {
 
         attackTime = 0;
         attackRange = Common.range(100, 200);
+        attackInterval = 20;
 
         playerInRange = false;
 
@@ -521,6 +575,9 @@ Example.adventureRPG = (() => {
                     Events.on(this, 'idleupdate', () => {
                         const p: Player = OBJ.take(TAG.player)[0];
                         if (p) {
+                            if (p.isDead) {
+                                return;
+                            }
                             const distanceBetween = Common.hypot(p.x - this.x, p.y - this.y);
                             if (distanceBetween < this.attackRange) {
                                 this.playerInRange = true;
@@ -532,15 +589,35 @@ Example.adventureRPG = (() => {
                         this.playerInRange = false;
                         const p: Player = OBJ.take(TAG.player)[0];
                         if (p) {
+                            if (p.isDead) {
+                                this.changeState(EnemyState.idle);
+                                return;
+                            }
                             const distanceBetween = Common.hypot(p.x - this.x, p.y - this.y);
                             if (distanceBetween > this.attackRange) {
+                                this.attackTime = 0;
                                 this.changeState(EnemyState.idle);
                             }
                             else {
                                 this.playerInRange = true;
                                 if (this.attackTime < 0) {
-                                    OBJ.push(TAG.bullet, new Bullet(BulletTag.enemy, this.x, this.y, Common.angleBetween(this.x, this.y, p.x, p.y), 2));
-                                    this.attackTime = 20;
+                                    const bulletSpeed = Common.range(1.9, 2.1)
+                                    OBJ.push(
+                                        TAG.bullet,
+                                        new Bullet(
+                                            BulletTag.enemy,
+                                            this.x,
+                                            this.y,
+                                            Common.angleBetween(
+                                                this.x,
+                                                this.y,
+                                                p.bulletHitbox.getCenter() + Common.range(-3, 3),
+                                                p.bulletHitbox.getMiddle() + Common.range(-3, 3)
+                                            ),
+                                            bulletSpeed
+                                        )
+                                    );
+                                    this.attackTime = this.attackInterval;
                                 }
                                 else {
                                     this.attackTime -= Time.clampedDeltaTime;
@@ -549,15 +626,17 @@ Example.adventureRPG = (() => {
                         }
                     });
                     Events.on(this, 'render', () => {
-                        Draw.setColor(C.lawnGreen, C.black);
+                        Draw.setColor(C.lawnGreen, C.red);
                         Draw.circle(this.x, this.y, 16);
-                        Draw.setLineWidth(2);
-                        Draw.stroke();
-                        Draw.setLineWidth(1);
+                        // Draw.setColor(C.red);
+                        Draw.circle(this.x, this.y, 16 * Math.max(0, this.attackTime / 20), true);
+                        // Draw.setLineWidth(2);
+                        // Draw.stroke();
+                        // Draw.setLineWidth(1);
                         // if (this.playerInRange) {
-                            Draw.setAlpha(0.5);
+                            Draw.setAlpha(this.playerInRange? 0.5 : 0.2);
                             Draw.setColor(C.wheat);
-                            Draw.circle(this.x, this.y, this.attackRange, !this.playerInRange);
+                            Draw.circle(this.x, this.y, this.attackRange);
                             Draw.setAlpha(1);
                         // }
                         // Draw.text(this.x, this.y, this.state);
@@ -634,7 +713,9 @@ Example.adventureRPG = (() => {
             public x: number,
             public y: number,
             public angle: number,
-            public speed: number
+            public speed: number,
+            public damage: number = 5,
+            public radius: number = 3
         ) {
             this.vx = Math.cos(angle) * this.speed;
             this.vy = Math.sin(angle) * this.speed;
@@ -650,9 +731,9 @@ Example.adventureRPG = (() => {
 
         render() {
             Draw.setColor(C.red);
-            Draw.circle(this.x, this.y, 4);
+            Draw.circle(this.x, this.y, this.radius);
             Draw.setColor(C.orange);
-            Draw.circle(this.x, this.y, 3);
+            Draw.circle(this.x, this.y, this.radius * 0.75);
         }
     }
 
@@ -767,6 +848,13 @@ Example.adventureRPG = (() => {
         Draw.rect(10, y, w, 10);
         Draw.setColor(C.red);
         Draw.rect(11, y + 1, (w - 2) * (hp / maxHealth), 8);
+
+        // Debug
+        Draw.setFont(Font.sm);
+        Draw.setColor(C.black);
+        Draw.setHVAlign(Align.l, Align.m);
+        let debugText = `Bullet count: ${OBJ.count(TAG.bullet)}`;
+        Draw.text(10, Stage.mid.h, debugText);
 
         // Credits
         Draw.setFont(Font.smb);

@@ -6,6 +6,18 @@ type NzymEventsHandler = {
     [eventName: string]: Function[]
 };
 
+type NzymPoint = {
+    x: number,
+    y: number
+};
+
+type NzymRect = {
+    x: number,
+    y: number,
+    w: number,
+    h: number
+};
+
 type NzymCommon = {
     ID: number,
     RAD_TO_DEG: number,
@@ -21,7 +33,10 @@ type NzymCommon = {
     hypot(a: number, b: number): number,
     clamp(value: number, min: number, max: number): number,
     getFilenameFromPath(src: string): string,
-    angleBetween(x1: number, y1: number, x2: number, y2: number): number
+    angleBetween(x1: number, y1: number, x2: number, y2: number): number,
+    distanceBetween(x1: number, y1: number, x2: number, y2: number): number,
+    rectIntersects(rectA: NzymRect, rectB: NzymRect): boolean,
+    rectContainsPoint(rect: NzymRect, point: NzymPoint): boolean
 };
 
 type NzymEvents = {
