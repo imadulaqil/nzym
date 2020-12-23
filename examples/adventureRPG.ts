@@ -933,8 +933,8 @@ Example.adventureRPG = (() => {
         scenes: GameScenes
     });
 
-    Engine.makeGlobalAliases();
-    Engine.start();
+    // Engine.makeGlobalAliases();
+    // Engine.start();
 
     return Engine;
 })();
