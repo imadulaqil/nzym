@@ -258,13 +258,14 @@ Example.adventureRPG = (() => {
                         this.ys = 1.2;
                         this.face = this.x < bullet.x? 1 : -1;
                         health -= bullet.damage;
+                        spawnFloatingText(bullet.x, bullet.y, `-${bullet.damage}`, Math.PI * Common.range(-0.05, 0.05), C.red);
+                        OBJ.removeById(TAG.bullet, bullet.id);
+                        Sound.play('hit');
                         if (health < 0) {
                             health = 0;
                             this.isDead = true;
                             break;
                         }
-                        spawnFloatingText(bullet.x, bullet.y, `-${bullet.damage}`, Math.PI * Common.range(-0.05, 0.05), C.red);
-                        OBJ.removeById(TAG.bullet, bullet.id);
                     }
                 }
             }
@@ -819,12 +820,14 @@ Example.adventureRPG = (() => {
             treeImages.push(Loader.loadImage(`../assets/images/kenney/treePine_${d}.png`));
         }
 
+        Loader.loadSound('hit', '../assets/sounds/hit.mp3');
         Loader.loadSound('coin', '../assets/sounds/coin.mp3');
         Loader.loadSound('item1', '../assets/sounds/item1.mp3');
         Loader.loadSound('item2', '../assets/sounds/item2.mp3');
     };
 
     GameScenes.start = () => {
+        Sound.setVolume('hit', 0.5);
         const blockMap = {
             x: 0,
             y: 0,
