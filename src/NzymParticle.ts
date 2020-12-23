@@ -20,7 +20,7 @@ class NzymParticle {
      * @param direction start direction
      * @param directionInc direction increment
      * @param size start size
-     * @param sizeEnd end size
+     * @param sizeEndScalar end size in the scale of 1 as start size
      * @param color 
      * @param fadeOutStop start of fade out (in range 0-1, 1 = fade out from start, 0.5 = fade out at half of life, 0 = no fade out)
      */
@@ -35,11 +35,11 @@ class NzymParticle {
         public direction: number,
         public directionInc: number,
         public size: number,
-        public sizeEnd: number,
+        public sizeEndScalar: number,
         public color: string,
         public fadeOutStop: number,
-        public gravity = 0.5,
-        public friction = 0.99
+        public gravity: number = 0,
+        public friction: number = 1
     ) {
         this.startLife = Math.max(1, this.life);
         this.vx = Math.cos(this.direction) * this.speed;
@@ -71,7 +71,7 @@ class NzymParticle {
         if (this.fadeOutStop > 0) {
             this.engine.Draw.setAlpha(Math.min(1, lifeScaled / this.fadeOutStop));
         }
-        this.engine.Draw.circle(this.x, this.y, Math.max(0, this.size + (1 - lifeScaled) * (this.sizeEnd - this.size)) / 2);
+        this.engine.Draw.circle(this.x, this.y, Math.max(0, this.size + (1 - lifeScaled) * ((this.sizeEndScalar * this.size) - this.size)) / 2);
         this.engine.Draw.setAlpha(1);
     }
 }

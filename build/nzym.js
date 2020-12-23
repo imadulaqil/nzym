@@ -755,6 +755,133 @@ var NzymDraw = /** @class */ (function () {
     };
     return NzymDraw;
 }());
+var NzymEmitter = /** @class */ (function () {
+    function NzymEmitter(engine, tag) {
+        this.engine = engine;
+        this.tag = tag;
+        this.life = {
+            min: 100,
+            max: 200
+        };
+        this.area = {
+            x: 0,
+            y: 0,
+            w: 100,
+            h: 0
+        };
+        this.gravity = 0.5;
+        this.speed = {
+            min: 15,
+            max: 18
+        };
+        this.speedInc = {
+            min: -0.5,
+            max: 0.5
+        };
+        this.direction = {
+            min: 0,
+            max: Math.PI
+        };
+        this.directionInc = {
+            min: -0.1,
+            max: 0.1
+        };
+        this.friction = 0.99; // 0=no velocity, 1=no friction
+        this.size = {
+            min: 10,
+            max: 25
+        };
+        this.sizeEndScalar = {
+            min: 0.1,
+            max: 0.2
+        };
+        this.color = ['skyblue', 'royalblue', 'gold']; // will be choosed randomly
+        this.fadeOutStop = {
+            min: 0.2,
+            max: 0.4
+        };
+    }
+    NzymEmitter.prototype.emit = function (amount) {
+        while (amount-- > 0) {
+            this.engine.OBJ.push(this.tag, new NzymParticle(this.engine, this.tag, Nzym.Common.range(this.life.min, this.life.max), Nzym.Common.range(this.area.x, this.area.x + this.area.w), Nzym.Common.range(this.area.y, this.area.y + this.area.h), Nzym.Common.range(this.speed.min, this.speed.max), Nzym.Common.range(this.speedInc.min, this.speedInc.max), Nzym.Common.range(this.direction.min, this.direction.max), Nzym.Common.range(this.directionInc.min, this.directionInc.max), Nzym.Common.range(this.size.min, this.size.max), Nzym.Common.range(this.sizeEndScalar.min, this.sizeEndScalar.max), Nzym.Common.pick(this.color), Nzym.Common.range(this.fadeOutStop.min, this.fadeOutStop.max), this.gravity, this.friction));
+        }
+    };
+    NzymEmitter.prototype.setLife = function (min, max) {
+        this.life.min = min;
+        this.life.max = max || min;
+    };
+    NzymEmitter.prototype.setArea = function (x, y, w, h) {
+        if (w === void 0) { w = 0; }
+        if (h === void 0) { h = 0; }
+        this.area.x = x;
+        this.area.y = y;
+        this.area.w = w;
+        this.area.h = h;
+    };
+    NzymEmitter.prototype.setGravity = function (gravity) {
+        this.gravity = gravity;
+    };
+    NzymEmitter.prototype.setSpeed = function (min, max) {
+        this.speed.min = min;
+        this.speed.max = max || min;
+    };
+    NzymEmitter.prototype.setSpeedInc = function (min, max) {
+        this.speedInc.min = min;
+        this.speedInc.max = max || min;
+    };
+    NzymEmitter.prototype.setDirection = function (min, max) {
+        this.direction.min = min;
+        this.direction.max = max || min;
+    };
+    NzymEmitter.prototype.setDirectionInc = function (min, max) {
+        this.directionInc.min = min;
+        this.directionInc.max = max || min;
+    };
+    NzymEmitter.prototype.setDirectionDeg = function (min, max) {
+        if (max === undefined)
+            max = min;
+        this.direction.min = min * Math.PI / 180;
+        this.direction.max = max * Math.PI / 180;
+    };
+    NzymEmitter.prototype.setDirectionIncDeg = function (min, max) {
+        if (max === undefined)
+            max = min;
+        this.directionInc.min = min * Math.PI / 180;
+        this.directionInc.max = max * Math.PI / 180;
+    };
+    NzymEmitter.prototype.setFriction = function (friction) {
+        this.friction = friction;
+    };
+    NzymEmitter.prototype.setSize = function (min, max) {
+        this.size.min = min;
+        this.size.max = max || min;
+    };
+    NzymEmitter.prototype.setSizeEndScalar = function (min, max) {
+        this.sizeEndScalar.min = min;
+        this.sizeEndScalar.max = max || min;
+    };
+    NzymEmitter.prototype.setColor = function () {
+        var colors = [];
+        for (var _i = 0; _i < arguments.length; _i++) {
+            colors[_i] = arguments[_i];
+        }
+        this.color = colors;
+    };
+    NzymEmitter.prototype.addColor = function () {
+        var colors = [];
+        for (var _i = 0; _i < arguments.length; _i++) {
+            colors[_i] = arguments[_i];
+        }
+        for (var i = 0; i < colors.length; i++) {
+            this.color.push(colors[i]);
+        }
+    };
+    NzymEmitter.prototype.setFadeOutStop = function (min, max) {
+        this.fadeOutStop.min = min;
+        this.fadeOutStop.max = max || min;
+    };
+    return NzymEmitter;
+}());
 /**
  * Initializes and runs all Nzym modules.
  */
@@ -1661,13 +1788,13 @@ var NzymParticle = /** @class */ (function () {
      * @param direction start direction
      * @param directionInc direction increment
      * @param size start size
-     * @param sizeEnd end size
+     * @param sizeEndScalar end size in the scale of 1 as start size
      * @param color
      * @param fadeOutStop start of fade out (in range 0-1, 1 = fade out from start, 0.5 = fade out at half of life, 0 = no fade out)
      */
-    function NzymParticle(engine, tag, life, x, y, speed, speedInc, direction, directionInc, size, sizeEnd, color, fadeOutStop, gravity, friction) {
-        if (gravity === void 0) { gravity = 0.5; }
-        if (friction === void 0) { friction = 0.99; }
+    function NzymParticle(engine, tag, life, x, y, speed, speedInc, direction, directionInc, size, sizeEndScalar, color, fadeOutStop, gravity, friction) {
+        if (gravity === void 0) { gravity = 0; }
+        if (friction === void 0) { friction = 1; }
         this.engine = engine;
         this.tag = tag;
         this.life = life;
@@ -1678,7 +1805,7 @@ var NzymParticle = /** @class */ (function () {
         this.direction = direction;
         this.directionInc = directionInc;
         this.size = size;
-        this.sizeEnd = sizeEnd;
+        this.sizeEndScalar = sizeEndScalar;
         this.color = color;
         this.fadeOutStop = fadeOutStop;
         this.gravity = gravity;
@@ -1713,7 +1840,7 @@ var NzymParticle = /** @class */ (function () {
         if (this.fadeOutStop > 0) {
             this.engine.Draw.setAlpha(Math.min(1, lifeScaled / this.fadeOutStop));
         }
-        this.engine.Draw.circle(this.x, this.y, Math.max(0, this.size + (1 - lifeScaled) * (this.sizeEnd - this.size)) / 2);
+        this.engine.Draw.circle(this.x, this.y, Math.max(0, this.size + (1 - lifeScaled) * ((this.sizeEndScalar * this.size) - this.size)) / 2);
         this.engine.Draw.setAlpha(1);
     };
     NzymParticle.ID = 0;

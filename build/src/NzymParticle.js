@@ -11,13 +11,13 @@ var NzymParticle = /** @class */ (function () {
      * @param direction start direction
      * @param directionInc direction increment
      * @param size start size
-     * @param sizeEnd end size
+     * @param sizeEndScalar end size in the scale of 1 as start size
      * @param color
      * @param fadeOutStop start of fade out (in range 0-1, 1 = fade out from start, 0.5 = fade out at half of life, 0 = no fade out)
      */
-    function NzymParticle(engine, tag, life, x, y, speed, speedInc, direction, directionInc, size, sizeEnd, color, fadeOutStop, gravity, friction) {
-        if (gravity === void 0) { gravity = 0.5; }
-        if (friction === void 0) { friction = 0.99; }
+    function NzymParticle(engine, tag, life, x, y, speed, speedInc, direction, directionInc, size, sizeEndScalar, color, fadeOutStop, gravity, friction) {
+        if (gravity === void 0) { gravity = 0; }
+        if (friction === void 0) { friction = 1; }
         this.engine = engine;
         this.tag = tag;
         this.life = life;
@@ -28,7 +28,7 @@ var NzymParticle = /** @class */ (function () {
         this.direction = direction;
         this.directionInc = directionInc;
         this.size = size;
-        this.sizeEnd = sizeEnd;
+        this.sizeEndScalar = sizeEndScalar;
         this.color = color;
         this.fadeOutStop = fadeOutStop;
         this.gravity = gravity;
@@ -63,7 +63,7 @@ var NzymParticle = /** @class */ (function () {
         if (this.fadeOutStop > 0) {
             this.engine.Draw.setAlpha(Math.min(1, lifeScaled / this.fadeOutStop));
         }
-        this.engine.Draw.circle(this.x, this.y, Math.max(0, this.size + (1 - lifeScaled) * (this.sizeEnd - this.size)) / 2);
+        this.engine.Draw.circle(this.x, this.y, Math.max(0, this.size + (1 - lifeScaled) * ((this.sizeEndScalar * this.size) - this.size)) / 2);
         this.engine.Draw.setAlpha(1);
     };
     NzymParticle.ID = 0;

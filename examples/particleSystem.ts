@@ -40,35 +40,22 @@ Example.particleSystem = (() => {
         particle = 'particle'
     };
 
+    let Emitter: NzymEmitter;
+
     GameScenes.boot = () => {
         OBJ.addTag(Tag.particle);
+        Emitter = new NzymEmitter(Engine, Tag.particle);
     };
 
     GameScenes.update = () => {
-        OBJ.push(
-            Tag.particle,
-            new NzymParticle(
-                Engine,
-                Tag.particle,
-                Common.range(100, 200),
-                Input.x,
-                Input.y,
-                Common.range(5, 10),
-                0,
-                Common.range(0, Math.PI * 2),
-                0,
-                Common.range(5, 15),
-                2,
-                Common.choose(C.red, C.orange, C.orangeRed),
-                Common.range(0.1, 0.4),
-                0,
-                1
-            )
-        );
+        Emitter.emit(1);
     };
 
     GameScenes.render = () => {
-        Draw.text(10, 10, OBJ.count(Tag.particle));
+        Draw.setFont(Font.l);
+        Draw.setColor(C.black);
+        Draw.setHVAlign(Align.l, Align.t);
+        Draw.text(10, 10, `Particle count: ${OBJ.count(Tag.particle)}`);
     };
 
     Scene.setup({
