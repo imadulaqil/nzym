@@ -44,9 +44,10 @@ Example.adventureRPG = (function () {
         TAG["footsteps"] = "footsteps";
         TAG["enemy"] = "enemy";
         TAG["bullet"] = "bullet";
+        TAG["particle"] = "particle";
     })(TAG || (TAG = {}));
     ;
-    var coins, health, maxHealth, magnetRange, treeImages;
+    var coins, health, maxHealth, magnetRange, treeImages, Emitter;
     var Hitbox = /** @class */ (function () {
         function Hitbox(x, y, w, h, xOffset, yOffset, isCenter) {
             if (xOffset === void 0) { xOffset = 0; }
@@ -206,6 +207,8 @@ Example.adventureRPG = (function () {
                         health -= bullet.damage;
                         spawnFloatingText(bullet.x, bullet.y, "-" + bullet.damage, Math.PI * Common.range(-0.05, 0.05), C.red);
                         OBJ.removeById(TAG.bullet, bullet.id);
+                        Emitter.setArea(bullet.x, bullet.y);
+                        Emitter.emit(Common.choose(4, 5, 6));
                         Sound.play('hit');
                         if (health < 0) {
                             health = 0;
@@ -675,7 +678,19 @@ Example.adventureRPG = (function () {
         maxHealth = 100;
         health = maxHealth;
         magnetRange = 100;
-        OBJ.addTag(TAG.player, TAG.item, TAG.floatingText, TAG.block, TAG.footsteps, TAG.enemy, TAG.bullet);
+        OBJ.addTag(TAG.player, TAG.item, TAG.floatingText, TAG.block, TAG.footsteps, TAG.enemy, TAG.bullet, TAG.particle);
+        Emitter = new NzymEmitter(Engine, TAG.particle);
+        Emitter.setColor(C.red, C.orangeRed, C.orange);
+        Emitter.setDirectionDeg(-60, -120);
+        Emitter.setDirectionIncDeg(0);
+        Emitter.setFadeOutStop(0.05, 0.1);
+        Emitter.setFriction(1);
+        Emitter.setGravity(0.47);
+        Emitter.setLife(20, 30);
+        Emitter.setSize(2, 4);
+        Emitter.setSizeEndScalar(0.6, 0.8);
+        Emitter.setSpeed(6.5, 7.5);
+        Emitter.setSpeedInc(0);
         Loader.loadImage('player-idle', '../assets/images/ghost-idle_strip4.png');
         Loader.loadImage('snowman', '../assets/images/kenney/snowmanFancy_SE.png');
         treeImages = [];
@@ -788,7 +803,7 @@ Example.adventureRPG = (function () {
     Scene.setup({
         scenes: GameScenes
     });
-    // Engine.makeGlobalAliases();
-    // Engine.start();
+    Engine.makeGlobalAliases();
+    Engine.start();
     return Engine;
 })();
