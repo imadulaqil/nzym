@@ -53,6 +53,8 @@ class NzymEmitter {
         max: 0.4
     };
 
+    depth: number = 0;
+
     constructor(
         public engine: NzymEngine,
         public tag: string
@@ -60,26 +62,25 @@ class NzymEmitter {
 
     emit(amount: number) {
         while (amount-- > 0) {
-            this.engine.OBJ.push(
+            const n = new NzymParticle(
+                this.engine,
                 this.tag,
-                new NzymParticle(
-                    this.engine,
-                    this.tag,
-                    Nzym.Common.range(this.life.min, this.life.max),
-                    Nzym.Common.range(this.area.x, this.area.x + this.area.w),
-                    Nzym.Common.range(this.area.y, this.area.y + this.area.h),
-                    Nzym.Common.range(this.speed.min, this.speed.max),
-                    Nzym.Common.range(this.speedInc.min, this.speedInc.max),
-                    Nzym.Common.range(this.direction.min, this.direction.max),
-                    Nzym.Common.range(this.directionInc.min, this.directionInc.max),
-                    Nzym.Common.range(this.size.min, this.size.max),
-                    Nzym.Common.range(this.sizeEndScalar.min, this.sizeEndScalar.max),
-                    Nzym.Common.pick(this.color),
-                    Nzym.Common.range(this.fadeOutStop.min, this.fadeOutStop.max),
-                    this.gravity,
-                    this.friction
-                )
+                Nzym.Common.range(this.life.min, this.life.max),
+                Nzym.Common.range(this.area.x, this.area.x + this.area.w),
+                Nzym.Common.range(this.area.y, this.area.y + this.area.h),
+                Nzym.Common.range(this.speed.min, this.speed.max),
+                Nzym.Common.range(this.speedInc.min, this.speedInc.max),
+                Nzym.Common.range(this.direction.min, this.direction.max),
+                Nzym.Common.range(this.directionInc.min, this.directionInc.max),
+                Nzym.Common.range(this.size.min, this.size.max),
+                Nzym.Common.range(this.sizeEndScalar.min, this.sizeEndScalar.max),
+                Nzym.Common.pick(this.color),
+                Nzym.Common.range(this.fadeOutStop.min, this.fadeOutStop.max),
+                this.gravity,
+                this.friction
             );
+            n.depth = this.depth;
+            this.engine.OBJ.push(this.tag, n);
         }
     }
 
@@ -158,5 +159,9 @@ class NzymEmitter {
     setFadeOutStop(min: number, max?: number) {
         this.fadeOutStop.min = min;
         this.fadeOutStop.max = max || min;
+    }
+
+    setDepth(depth: number) {
+        this.depth = depth;
     }
 }

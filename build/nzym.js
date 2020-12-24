@@ -800,10 +800,13 @@ var NzymEmitter = /** @class */ (function () {
             min: 0.2,
             max: 0.4
         };
+        this.depth = 0;
     }
     NzymEmitter.prototype.emit = function (amount) {
         while (amount-- > 0) {
-            this.engine.OBJ.push(this.tag, new NzymParticle(this.engine, this.tag, Nzym.Common.range(this.life.min, this.life.max), Nzym.Common.range(this.area.x, this.area.x + this.area.w), Nzym.Common.range(this.area.y, this.area.y + this.area.h), Nzym.Common.range(this.speed.min, this.speed.max), Nzym.Common.range(this.speedInc.min, this.speedInc.max), Nzym.Common.range(this.direction.min, this.direction.max), Nzym.Common.range(this.directionInc.min, this.directionInc.max), Nzym.Common.range(this.size.min, this.size.max), Nzym.Common.range(this.sizeEndScalar.min, this.sizeEndScalar.max), Nzym.Common.pick(this.color), Nzym.Common.range(this.fadeOutStop.min, this.fadeOutStop.max), this.gravity, this.friction));
+            var n = new NzymParticle(this.engine, this.tag, Nzym.Common.range(this.life.min, this.life.max), Nzym.Common.range(this.area.x, this.area.x + this.area.w), Nzym.Common.range(this.area.y, this.area.y + this.area.h), Nzym.Common.range(this.speed.min, this.speed.max), Nzym.Common.range(this.speedInc.min, this.speedInc.max), Nzym.Common.range(this.direction.min, this.direction.max), Nzym.Common.range(this.directionInc.min, this.directionInc.max), Nzym.Common.range(this.size.min, this.size.max), Nzym.Common.range(this.sizeEndScalar.min, this.sizeEndScalar.max), Nzym.Common.pick(this.color), Nzym.Common.range(this.fadeOutStop.min, this.fadeOutStop.max), this.gravity, this.friction);
+            n.depth = this.depth;
+            this.engine.OBJ.push(this.tag, n);
         }
     };
     NzymEmitter.prototype.setLife = function (min, max) {
@@ -879,6 +882,9 @@ var NzymEmitter = /** @class */ (function () {
     NzymEmitter.prototype.setFadeOutStop = function (min, max) {
         this.fadeOutStop.min = min;
         this.fadeOutStop.max = max || min;
+    };
+    NzymEmitter.prototype.setDepth = function (depth) {
+        this.depth = depth;
     };
     return NzymEmitter;
 }());

@@ -691,6 +691,7 @@ Example.adventureRPG = (function () {
         Emitter.setSizeEndScalar(0.6, 0.8);
         Emitter.setSpeed(6.5, 7.5);
         Emitter.setSpeedInc(0);
+        Emitter.setDepth(-9997);
         Loader.loadImage('player-idle', '../assets/images/ghost-idle_strip4.png');
         Loader.loadImage('snowman', '../assets/images/kenney/snowmanFancy_SE.png');
         treeImages = [];
