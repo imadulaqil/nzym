@@ -40,15 +40,21 @@ Example.particleSystem = (() => {
         particle = 'particle'
     };
 
-    let Emitter: NzymEmitter;
+    let Emitter: NzymEmitter,
+        BloodEmitter: NzymEmitter;
 
     GameScenes.boot = () => {
         OBJ.addTag(Tag.particle);
         Emitter = new NzymEmitter(Engine, Tag.particle);
+        BloodEmitter = NzymEmitter.Blood(Engine, Tag.particle);
     };
 
     GameScenes.update = () => {
         Emitter.emit(1);
+        if (Time.frameCount % 20 === 0) {
+            BloodEmitter.setArea(Input.x, Input.y);
+            BloodEmitter.emit(5);
+        }
     };
 
     GameScenes.render = () => {
@@ -62,8 +68,8 @@ Example.particleSystem = (() => {
         scenes: GameScenes
     });
 
-    // Engine.makeGlobalAliases();
-    // Engine.start();
+    Engine.makeGlobalAliases();
+    Engine.start();
 
     return Engine;
 })();

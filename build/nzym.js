@@ -802,6 +802,21 @@ var NzymEmitter = /** @class */ (function () {
         };
         this.depth = 0;
     }
+    NzymEmitter.Blood = function (engine, tag) {
+        var Emitter = new NzymEmitter(engine, tag);
+        Emitter.setColor(Nzym.DrawConstants.C.red, Nzym.DrawConstants.C.orange, Nzym.DrawConstants.C.orangeRed);
+        Emitter.setDirectionDeg(-60, -120);
+        Emitter.setDirectionIncDeg(0);
+        Emitter.setFadeOutStop(0.05, 0.1);
+        Emitter.setFriction(1);
+        Emitter.setGravity(0.47);
+        Emitter.setLife(20, 30);
+        Emitter.setSize(2, 4);
+        Emitter.setSizeEndScalar(0.6, 0.8);
+        Emitter.setSpeed(6.5, 7.5);
+        Emitter.setSpeedInc(0);
+        return Emitter;
+    };
     NzymEmitter.prototype.emit = function (amount) {
         while (amount-- > 0) {
             var n = new NzymParticle(this.engine, this.tag, Nzym.Common.range(this.life.min, this.life.max), Nzym.Common.range(this.area.x, this.area.x + this.area.w), Nzym.Common.range(this.area.y, this.area.y + this.area.h), Nzym.Common.range(this.speed.min, this.speed.max), Nzym.Common.range(this.speedInc.min, this.speedInc.max), Nzym.Common.range(this.direction.min, this.direction.max), Nzym.Common.range(this.directionInc.min, this.directionInc.max), Nzym.Common.range(this.size.min, this.size.max), Nzym.Common.range(this.sizeEndScalar.min, this.sizeEndScalar.max), Nzym.Common.pick(this.color), Nzym.Common.range(this.fadeOutStop.min, this.fadeOutStop.max), this.gravity, this.friction);

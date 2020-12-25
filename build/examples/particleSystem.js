@@ -14,13 +14,18 @@ Example.particleSystem = (function () {
         Tag["particle"] = "particle";
     })(Tag || (Tag = {}));
     ;
-    var Emitter;
+    var Emitter, BloodEmitter;
     GameScenes.boot = function () {
         OBJ.addTag(Tag.particle);
         Emitter = new NzymEmitter(Engine, Tag.particle);
+        BloodEmitter = NzymEmitter.Blood(Engine, Tag.particle);
     };
     GameScenes.update = function () {
         Emitter.emit(1);
+        if (Time.frameCount % 20 === 0) {
+            BloodEmitter.setArea(Input.x, Input.y);
+            BloodEmitter.emit(5);
+        }
     };
     GameScenes.render = function () {
         Draw.setFont(Font.l);
@@ -31,7 +36,7 @@ Example.particleSystem = (function () {
     Scene.setup({
         scenes: GameScenes
     });
-    // Engine.makeGlobalAliases();
-    // Engine.start();
+    Engine.makeGlobalAliases();
+    Engine.start();
     return Engine;
 })();

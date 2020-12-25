@@ -679,18 +679,7 @@ Example.adventureRPG = (function () {
         health = maxHealth;
         magnetRange = 100;
         OBJ.addTag(TAG.player, TAG.item, TAG.floatingText, TAG.block, TAG.footsteps, TAG.enemy, TAG.bullet, TAG.particle);
-        Emitter = new NzymEmitter(Engine, TAG.particle);
-        Emitter.setColor(C.red, C.orangeRed, C.orange);
-        Emitter.setDirectionDeg(-60, -120);
-        Emitter.setDirectionIncDeg(0);
-        Emitter.setFadeOutStop(0.05, 0.1);
-        Emitter.setFriction(1);
-        Emitter.setGravity(0.47);
-        Emitter.setLife(20, 30);
-        Emitter.setSize(2, 4);
-        Emitter.setSizeEndScalar(0.6, 0.8);
-        Emitter.setSpeed(6.5, 7.5);
-        Emitter.setSpeedInc(0);
+        Emitter = NzymEmitter.Blood(Engine, TAG.particle);
         Emitter.setDepth(-9997);
         Loader.loadImage('player-idle', '../assets/images/ghost-idle_strip4.png');
         Loader.loadImage('snowman', '../assets/images/kenney/snowmanFancy_SE.png');
@@ -804,7 +793,7 @@ Example.adventureRPG = (function () {
     Scene.setup({
         scenes: GameScenes
     });
-    Engine.makeGlobalAliases();
-    Engine.start();
+    // Engine.makeGlobalAliases();
+    // Engine.start();
     return Engine;
 })();

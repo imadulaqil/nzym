@@ -1,5 +1,25 @@
 class NzymEmitter {
 
+    static Blood(engine: NzymEngine, tag: string): NzymEmitter {
+        const Emitter = new NzymEmitter(engine, tag);
+        Emitter.setColor(
+            Nzym.DrawConstants.C.red,
+            Nzym.DrawConstants.C.orange,
+            Nzym.DrawConstants.C.orangeRed
+        );
+        Emitter.setDirectionDeg(-60, -120);
+        Emitter.setDirectionIncDeg(0);
+        Emitter.setFadeOutStop(0.05, 0.1);
+        Emitter.setFriction(1);
+        Emitter.setGravity(0.47);
+        Emitter.setLife(20, 30);
+        Emitter.setSize(2, 4);
+        Emitter.setSizeEndScalar(0.6, 0.8);
+        Emitter.setSpeed(6.5, 7.5);
+        Emitter.setSpeedInc(0);
+        return Emitter;
+    }
+
     life: NzymRange = { // uses milliseconds
         min: 100,
         max: 200
