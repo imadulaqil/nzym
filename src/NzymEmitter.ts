@@ -1,5 +1,25 @@
 class NzymEmitter {
 
+    static WaterFountain(engine: NzymEngine, tag: string): NzymEmitter {
+        const Emitter = new NzymEmitter(engine, tag);
+        Emitter.setColor(
+            Nzym.DrawConstants.C.skyBlue,
+            Nzym.DrawConstants.C.dodgerBlue,
+            Nzym.DrawConstants.C.deepSkyBlue,
+        );
+        Emitter.setDirectionDeg(-50, -130);
+        Emitter.setDirectionIncDeg(0);
+        Emitter.setFadeOutStop(1);
+        Emitter.setFriction(1);
+        Emitter.setGravity(0.45);
+        Emitter.setLife(80, 100);
+        Emitter.setSize(4);
+        Emitter.setSizeEndScalar(2, 4);
+        Emitter.setSpeed(8, 12);
+        Emitter.setSpeedInc(0);
+        return Emitter;
+    }
+
     static Blood(engine: NzymEngine, tag: string): NzymEmitter {
         const Emitter = new NzymEmitter(engine, tag);
         Emitter.setColor(

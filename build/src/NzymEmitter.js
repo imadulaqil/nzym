@@ -45,6 +45,21 @@ var NzymEmitter = /** @class */ (function () {
         };
         this.depth = 0;
     }
+    NzymEmitter.WaterFountain = function (engine, tag) {
+        var Emitter = new NzymEmitter(engine, tag);
+        Emitter.setColor(Nzym.DrawConstants.C.skyBlue, Nzym.DrawConstants.C.dodgerBlue, Nzym.DrawConstants.C.deepSkyBlue);
+        Emitter.setDirectionDeg(-50, -130);
+        Emitter.setDirectionIncDeg(0);
+        Emitter.setFadeOutStop(1);
+        Emitter.setFriction(1);
+        Emitter.setGravity(0.45);
+        Emitter.setLife(80, 100);
+        Emitter.setSize(4);
+        Emitter.setSizeEndScalar(2, 4);
+        Emitter.setSpeed(8, 12);
+        Emitter.setSpeedInc(0);
+        return Emitter;
+    };
     NzymEmitter.Blood = function (engine, tag) {
         var Emitter = new NzymEmitter(engine, tag);
         Emitter.setColor(Nzym.DrawConstants.C.red, Nzym.DrawConstants.C.orange, Nzym.DrawConstants.C.orangeRed);
