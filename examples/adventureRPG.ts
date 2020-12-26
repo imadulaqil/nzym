@@ -76,8 +76,12 @@ Example.adventureRPG = (() => {
         constructor() {}
 
         follow(x: number, y: number): void {
-            this.x = Stage.mid.w - x;
-            this.y = Stage.mid.h - y;
+            const target = {
+                x: Stage.mid.w - x,
+                y: Stage.mid.h - y
+            };
+            this.x += 0.1 * ((target.x) - this.x);
+            this.y += 0.1 * ((target.y) - this.y);
         }
     }
 

@@ -53,8 +53,12 @@ Example.adventureRPG = (function () {
             this.y = 0;
         }
         MyCamera.prototype.follow = function (x, y) {
-            this.x = Stage.mid.w - x;
-            this.y = Stage.mid.h - y;
+            var target = {
+                x: Stage.mid.w - x,
+                y: Stage.mid.h - y
+            };
+            this.x += 0.1 * ((target.x) - this.x);
+            this.y += 0.1 * ((target.y) - this.y);
         };
         return MyCamera;
     }());
