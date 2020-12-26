@@ -68,12 +68,26 @@ Example.adventureRPG = (() => {
         particle = 'particle'
     };
 
+    class MyCamera {
+
+        x: number = 0;
+        y: number = 0;
+
+        constructor() {}
+
+        follow(x: number, y: number): void {
+            this.x = Stage.mid.w - x;
+            this.y = Stage.mid.h - y;
+        }
+    }
+
     let coins: number,
         health: number,
         maxHealth: number,
         magnetRange: number,
         treeImages: HTMLImageElement[],
-        Emitter: NzymEmitter;
+        Emitter: NzymEmitter,
+        Camera: MyCamera;
 
     class Hitbox {
         constructor(
@@ -806,6 +820,7 @@ Example.adventureRPG = (() => {
         maxHealth = 100;
         health = maxHealth;
         magnetRange = 100;
+        Camera = new MyCamera();
         OBJ.addTag(
             TAG.player,
             TAG.item,
@@ -904,6 +919,28 @@ Example.adventureRPG = (() => {
                 }
             }
         }
+
+        const mainPlayer: Player = OBJ.take(TAG.player)[0];
+        Camera.follow(mainPlayer.x, mainPlayer.y);
+    };
+
+    GameScenes.render = () => {
+        OBJ.autoRender = false;
+        const sortedList = [];
+        for (const list of OBJ.list) {
+            for (const n of list) {
+                if (n.render) {
+                    sortedList.push(n);
+                }
+            }
+        }
+        sortedList.sort((a, b) => b.depth - a.depth);
+        Draw.ctx.save();
+        Draw.ctx.translate(Camera.x, Camera.y);
+        for (const n of sortedList) {
+            n.render();
+        }
+        Draw.ctx.restore();
     };
 
     GameScenes.renderUI = () => {
@@ -941,8 +978,8 @@ Example.adventureRPG = (() => {
         scenes: GameScenes
     });
 
-    // Engine.makeGlobalAliases();
-    // Engine.start();
+    Engine.makeGlobalAliases();
+    Engine.start();
 
     return Engine;
 })();

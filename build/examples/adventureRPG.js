@@ -47,7 +47,18 @@ Example.adventureRPG = (function () {
         TAG["particle"] = "particle";
     })(TAG || (TAG = {}));
     ;
-    var coins, health, maxHealth, magnetRange, treeImages, Emitter;
+    var MyCamera = /** @class */ (function () {
+        function MyCamera() {
+            this.x = 0;
+            this.y = 0;
+        }
+        MyCamera.prototype.follow = function (x, y) {
+            this.x = Stage.mid.w - x;
+            this.y = Stage.mid.h - y;
+        };
+        return MyCamera;
+    }());
+    var coins, health, maxHealth, magnetRange, treeImages, Emitter, Camera;
     var Hitbox = /** @class */ (function () {
         function Hitbox(x, y, w, h, xOffset, yOffset, isCenter) {
             if (xOffset === void 0) { xOffset = 0; }
@@ -678,6 +689,7 @@ Example.adventureRPG = (function () {
         maxHealth = 100;
         health = maxHealth;
         magnetRange = 100;
+        Camera = new MyCamera();
         OBJ.addTag(TAG.player, TAG.item, TAG.floatingText, TAG.block, TAG.footsteps, TAG.enemy, TAG.bullet, TAG.particle);
         Emitter = NzymEmitter.Blood(Engine, TAG.particle);
         Emitter.setDepth(-9997);
@@ -761,6 +773,29 @@ Example.adventureRPG = (function () {
                 }
             }
         }
+        var mainPlayer = OBJ.take(TAG.player)[0];
+        Camera.follow(mainPlayer.x, mainPlayer.y);
+    };
+    GameScenes.render = function () {
+        OBJ.autoRender = false;
+        var sortedList = [];
+        for (var _i = 0, _a = OBJ.list; _i < _a.length; _i++) {
+            var list = _a[_i];
+            for (var _b = 0, list_1 = list; _b < list_1.length; _b++) {
+                var n = list_1[_b];
+                if (n.render) {
+                    sortedList.push(n);
+                }
+            }
+        }
+        sortedList.sort(function (a, b) { return b.depth - a.depth; });
+        Draw.ctx.save();
+        Draw.ctx.translate(Camera.x, Camera.y);
+        for (var _c = 0, sortedList_1 = sortedList; _c < sortedList_1.length; _c++) {
+            var n = sortedList_1[_c];
+            n.render();
+        }
+        Draw.ctx.restore();
     };
     GameScenes.renderUI = function () {
         Draw.setColor(C.black);
@@ -793,7 +828,7 @@ Example.adventureRPG = (function () {
     Scene.setup({
         scenes: GameScenes
     });
-    // Engine.makeGlobalAliases();
-    // Engine.start();
+    Engine.makeGlobalAliases();
+    Engine.start();
     return Engine;
 })();
