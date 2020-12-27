@@ -328,6 +328,8 @@ type NzymKeyCode = {
 };
 
 var Nzym: {
+    name?: string,
+    version?: string,
     Log?: NzymLog,
     Common?: NzymCommon,
     Events?: NzymEvents,
@@ -347,6 +349,10 @@ var Nzym: {
     createEngine?(options: NzymEngineOptions): NzymEngine,
     start?(options: NzymEngineOptions): NzymEngine
 } = Nzym || {};
+
+Nzym.name = 'Nzym';
+// major.minor.build.revision
+Nzym.version = '0.0.1.1';
 
 type NzymOBJOptions = {
     autoClear?: boolean,
