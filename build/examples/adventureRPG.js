@@ -782,21 +782,11 @@ Example.adventureRPG = (function () {
     };
     GameScenes.render = function () {
         OBJ.autoRender = false;
-        var sortedList = [];
-        for (var _i = 0, _a = OBJ.list; _i < _a.length; _i++) {
-            var list = _a[_i];
-            for (var _b = 0, list_1 = list; _b < list_1.length; _b++) {
-                var n = list_1[_b];
-                if (n.render) {
-                    sortedList.push(n);
-                }
-            }
-        }
-        sortedList.sort(function (a, b) { return b.depth - a.depth; });
+        var sortedList = OBJ.getListSortedAll(function (n) { return n.render ? true : false; });
         Draw.ctx.save();
         Draw.ctx.translate(Camera.x, Camera.y);
-        for (var _c = 0, sortedList_1 = sortedList; _c < sortedList_1.length; _c++) {
-            var n = sortedList_1[_c];
+        for (var _i = 0, sortedList_1 = sortedList; _i < sortedList_1.length; _i++) {
+            var n = sortedList_1[_i];
             n.render();
         }
         Draw.ctx.restore();

@@ -57,6 +57,34 @@ var NzymOBJ = /** @class */ (function () {
     NzymOBJ.prototype.getList = function (tag) {
         return this.list[this.getTagIndex(tag)];
     };
+    NzymOBJ.prototype.getListSorted = function (tag) {
+        var sortedList = [];
+        for (var _i = 0, _a = this.getList(tag); _i < _a.length; _i++) {
+            var n = _a[_i];
+            if (n.render) {
+                sortedList.push(n);
+            }
+        }
+        sortedList.sort(function (a, b) { return b.depth - a.depth; });
+    };
+    /**
+     * Returns single array that contains all instances from all lists sorted by depth
+     */
+    NzymOBJ.prototype.getListSortedAll = function (conditionFn) {
+        if (conditionFn === void 0) { conditionFn = function () { return false; }; }
+        var sortedList = [];
+        for (var _i = 0, _a = this.list; _i < _a.length; _i++) {
+            var list = _a[_i];
+            for (var _b = 0, list_1 = list; _b < list_1.length; _b++) {
+                var n = list_1[_b];
+                if (conditionFn(n)) {
+                    sortedList.push(n);
+                }
+            }
+        }
+        sortedList.sort(function (a, b) { return b.depth - a.depth; });
+        return sortedList;
+    };
     /**
      * Get a list or concatenated list of multiple tags.
      */
@@ -76,8 +104,8 @@ var NzymOBJ = /** @class */ (function () {
         var allList = [];
         for (var _i = 0, _a = this.list; _i < _a.length; _i++) {
             var list = _a[_i];
-            for (var _b = 0, list_1 = list; _b < list_1.length; _b++) {
-                var n = list_1[_b];
+            for (var _b = 0, list_2 = list; _b < list_2.length; _b++) {
+                var n = list_2[_b];
                 allList.push(n);
             }
         }
@@ -140,8 +168,8 @@ var NzymOBJ = /** @class */ (function () {
     NzymOBJ.prototype.update = function (tag) {
         var list = this.getList(tag);
         if (list) {
-            for (var _i = 0, list_2 = list; _i < list_2.length; _i++) {
-                var n = list_2[_i];
+            for (var _i = 0, list_3 = list; _i < list_3.length; _i++) {
+                var n = list_3[_i];
                 if (n.update) {
                     n.update();
                 }
@@ -159,8 +187,8 @@ var NzymOBJ = /** @class */ (function () {
         var list = this.getList(tag);
         if (list) {
             var sortedList = [];
-            for (var _i = 0, list_3 = list; _i < list_3.length; _i++) {
-                var n = list_3[_i];
+            for (var _i = 0, list_4 = list; _i < list_4.length; _i++) {
+                var n = list_4[_i];
                 if (n.render) {
                     sortedList.push(n);
                 }
@@ -178,8 +206,8 @@ var NzymOBJ = /** @class */ (function () {
     NzymOBJ.prototype.renderUnsorted = function (tag) {
         var list = this.getList(tag);
         if (list) {
-            for (var _i = 0, list_4 = list; _i < list_4.length; _i++) {
-                var n = list_4[_i];
+            for (var _i = 0, list_5 = list; _i < list_5.length; _i++) {
+                var n = list_5[_i];
                 if (n.render) {
                     n.render();
                 }
@@ -192,8 +220,8 @@ var NzymOBJ = /** @class */ (function () {
     NzymOBJ.prototype.updateAll = function () {
         for (var _i = 0, _a = this.list; _i < _a.length; _i++) {
             var list = _a[_i];
-            for (var _b = 0, list_5 = list; _b < list_5.length; _b++) {
-                var n = list_5[_b];
+            for (var _b = 0, list_6 = list; _b < list_6.length; _b++) {
+                var n = list_6[_b];
                 if (n.update) {
                     n.update();
                 }
@@ -204,8 +232,8 @@ var NzymOBJ = /** @class */ (function () {
         var sortedList = [];
         for (var _i = 0, _a = this.list; _i < _a.length; _i++) {
             var list = _a[_i];
-            for (var _b = 0, list_6 = list; _b < list_6.length; _b++) {
-                var n = list_6[_b];
+            for (var _b = 0, list_7 = list; _b < list_7.length; _b++) {
+                var n = list_7[_b];
                 if (n.render) {
                     sortedList.push(n);
                 }
@@ -220,8 +248,8 @@ var NzymOBJ = /** @class */ (function () {
     NzymOBJ.prototype.renderAllUnsorted = function () {
         for (var _i = 0, _a = this.list; _i < _a.length; _i++) {
             var list = _a[_i];
-            for (var _b = 0, list_7 = list; _b < list_7.length; _b++) {
-                var n = list_7[_b];
+            for (var _b = 0, list_8 = list; _b < list_8.length; _b++) {
+                var n = list_8[_b];
                 if (n.render) {
                     n.render();
                 }

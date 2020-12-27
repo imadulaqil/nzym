@@ -930,15 +930,7 @@ Example.adventureRPG = (() => {
 
     GameScenes.render = () => {
         OBJ.autoRender = false;
-        const sortedList = [];
-        for (const list of OBJ.list) {
-            for (const n of list) {
-                if (n.render) {
-                    sortedList.push(n);
-                }
-            }
-        }
-        sortedList.sort((a, b) => b.depth - a.depth);
+        const sortedList = OBJ.getListSortedAll((n) => n.render? true : false);
         Draw.ctx.save();
         Draw.ctx.translate(Camera.x, Camera.y);
         for (const n of sortedList) {

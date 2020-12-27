@@ -49,6 +49,32 @@ class NzymOBJ {
     getList(tag: string) {
         return this.list[this.getTagIndex(tag)];
     }
+
+    getListSorted(tag: string) {
+        const sortedList = [];
+        for (const n of this.getList(tag)) {
+            if (n.render) {
+                sortedList.push(n);
+            }
+        }
+        sortedList.sort((a, b) => b.depth - a.depth);
+    }
+
+    /**
+     * Returns single array that contains all instances from all lists sorted by depth
+     */
+    getListSortedAll(conditionFn: (n: any) => boolean = () => false) {
+        const sortedList = [];
+        for (const list of this.list) {
+            for (const n of list) {
+                if (conditionFn(n)) {
+                    sortedList.push(n);
+                }
+            }
+        }
+        sortedList.sort((a, b) => b.depth - a.depth);
+        return sortedList;
+    }
     
     /**
      * Get a list or concatenated list of multiple tags.
