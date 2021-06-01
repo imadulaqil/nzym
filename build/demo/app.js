@@ -29,7 +29,7 @@ var callEngineMethod = function (methodName) {
         }
     }
     currentEngineName = engineName;
-    var engine = Example[currentEngineName];
+    var engine = Nzym.Example[currentEngineName];
     engine.makeGlobalAliases();
     engine[methodName]();
     updateButtons();

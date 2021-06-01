@@ -1,6 +1,4 @@
-var Example = Example || {};
-
-Example.adventureRPG = (() => {
+Nzym.Example.adventureRPG = (() => {
 
     const {
         C,
@@ -815,7 +813,7 @@ Example.adventureRPG = (() => {
         return OBJ.push(TAG.floatingText, new FloatingText(x, y, text, angle, color));
     };
     
-    const GameScenes: NzymGameScene = {
+    const GameScenes: NzymGameScenes = {
         onLoad: {}
     };
 
@@ -973,9 +971,6 @@ Example.adventureRPG = (() => {
     Scene.setup({
         scenes: GameScenes
     });
-
-    Engine.makeGlobalAliases();
-    Engine.start();
 
     return Engine;
 })();

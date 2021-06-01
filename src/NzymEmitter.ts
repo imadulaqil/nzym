@@ -20,6 +20,9 @@ class NzymEmitter {
         return Emitter;
     }
 
+    /**
+     * Blood emitter preset.
+     */
     static Blood(engine: NzymEngine, tag: string): NzymEmitter {
         const Emitter = new NzymEmitter(engine, tag);
         Emitter.setColor(
@@ -40,7 +43,10 @@ class NzymEmitter {
         return Emitter;
     }
 
-    life: NzymRange = { // uses milliseconds
+    /**
+     * Particle lifetime range. Uses milliseconds.
+     */
+    life: NzymRange = {
         min: 100,
         max: 200
     };

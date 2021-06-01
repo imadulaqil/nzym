@@ -1,5 +1,4 @@
-var Example = Example || {};
-Example.gettingStarted = (function () {
+Nzym.Example.gettingStarted = (function () {
     var Engine = new NzymEngine({
         name: 'Getting Started',
         parent: document.getElementById('gameContainer')

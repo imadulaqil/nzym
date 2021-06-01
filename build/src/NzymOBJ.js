@@ -51,6 +51,13 @@ var NzymOBJ = /** @class */ (function () {
             }
         }
     };
+    NzymOBJ.prototype.addTagByObject = function (tagObject) {
+        var values = [];
+        for (var key in tagObject) {
+            values.push(tagObject[key]);
+        }
+        this.addTag.apply(this, values);
+    };
     NzymOBJ.prototype.getTagIndex = function (tag) {
         return this.tags.indexOf(tag);
     };

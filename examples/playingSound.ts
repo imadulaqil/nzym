@@ -1,6 +1,4 @@
-var Example = Example || {};
-
-Example.playingSound = (() => {
+Nzym.Example.playingSound = (() => {
 
     const {
         C,
@@ -43,7 +41,7 @@ Example.playingSound = (() => {
     const pauseBGM = () => Sound.pause('sunnyday');
     const resumeBGM = () => Sound.resume('sunnyday');
 
-    const GameScenes: NzymGameScene = {
+    const GameScenes: NzymGameScenes = {
         onLoad: {}
     };
 

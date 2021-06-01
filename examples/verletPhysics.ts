@@ -1,6 +1,4 @@
-var Example = Example || {};
-
-Example.verletPhysics = (() => {
+Nzym.Example.verletPhysics = (() => {
 
     const Engine = new NzymEngine({
         name: 'Verlet Physics',

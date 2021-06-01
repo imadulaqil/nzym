@@ -1,4 +1,3 @@
-
 let currentEngineName = '';
 
 const getCurrentSelection = (): HTMLSelectElement => {
@@ -35,7 +34,7 @@ const callEngineMethod = (methodName: string) => {
 
     currentEngineName = engineName;
 
-    const engine = Example[currentEngineName];
+    const engine = Nzym.Example[currentEngineName];
     engine.makeGlobalAliases();
     engine[methodName]();
 

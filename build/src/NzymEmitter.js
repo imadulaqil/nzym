@@ -2,6 +2,9 @@ var NzymEmitter = /** @class */ (function () {
     function NzymEmitter(engine, tag) {
         this.engine = engine;
         this.tag = tag;
+        /**
+         * Particle lifetime range. Uses milliseconds.
+         */
         this.life = {
             min: 100,
             max: 200
@@ -60,6 +63,9 @@ var NzymEmitter = /** @class */ (function () {
         Emitter.setSpeedInc(0);
         return Emitter;
     };
+    /**
+     * Blood emitter preset.
+     */
     NzymEmitter.Blood = function (engine, tag) {
         var Emitter = new NzymEmitter(engine, tag);
         Emitter.setColor(Nzym.DrawConstants.C.red, Nzym.DrawConstants.C.orange, Nzym.DrawConstants.C.orangeRed);

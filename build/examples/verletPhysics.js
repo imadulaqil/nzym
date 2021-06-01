@@ -1,5 +1,4 @@
-var Example = Example || {};
-Example.verletPhysics = (function () {
+Nzym.Example.verletPhysics = (function () {
     var Engine = new NzymEngine({
         name: 'Verlet Physics',
         parent: document.getElementById('gameContainer')

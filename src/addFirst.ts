@@ -347,8 +347,13 @@ var Nzym: {
         Primitive: any
     },
     createEngine?(options: NzymEngineOptions): NzymEngine,
-    start?(options: NzymEngineOptions): NzymEngine
-} = Nzym || {};
+    start?(options: NzymEngineOptions): NzymEngine,
+    Example: {
+        [name: string]: NzymEngine
+    },
+} = Nzym || {
+    Example: {}
+};
 
 Nzym.name = 'Nzym';
 // major.minor.build.revision
@@ -360,7 +365,7 @@ type NzymOBJOptions = {
     autoRender?: boolean
 };
 
-type NzymGameScene = {
+type NzymGameScenes = {
     boot?: Function,
     loaded?: Function,
     start?: Function,
@@ -375,10 +380,10 @@ type NzymGameScene = {
     }
 };
 
-type NzymGame = NzymGameScene;
+type NzymGame = NzymGameScenes;
 
 type NzymSceneOptions = {
-    scenes?: NzymGameScene,
+    scenes?: NzymGameScenes,
     onBoot?: Function,
     onLoaded?: Function,
     onStart?: Function,

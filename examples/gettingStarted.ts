@@ -1,6 +1,4 @@
-var Example = Example || {};
-
-Example.gettingStarted = (() => {
+Nzym.Example.gettingStarted = (() => {
 
     const Engine = new NzymEngine({
         name: 'Getting Started',

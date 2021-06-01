@@ -1,5 +1,4 @@
-var Example = Example || {};
-Example.adventureRPG = (function () {
+Nzym.Example.adventureRPG = (function () {
     var _a = Nzym.getAliases(), C = _a.C, Align = _a.Align, Common = _a.Common, Events = _a.Events, KeyCode = _a.KeyCode, LineCap = _a.LineCap, LineJoin = _a.LineJoin, LineDash = _a.LineDash, Primitive = _a.Primitive;
     var Engine = new NzymEngine({
         name: 'Adventure RPG',
@@ -822,7 +821,5 @@ Example.adventureRPG = (function () {
     Scene.setup({
         scenes: GameScenes
     });
-    Engine.makeGlobalAliases();
-    Engine.start();
     return Engine;
 })();

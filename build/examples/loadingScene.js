@@ -1,5 +1,4 @@
-var Example = Example || {};
-Example.loadingScene = (function () {
+Nzym.Example.loadingScene = (function () {
     var Engine = new NzymEngine({
         name: 'Loading Scene',
         w: 1280,

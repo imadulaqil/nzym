@@ -1,7 +1,12 @@
 /**
  * This file will be the first when merging.
  */
-var Nzym = Nzym || {};
+var Nzym = Nzym || {
+    Example: {}
+};
+Nzym.name = 'Nzym';
+// major.minor.build.revision
+Nzym.version = '0.0.1.1';
 /**
  * Things that are common througout all modules.
  * Such as basic math functions.
@@ -759,6 +764,9 @@ var NzymEmitter = /** @class */ (function () {
     function NzymEmitter(engine, tag) {
         this.engine = engine;
         this.tag = tag;
+        /**
+         * Particle lifetime range. Uses milliseconds.
+         */
         this.life = {
             min: 100,
             max: 200
@@ -817,6 +825,9 @@ var NzymEmitter = /** @class */ (function () {
         Emitter.setSpeedInc(0);
         return Emitter;
     };
+    /**
+     * Blood emitter preset.
+     */
     NzymEmitter.Blood = function (engine, tag) {
         var Emitter = new NzymEmitter(engine, tag);
         Emitter.setColor(Nzym.DrawConstants.C.red, Nzym.DrawConstants.C.orange, Nzym.DrawConstants.C.orangeRed);
@@ -1631,6 +1642,13 @@ var NzymOBJ = /** @class */ (function () {
                 this.tags.splice(i, 1);
             }
         }
+    };
+    NzymOBJ.prototype.addTagByObject = function (tagObject) {
+        var values = [];
+        for (var key in tagObject) {
+            values.push(tagObject[key]);
+        }
+        this.addTag.apply(this, values);
     };
     NzymOBJ.prototype.getTagIndex = function (tag) {
         return this.tags.indexOf(tag);

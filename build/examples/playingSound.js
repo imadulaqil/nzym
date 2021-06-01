@@ -1,5 +1,4 @@
-var Example = Example || {};
-Example.playingSound = (function () {
+Nzym.Example.playingSound = (function () {
     var _a = Nzym.getAliases(), C = _a.C, Align = _a.Align, Common = _a.Common, Events = _a.Events, KeyCode = _a.KeyCode, LineCap = _a.LineCap, LineJoin = _a.LineJoin, LineDash = _a.LineDash, Primitive = _a.Primitive;
     var Engine = new NzymEngine({
         name: 'Playing Sound',

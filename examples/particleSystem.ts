@@ -1,6 +1,4 @@
-var Example = Example || {};
-
-Example.particleSystem = (() => {
+Nzym.Example.particleSystem = (() => {
 
     const {
         C,
@@ -32,7 +30,7 @@ Example.particleSystem = (() => {
         Loader
     } = Engine.getAliases();
 
-    const GameScenes: NzymGameScene = {
+    const GameScenes: NzymGameScenes = {
         onLoad: {}
     };
 

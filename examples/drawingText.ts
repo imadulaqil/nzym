@@ -1,6 +1,4 @@
-var Example = Example || {};
-
-Example.drawingText = (() => {
+Nzym.Example.drawingText = (() => {
 
     const {
         C,
@@ -36,7 +34,7 @@ Example.drawingText = (() => {
         Loader
     } = Engine.getAliases();
 
-    const GameScenes: NzymGameScene = {};
+    const GameScenes: NzymGameScenes = {};
 
     GameScenes.start = () => {
         Stage.bgColor = C.random();

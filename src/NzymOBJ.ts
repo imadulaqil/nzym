@@ -42,6 +42,14 @@ class NzymOBJ {
         }
     }
 
+    addTagByObject(tagObject: { [key: string]: string }) {
+        const values: string[] = [];
+        for (const key in tagObject) {
+            values.push(tagObject[key]);
+        }
+        this.addTag(...values);
+    }
+
     getTagIndex(tag: string) {
         return this.tags.indexOf(tag);
     }
@@ -75,7 +83,7 @@ class NzymOBJ {
         sortedList.sort((a, b) => b.depth - a.depth);
         return sortedList;
     }
-    
+
     /**
      * Get a list or concatenated list of multiple tags.
      */
@@ -96,7 +104,7 @@ class NzymOBJ {
         }
         return allList;
     }
-    
+
     count(tag: string) {
         return this.getList(tag).length;
     }
